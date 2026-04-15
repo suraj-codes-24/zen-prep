@@ -1,3 +1,13 @@
+---
+title: ZenPrep API
+emoji: 🎯
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+pinned: false
+license: mit
+---
+
 # ZenPrep — AI Multimodal Interview Simulator
 
 A full-stack mock interview platform that combines NLP scoring, voice analysis, face analysis, coding evaluation, communication testing, and group discussion practice into one unified experience.
