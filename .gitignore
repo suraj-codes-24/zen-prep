@@ -1,0 +1,53 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Logs
+backend.log
+frontend.log
+*.log
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Node
+node_modules/
+frontend/node_modules/
+
+# Build output
+frontend/dist/
+
+# Internal tooling
+.agents/
+
+# Design references
+stitch_*/
+frontend/*.zip
+
+# Temporary scripts
+rephrase_questions.py
+REPORT_PLAN.md
+THEME_UPGRADE.md
+DEPLOY_PLAN.md
+
+# Test / CI tooling
+test_results.md
+
+# Coding sandbox artifacts
+*.class
+*.exe
+
+# OS
+Thumbs.db
+.DS_Store
+
+# HuggingFace deployment (use HF Secrets instead)
+.env
+
+# Deployment notes
+c

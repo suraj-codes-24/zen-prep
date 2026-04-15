@@ -1,0 +1,56 @@
+# Frontend (separate deployment)
+frontend/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Node modules
+node_modules/
+
+# Environment (use HF Secrets instead)
+.env
+.env.local
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+*.md
+README.md
+
+# Postman
+.postman/
+
+# Database backups
+database_backup*.sql
+
+# Test files
+test_*.py
+test_results.md
+
+# Seed scripts (already seeded in DB)
+seed_*.py
+
+# Temporary/deployment notes
+c
+AI_INSTRUCTIONS.md
+DEPLOY_PLAN.md
+REPORT_PLAN.md
+
+# Logs
+*.log
+backend.log
+frontend.log
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Build artifacts
+*.class
+*.exe

@@ -1,0 +1,40 @@
+# FastAPI & server
+fastapi
+uvicorn[standard]
+python-multipart
+
+# Database
+sqlalchemy
+psycopg2-binary
+
+# Auth
+python-jose[cryptography]
+passlib[bcrypt]
+python-dotenv
+
+# Pydantic
+pydantic[email]
+
+# NLP / AI
+sentence-transformers
+scikit-learn
+numpy
+
+# Cloud AI
+groq>=0.9.0
+
+# Voice analysis
+# openai-whisper removed (using Groq STT)
+# torch removed (using Groq Cloud)
+librosa
+soundfile
+praat-parselmouth
+scipy
+
+# Vision / Face analysis
+opencv-python-headless
+mediapipe==0.10.11
+imageio-ffmpeg
+
+# HTTP
+requests
