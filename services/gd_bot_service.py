@@ -203,7 +203,7 @@ def get_bot_response(
         "Do NOT start with your name. No bullet points. Just speak."
     )
 
-    response = generate(prompt, temperature=0.75, max_tokens=120, model=GD_MODEL)
+    response = generate(prompt, temperature=0.75, num_predict=120, model=GD_MODEL)
     if response:
         return response.strip()
     return personality["fallback"]
