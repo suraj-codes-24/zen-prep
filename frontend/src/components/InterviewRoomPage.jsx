@@ -263,9 +263,6 @@ function InterviewRoomPage({ token, user, sessionData, onResult, onBack }) {
           </div>
         </div>
         <div style={{ display: "flex", gap: 10 }}>
-          <button style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "#94A3B8", padding: "8px 18px", borderRadius: 10, fontSize: 13, fontWeight: 500, display: "flex", alignItems: "center", gap: 6, transition: "all 0.2s" }}>
-            ⚙️ Settings
-          </button>
           <button onClick={async () => { await finishSession(); onBack(); }} style={{ background: "linear-gradient(135deg, rgba(239,68,68,0.2), rgba(239,68,68,0.1))", border: "1px solid rgba(239,68,68,0.35)", color: "#F87171", padding: "8px 20px", borderRadius: 10, fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", gap: 6, transition: "all 0.2s" }}>
             📞 End Interview
           </button>
