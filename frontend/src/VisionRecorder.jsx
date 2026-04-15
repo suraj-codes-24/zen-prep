@@ -11,12 +11,14 @@ export default function VisionRecorder({ sessionId, questionId, onVisionResult, 
 
   const startCamera = async () => {
     try {
+      console.log("[VISION] Starting camera...");
       const stream = await navigator.mediaDevices.getUserMedia({ 
         video: { width: 320, height: 240, frameRate: 15 } 
       });
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         setActive(true);
+        console.log("[VISION] Camera started successfully");
       }
     } catch (err) {
       console.error("[VISION] Camera denied:", err);
@@ -49,6 +51,7 @@ export default function VisionRecorder({ sessionId, questionId, onVisionResult, 
       const dataUrl = canvas.toDataURL("image/jpeg", 0.7); // Low quality to save bandwidth
 
       try {
+        console.log("[VISION] Sending frame for analysis...");
         const headers = { "Content-Type": "application/json" };
         if (token) headers["Authorization"] = `Bearer ${token}`;
         const res = await fetch(`${API}/api/vision/analyze`, {
@@ -60,16 +63,25 @@ export default function VisionRecorder({ sessionId, questionId, onVisionResult, 
             question_id: questionId
           })
         });
+        console.log("[VISION] API response status:", res.status);
         const data = await res.json();
-        if (data.emotion) setStatus(data.emotion);
+        console.log("[VISION] API response:", data);
+        if (data.emotion) {
+          setStatus(data.emotion);
+          console.log("[VISION] Emotion detected:", data.emotion);
+        }
+        if (data.error) {
+          console.error("[VISION] API error:", data.error);
+        }
         if (onVisionResult) onVisionResult(data);
       } catch (err) {
         console.error("[VISION] Analyze error:", err);
+        setError("Vision analysis failed");
       }
     }, 3000); // Check every 3 seconds
 
     return () => clearInterval(interval);
-  }, [active, sessionId, questionId]);
+  }, [active, sessionId, questionId, token]);
 
   return (
     <div style={{ position: "relative", width: "100%", height: "100%", minHeight: 220, background: "#000", borderRadius: 12, overflow: "hidden", border: "1px solid #1e2d4a" }}>
