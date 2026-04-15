@@ -227,7 +227,7 @@ function InterviewRoomPage({ token, user, sessionData, onResult, onBack }) {
       for (const c of chunks) { merged.set(c, off); off += c.length; }
       const wav = buildWav(merged, srRef.current);
       const fd  = new FormData(); fd.append("audio", wav, "answer.wav");
-      const res = await fetch(`${API}/api/voice/analyze`, { method: "POST", body: fd });
+      const res = await fetch(`${API}/voice/analyze`, { method: "POST", body: fd });
       if (res.ok) {
         const data = await res.json();
         setVoiceResult(data);

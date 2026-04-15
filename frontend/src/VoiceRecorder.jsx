@@ -161,7 +161,7 @@ export default function VoiceRecorder({ onVoiceResult }) {
 
     try {
       const API_BASE = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
-      const res = await fetch(`${API_BASE}/api/voice/analyze`, {
+      const res = await fetch(`${API_BASE}/voice/analyze`, {
         method: "POST",
         body: formData,
         signal: controller.signal,
