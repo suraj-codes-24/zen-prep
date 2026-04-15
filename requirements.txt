@@ -41,3 +41,6 @@ requests
 
 # Resume parsing
 pymupdf
+
+# PDF generation
+reportlab
