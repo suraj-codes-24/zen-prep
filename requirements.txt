@@ -31,6 +31,7 @@ librosa
 soundfile
 praat-parselmouth
 scipy
+edge-tts
 
 # Vision / Face analysis
 opencv-python-headless

@@ -16,9 +16,9 @@ RUN PYTHONPATH=/install/lib/python3.11/site-packages \
 
 FROM python:3.11-slim
 
-# Install runtime dependencies (libsndfile for audio, libgl for opencv)
+# Install runtime dependencies (libsndfile for audio, libgl for opencv, g++ for C++ compilation)
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libsndfile1 libgomp1 libglib2.0-0 libgl1 \
+    libsndfile1 libgomp1 libglib2.0-0 libgl1 g++ \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /install /usr/local
