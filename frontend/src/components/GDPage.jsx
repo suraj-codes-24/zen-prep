@@ -320,17 +320,20 @@ export default function GDPage({ token, user, onNav, onLogout }) {
     if (!selectedTopic || starting) return;
     setStarting(true);
     try {
+      console.log("[GD] Starting session with topic:", selectedTopic.id, "bots:", botCount);
       const res = await fetch(`${API}/gd/start`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ topic_id: selectedTopic.id, bot_count: botCount, duration_mins: durationMins }),
       });
       const data = await res.json();
+      console.log("[GD] Session data received:", data);
+      console.log("[GD] Bots in session data:", data.bots);
       setSessionData(data);
       setPrepCountdown(60);
       setView("prep");
     } catch (e) {
-      console.error(e);
+      console.error("[GD] Start session error:", e);
     } finally {
       setStarting(false);
     }
