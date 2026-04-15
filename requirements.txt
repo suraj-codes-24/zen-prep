@@ -38,3 +38,6 @@ imageio-ffmpeg
 
 # HTTP
 requests
+
+# Resume parsing
+pymupdf
