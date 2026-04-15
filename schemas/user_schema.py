@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, Field, field_validator
+from pydantic import BaseModel, EmailStr, Field
 from typing import Optional
 
 class UserRegister(BaseModel):
@@ -7,13 +7,6 @@ class UserRegister(BaseModel):
     password: str = Field(min_length=6, max_length=128)
     branch: Optional[str] = None
     year: Optional[int] = None
-
-    @field_validator('password')
-    @classmethod
-    def validate_password_length(cls, v: str) -> str:
-        if len(v.encode('utf-8')) > 72:
-            raise ValueError('Password cannot exceed 72 bytes (approximately 72 ASCII characters or fewer Unicode characters)')
-        return v
 
 class UserLogin(BaseModel):
     email: EmailStr
@@ -47,10 +40,3 @@ class UpdateProfileRequest(BaseModel):
 class ChangePasswordRequest(BaseModel):
     current_password: str
     new_password: str = Field(min_length=6, max_length=128)
-
-    @field_validator('new_password')
-    @classmethod
-    def validate_new_password_length(cls, v: str) -> str:
-        if len(v.encode('utf-8')) > 72:
-            raise ValueError('Password cannot exceed 72 bytes (approximately 72 ASCII characters or fewer Unicode characters)')
-        return v

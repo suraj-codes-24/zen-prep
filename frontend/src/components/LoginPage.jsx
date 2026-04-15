@@ -28,6 +28,14 @@ function LoginPage({ onLogin, onBack }) {
   async function handleSubmit(e) {
     e.preventDefault();
     setError(""); setInfoMsg(""); setSuccessMsg(""); setLoading(true);
+    
+    // Frontend validation to prevent unnecessary API calls
+    if (new TextEncoder().encode(form.password).length > 128) {
+      setError("Password too long (maximum 128 characters)");
+      setLoading(false);
+      return;
+    }
+    
     try {
       if (mode === "login") {
         const r = await fetch(`${API}/auth/login`, {
