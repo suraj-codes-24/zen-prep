@@ -9,6 +9,7 @@ from models.communication import CommSession
 from models.coding import CodingSession, CodingSet
 from models.gd import GDSession, GDScore
 from services.gd_eval_service import get_performance_band
+from core.logger import logger
 
 
 def get_user_analytics(db: Session, user_id: int) -> dict:
