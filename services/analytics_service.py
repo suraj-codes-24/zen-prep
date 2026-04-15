@@ -154,6 +154,10 @@ def get_user_analytics(db: Session, user_id: int) -> dict:
         CommSession.user_id == user_id
     ).order_by(CommSession.start_time.desc()).all()
 
+    logger.info(f"Communication sessions for user {user_id}: {len(comm_sessions)} sessions")
+    for s in comm_sessions:
+        logger.info(f"  Session {s.id}: status={s.status}, overall_score={s.overall_score}, section_scores={s.section_scores}")
+
     comm_stats = {
         "tests_taken": len(comm_sessions),
         "best_score": 0,
@@ -163,12 +167,16 @@ def get_user_analytics(db: Session, user_id: int) -> dict:
     }
     if comm_sessions:
         completed_comm = [s for s in comm_sessions if s.status == "completed"]
+        logger.info(f"Completed communication sessions: {len(completed_comm)}")
         if completed_comm:
             comm_stats["best_score"] = round(max(s.overall_score or 0 for s in completed_comm), 1)
             comm_stats["latest_score"] = round(completed_comm[0].overall_score or 0, 1)
             comm_stats["latest_band"] = completed_comm[0].band or "N/A"
             if completed_comm[0].section_scores:
                 comm_stats["section_averages"] = completed_comm[0].section_scores
+                logger.info(f"Section averages: {comm_stats['section_averages']}")
+            else:
+                logger.warning(f"Latest completed session has no section_scores")
 
     # ── Coding stats ──────────────────────────────────────────────────────
     coding_sessions = db.query(CodingSession).filter(
