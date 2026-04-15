@@ -6,9 +6,10 @@ from core.config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def hash_password(password: str) -> str:
-    # bcrypt has a 72-byte limit, truncate if necessary
-    if len(password.encode('utf-8')) > 72:
-        password = password[:72]
+    # bcrypt has a 72-byte limit - validate before hashing
+    password_bytes = password.encode('utf-8')
+    if len(password_bytes) > 72:
+        raise ValueError("Password cannot exceed 72 bytes (approximately 72 ASCII characters or fewer Unicode characters)")
     return pwd_context.hash(password)
 
 def verify_password(plain: str, hashed: str) -> bool:
