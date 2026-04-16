@@ -25,36 +25,67 @@ export default function App() {
   const [lastResult, setLastResult] = useState(null);
 
   useEffect(() => {
-    if (token && user) setPage("dashboard");
+    if (token && user) {
+      setPage("dashboard");
+      window.history.replaceState({ page: "dashboard" }, "", "#dashboard");
+    }
+  }, []);
+
+  // Handle browser back/forward buttons
+  useEffect(() => {
+    const handlePopState = (event) => {
+      if (event.state && event.state.page) {
+        setPage(event.state.page);
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  // Handle initial page load from URL hash
+  useEffect(() => {
+    const hash = window.location.hash.replace('#', '');
+    if (hash && hash !== page) {
+      setPage(hash);
+    }
   }, []);
 
   function handleLogin(t, u) {
     setToken(t); setUser(u);
-    if (localStorage.getItem("onboarding_complete")) {
-      setPage("dashboard");
-    } else {
-      setPage("onboarding");
-    }
+    const targetPage = localStorage.getItem("onboarding_complete") ? "dashboard" : "onboarding";
+    setPage(targetPage);
+    window.history.pushState({ page: targetPage }, "", `#${targetPage}`);
   }
 
   function handleLogout() {
     localStorage.removeItem("token"); localStorage.removeItem("user");
     setToken(""); setUser(null); setPage("landing");
+    window.history.replaceState({ page: "landing" }, "", "#landing");
   }
 
   function handleNav(dest) {
     if (dest === "landing") { handleLogout(); return; }
-    if (dest === "dashboard") setPage("dashboard");
-    else if (dest === "analytics") setPage("analytics");
-    else if (dest === "interview_setup") setPage("interview_setup");
-    else if (dest === "profile") setPage("profile");
-    else if (dest === "settings") setPage("settings");
-    else if (dest === "coding")   setPage("coding");
-    else if (dest === "career")   setPage("career");
-    else if (dest === "resume")   setPage("career");
-    else if (dest === "jd")       setPage("career_jd");
-    else if (dest === "communication") setPage("communication");
-    else if (dest === "gd")            setPage("gd");
+    
+    const pageMap = {
+      "dashboard": "dashboard",
+      "analytics": "analytics",
+      "interview_setup": "interview_setup",
+      "profile": "profile",
+      "settings": "settings",
+      "coding": "coding",
+      "career": "career",
+      "resume": "career",
+      "jd": "career_jd",
+      "communication": "communication",
+      "gd": "gd",
+    };
+    
+    const targetPage = pageMap[dest];
+    if (targetPage && targetPage !== page) {
+      setPage(targetPage);
+      // Push to browser history so back button works
+      window.history.pushState({ page: targetPage }, "", `#${targetPage}`);
+    }
   }
 
   function handleUpdateUser(updatedUser) {
@@ -65,22 +96,27 @@ export default function App() {
 
   const sidebarProps = { user, onNav: handleNav, onLogout: handleLogout };
 
+  const navigateTo = (targetPage) => {
+    setPage(targetPage);
+    window.history.pushState({ page: targetPage }, "", `#${targetPage}`);
+  };
+
   return (
     <>
       <style>{globalCss}</style>
       {!splashDone && <SplashScreen onDone={() => setSplashDone(true)} />}
       <Suspense fallback={<div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}><Spinner /></div>}>
-      {page === "landing" && <LandingPage onLogin={() => setPage("login")} onGetStarted={() => setPage("login")} />}
-      {page === "login" && <LoginPage onLogin={handleLogin} onBack={() => setPage("landing")} />}
-      {page === "onboarding" && <OnboardingPage user={user} onFinish={() => { localStorage.setItem("onboarding_complete", "true"); setPage("dashboard"); }} />}
+      {page === "landing" && <LandingPage onLogin={() => navigateTo("login")} onGetStarted={() => navigateTo("login")} />}
+      {page === "login" && <LoginPage onLogin={handleLogin} onBack={() => navigateTo("landing")} />}
+      {page === "onboarding" && <OnboardingPage user={user} onFinish={() => { localStorage.setItem("onboarding_complete", "true"); navigateTo("dashboard"); }} />}
       {page === "dashboard" && <DashboardPage token={token} {...sidebarProps} />}
-      {page === "interview_setup" && <InterviewPage token={token} {...sidebarProps} onStart={sd => { setSessionData(sd); setPage("interview"); }} />}
-      {page === "interview" && sessionData && <InterviewRoomPage token={token} user={user} sessionData={sessionData} onResult={r => { setLastResult(r); setPage("result"); }} onBack={() => setPage("dashboard")} />}
-      {page === "result" && <ResultsPage token={token} user={user} lastResult={lastResult} onBack={() => setPage("dashboard")} onRetake={() => setPage("interview_setup")} />}
+      {page === "interview_setup" && <InterviewPage token={token} {...sidebarProps} onStart={sd => { setSessionData(sd); navigateTo("interview"); }} />}
+      {page === "interview" && sessionData && <InterviewRoomPage token={token} user={user} sessionData={sessionData} onResult={r => { setLastResult(r); navigateTo("result"); }} onBack={() => navigateTo("dashboard")} />}
+      {page === "result" && <ResultsPage token={token} user={user} lastResult={lastResult} onBack={() => navigateTo("dashboard")} onRetake={() => navigateTo("interview_setup")} />}
       {page === "analytics" && <AnalyticsPage token={token} {...sidebarProps} />}
       {page === "profile" && <ProfilePage token={token} {...sidebarProps} onUpdateUser={handleUpdateUser} />}
       {page === "settings" && <SettingsPage token={token} {...sidebarProps} />}
-      {page === "coding"   && <CodingInterviewPage token={token} {...sidebarProps} onResult={r => { setLastResult(r); setPage("result"); }} />}
+      {page === "coding"   && <CodingInterviewPage token={token} {...sidebarProps} onResult={r => { setLastResult(r); navigateTo("result"); }} />}
       {page === "career"   && <CareerAIPage token={token} {...sidebarProps} initialTab="resume" />}
       {page === "career_jd" && <CareerAIPage token={token} {...sidebarProps} initialTab="jd" />}
       {page === "communication" && <CommunicationTestPage token={token} {...sidebarProps} />}
