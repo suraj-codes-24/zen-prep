@@ -1,5 +1,5 @@
 import difflib
-from services.ollama_utils import generate, extract_json_object, extract_json_array
+from services.llm_utils import generate, extract_json_object, extract_json_array
 
 # Map of JD keywords → topic names used in our DB analytics
 SKILL_TOPIC_MAP = {

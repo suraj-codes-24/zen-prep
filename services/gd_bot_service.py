@@ -10,7 +10,7 @@ Upgrades:
   - Phase-aware closing behaviour
 """
 import random
-from services.ollama_utils import generate
+from services.llm_utils import generate
 
 GD_MODEL = "llama3.1:8b"
 

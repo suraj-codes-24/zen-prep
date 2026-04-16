@@ -211,7 +211,7 @@ async def text_to_speech(
     tts_text = text
     translate_lang = voice_info.get("translate")
     if translate_lang:
-        from services.ollama_utils import generate
+        from services.llm_utils import generate
         lang_name = {"ja": "Japanese", "ko": "Korean", "fr": "French", "es": "Spanish", "de": "German", "hi": "Hindi"}.get(translate_lang, translate_lang)
         translated = generate(
             f"Translate the following English text to natural {lang_name}. "

@@ -1,4 +1,4 @@
-from services.ollama_utils import generate, OllamaUnavailable
+from services.llm_utils import generate, LLMUnavailable
 
 
 def generate_followup(question_text: str, user_answer: str) -> str:
@@ -37,7 +37,7 @@ Rules:
 
         return _fallback(question_text)
 
-    except OllamaUnavailable:
+    except LLMUnavailable:
         return "Ollama is not running — please start it with: ollama serve"
     except Exception:
         return _fallback(question_text)

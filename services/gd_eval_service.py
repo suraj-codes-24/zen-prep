@@ -4,7 +4,7 @@ GD Evaluation Service — 5-dimension scoring, content analysis, sentiment, part
 import re
 import json
 
-from services.ollama_utils import generate, extract_json_object
+from services.llm_utils import generate, extract_json_object
 
 COLLABORATIVE_PHRASES = [
     "building on that", "to add to", "i agree", "as mentioned", "following up",

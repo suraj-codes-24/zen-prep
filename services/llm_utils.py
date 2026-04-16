@@ -21,13 +21,13 @@ MODEL_MAP = {
 }
 DEFAULT_MODEL = "llama-3.1-8b-instant"
 
-class OllamaUnavailable(Exception):
+class LLMUnavailable(Exception):
     pass
 
 def generate(prompt, model="llama3.1:8b", temperature=0.7, num_predict=512):
     """
     Generates text using Gemini (primary) with Groq as fallback.
-    Maintains the interface of the original ollama_utils.
+    Maintains the interface of the original llm_utils.
     """
     # Try Gemini first
     if _gemini_client:
@@ -55,7 +55,7 @@ def generate(prompt, model="llama3.1:8b", temperature=0.7, num_predict=512):
         )
         return resp.choices[0].message.content.strip()
     except Exception as e:
-        raise OllamaUnavailable(f"Groq API Error: {str(e)}") from e
+        raise LLMUnavailable(f"Groq API Error: {str(e)}") from e
 
 def extract_json_object(text):
     """

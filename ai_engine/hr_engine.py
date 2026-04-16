@@ -1,4 +1,4 @@
-from services.ollama_utils import generate, OllamaUnavailable
+from services.llm_utils import generate, LLMUnavailable
 
 def evaluate_hr_answer(question_text: str, user_answer: str) -> dict:
     """
@@ -43,7 +43,7 @@ Reply ONLY with this exact JSON format, no extra text:
         raw = generate(prompt, model="llama3.1:8b", temperature=0.3, num_predict=350)
         return _parse_response(raw, user_answer, question_text)
 
-    except OllamaUnavailable:
+    except LLMUnavailable:
         return {
             "clarity":       0.0,
             "structure":     0.0,

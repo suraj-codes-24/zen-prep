@@ -16,7 +16,7 @@ from services.gd_eval_service import (
     analyze_sentiment,
     compute_participation_intelligence,
 )
-from services.ollama_utils import generate, extract_json_object
+from services.llm_utils import generate, extract_json_object
 
 
 def start_gd_session(db: Session, user_id: int, topic_id: int, bot_count: int, duration_mins: int) -> dict:

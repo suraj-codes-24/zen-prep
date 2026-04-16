@@ -1,5 +1,5 @@
 import fitz  # PyMuPDF
-from services.ollama_utils import generate, extract_json_object, OllamaUnavailable
+from services.llm_utils import generate, extract_json_object, LLMUnavailable
 
 
 def extract_text(pdf_bytes: bytes) -> str:
@@ -79,7 +79,7 @@ Rules:
             }
         return _fallback(resume_text)
 
-    except OllamaUnavailable:
+    except LLMUnavailable:
         return {
             "ats_score": 0, "skills": [], "questions": [],
             "suggestions": ["Ollama is not running. Start it with: ollama serve"],

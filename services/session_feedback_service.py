@@ -1,4 +1,4 @@
-from services.ollama_utils import generate, extract_json_object, OllamaUnavailable
+from services.llm_utils import generate, extract_json_object, LLMUnavailable
 
 
 def generate_session_feedback(answers: list[dict]) -> dict:
@@ -37,7 +37,7 @@ Rules: each item one concise sentence, limit to 3 per list, output ONLY JSON."""
                 "weaknesses": data.get("weaknesses", [])[:3],
                 "advice":     data.get("advice",     [])[:3],
             }
-    except OllamaUnavailable:
+    except LLMUnavailable:
         return {
             "strengths":  ["Could not connect to Ollama — start it with: ollama serve"],
             "weaknesses": [],
