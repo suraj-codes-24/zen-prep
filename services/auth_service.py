@@ -8,10 +8,14 @@ def register_user(data: UserRegister, db: Session):
     existing = db.query(User).filter(User.email == data.email).first()
     if existing:
         raise HTTPException(status_code=400, detail="Email already registered")
+    
+    # Handle Google OAuth users (no password)
+    password_hash = None if data.password is None else hash_password(data.password)
+    
     user = User(
         name=data.name,
         email=data.email,
-        password_hash=hash_password(data.password),
+        password_hash=password_hash,
         branch=data.branch,
         year=data.year
     )
@@ -20,10 +24,16 @@ def register_user(data: UserRegister, db: Session):
     db.refresh(user)
     return user
 
-def login_user(email: str, password: str, db: Session):
+def login_user(email: str, password: str, db: Session, google_auth: bool = False):
     user = db.query(User).filter(User.email == email).first()
-    if not user or not verify_password(password, user.password_hash):
+    if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+    
+    # Skip password verification for Google OAuth users
+    if not google_auth:
+        if not verify_password(password, user.password_hash):
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+    
     token = create_access_token({"user_id": user.id, "email": user.email})
     return token, user
 

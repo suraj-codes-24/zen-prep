@@ -41,6 +41,7 @@ imageio-ffmpeg
 
 # HTTP
 requests
+httpx
 
 # Resume parsing
 pymupdf

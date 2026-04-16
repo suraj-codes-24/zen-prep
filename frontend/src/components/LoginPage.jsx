@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { API, Spinner, ZenPrepLogo, THEME } from "../shared";
 
 function LoginPage({ onLogin, onBack }) {
@@ -57,6 +57,45 @@ function LoginPage({ onLogin, onBack }) {
         setSuccessMsg("Account created successfully! Redirecting to login...");
         setTimeout(() => { setMode("login"); setSuccessMsg(""); setError(""); setForm(f => ({ ...f, password: "" })); }, 1500);
       }
+    } catch { setError("Server error. Check that backend is running."); }
+    setLoading(false);
+  }
+
+  async function handleGoogleLogin() {
+    setError(""); setLoading(true);
+    try {
+      const r = await fetch(`${API}/auth/google/url`);
+      const d = await r.json();
+      if (!r.ok) { setError("Failed to get Google auth URL"); setLoading(false); return; }
+      // Redirect to Google OAuth
+      window.location.href = d.auth_url;
+    } catch { setError("Server error. Check that backend is running."); }
+    setLoading(false);
+  }
+
+  // Handle OAuth callback from URL
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("code");
+    if (code) {
+      handleGoogleCallback(code);
+    }
+  }, []);
+
+  async function handleGoogleCallback(code) {
+    setError(""); setLoading(true);
+    try {
+      const r = await fetch(`${API}/auth/google/callback`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code }),
+      });
+      const d = await r.json();
+      if (!r.ok) { setError(d.detail || "Google login failed"); setLoading(false); return; }
+      localStorage.setItem("token", d.access_token);
+      localStorage.setItem("user", JSON.stringify(d.user));
+      onLogin(d.access_token, d.user);
+      // Clear URL params
+      window.history.replaceState({}, document.title, window.location.pathname);
     } catch { setError("Server error. Check that backend is running."); }
     setLoading(false);
   }
@@ -333,7 +372,7 @@ function LoginPage({ onLogin, onBack }) {
                 <span style={{ color: "#4B5563", fontSize: 11, fontWeight: 500, letterSpacing: "0.05em" }}>OR</span>
                 <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.06)" }} />
               </div>
-              <button onClick={() => setInfoMsg("Google login is not available in local mode. Use email + password.")}
+              <button onClick={handleGoogleLogin} disabled={loading}
                 style={{ width: "100%", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "#F1F5F9", fontWeight: 500, fontSize: 14, padding: "12px", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", gap: 10, transition: "all 0.2s ease" }}
                 onMouseEnter={e => { e.target.style.background = "rgba(255,255,255,0.08)"; e.target.style.borderColor = "rgba(255,255,255,0.15)"; }}
                 onMouseLeave={e => { e.target.style.background = "rgba(255,255,255,0.04)"; e.target.style.borderColor = "rgba(255,255,255,0.08)"; }}>
