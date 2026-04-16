@@ -710,14 +710,27 @@ export default function GDPage({ token, user, onNav, onLogout }) {
                 {pagedTopics.map(topic => {
                   const isSelected = selectedTopic?.id === topic.id;
                   return (
-                    <button key={topic.id} onClick={() => setSelectedTopic(topic)} style={{
-                      background: isSelected ? "rgba(6,182,212,0.1)" : "rgba(6,182,212,0.03)",
-                      border: isSelected ? "1px solid rgba(6,182,212,0.3)" : "1px solid rgba(6,182,212,0.08)",
-                      borderRadius: 16, padding: 24, textAlign: "left", cursor: "pointer",
-                      transition: "all 0.3s", animation: "gdFadeIn 0.3s ease",
-                      boxShadow: isSelected ? "0 0 0 1px #06B6D4, 0 0 24px rgba(6,182,212,0.2)" : "none",
-                      display: "flex", flexDirection: "column", minHeight: 160,
-                    }}>
+                    <button 
+                      key={topic.id} 
+                      onClick={() => {
+                        console.log("[GD] Topic clicked:", topic.title, topic.id);
+                        setSelectedTopic(topic);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          console.log("[GD] Topic selected via keyboard:", topic.title, topic.id);
+                          setSelectedTopic(topic);
+                        }
+                      }}
+                      style={{
+                        background: isSelected ? "rgba(6,182,212,0.1)" : "rgba(6,182,212,0.03)",
+                        border: isSelected ? "1px solid rgba(6,182,212,0.3)" : "1px solid rgba(6,182,212,0.08)",
+                        borderRadius: 16, padding: 24, textAlign: "left", cursor: "pointer",
+                        transition: "all 0.3s", animation: "gdFadeIn 0.3s ease",
+                        boxShadow: isSelected ? "0 0 0 1px #06B6D4, 0 0 24px rgba(6,182,212,0.2)" : "none",
+                        display: "flex", flexDirection: "column", minHeight: 160,
+                      }}>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
                         <span style={{ fontSize: 10, letterSpacing: "0.2em", textTransform: "uppercase", color: "#6366F1", fontWeight: 700 }}>
                           {topic.category}
