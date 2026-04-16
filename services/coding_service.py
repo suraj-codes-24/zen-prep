@@ -536,29 +536,39 @@ def _run_tests(code: str, problem: CodingProblem, language: str = "python") -> d
     fn_name = problem.function_name or "solution"
     lang = language.lower()
     time_limit = problem.time_limit or 5
+    problem_title = problem.title or ""
 
     if not test_cases:
         return {"output": "", "runtime_ms": 0, "results": [], "total": 0, "passed": 0}
 
     if lang in ("cpp", "c++"):
-        return _run_batch_cpp(code, fn_name, test_cases, time_limit)
+        return _run_batch_cpp(code, fn_name, test_cases, time_limit, problem_title)
     elif lang == "java":
-        return _run_batch_java(code, fn_name, test_cases, time_limit)
+        return _run_batch_java(code, fn_name, test_cases, time_limit, problem_title)
     else:
-        return _run_python(code, fn_name, test_cases, time_limit)
+        return _run_python(code, fn_name, test_cases, time_limit, problem_title)
 
 
-def _parse_batch_output(raw: str, test_cases: list) -> list[dict]:
-    """Split batch output by delimiter and compare to expected values."""
+def _parse_batch_output(raw: str, test_cases: list, problem_title: str = "") -> list[dict]:
+    """Split batch output by delimiter and compare to expected values.
+    
+    For Two Sum problems, accepts any valid pair of indices that sum to target.
+    """
     chunks = raw.split(_TC_DELIM)
     chunks = [c.strip() for c in chunks]
     results = []
     passed_count = 0
+    is_two_sum = "two sum" in problem_title.lower() or "twosum" in problem_title.lower()
+    
     for i, tc in enumerate(test_cases):
         if i < len(chunks) and chunks[i]:
             actual = chunks[i]
             try:
-                p = json.loads(actual) == json.loads(tc["expected"])
+                if is_two_sum:
+                    # Custom validation for Two Sum: check if returned indices are valid
+                    p = _validate_two_sum(actual, tc["input"])
+                else:
+                    p = json.loads(actual) == json.loads(tc["expected"])
             except Exception:
                 p = actual == tc["expected"]
         else:
@@ -570,7 +580,36 @@ def _parse_batch_output(raw: str, test_cases: list) -> list[dict]:
     return results
 
 
-def _run_batch_cpp(code: str, fn_name: str, test_cases: list, time_limit: int) -> dict:
+def _validate_two_sum(actual: str, input_str: str) -> bool:
+    """Validate Two Sum answer by checking if returned indices sum to target."""
+    try:
+        # Parse actual output
+        indices = json.loads(actual)
+        if not isinstance(indices, list) or len(indices) != 2:
+            return False
+        
+        # Parse input to get nums and target
+        # Format: "[1,5,3,7], 8"
+        parts = input_str.split(",")
+        nums_str = ",".join(parts[:-1]).strip()
+        target = int(parts[-1].strip())
+        nums = json.loads(nums_str)
+        
+        # Validate indices
+        i, j = indices
+        if i == j:  # Can't use same element twice
+            return False
+        if i < 0 or j < 0 or i >= len(nums) or j >= len(nums):
+            return False
+        if nums[i] + nums[j] != target:
+            return False
+        
+        return True
+    except Exception:
+        return False
+
+
+def _run_batch_cpp(code: str, fn_name: str, test_cases: list, time_limit: int, problem_title: str = "") -> dict:
     """Compile C++ once, run all test cases in a single execution."""
     # Build test-case blocks for main()
     tc_blocks = []
@@ -657,7 +696,7 @@ int main() {{
                 "results": [{"input": tc["input"], "expected": tc["expected"], "actual": error, "passed": False} for tc in test_cases],
                 "total": len(test_cases), "passed": 0,
             }
-        results = _parse_batch_output(proc.stdout, test_cases)
+        results = _parse_batch_output(proc.stdout, test_cases, problem_title)
         return {
             "output": "\n".join(r["actual"] for r in results),
             "runtime_ms": elapsed, "results": results,
@@ -678,7 +717,7 @@ int main() {{
                 pass
 
 
-def _run_batch_java(code: str, fn_name: str, test_cases: list, time_limit: int) -> dict:
+def _run_batch_java(code: str, fn_name: str, test_cases: list, time_limit: int, problem_title: str = "") -> dict:
     """Compile Java once, run all test cases in a single execution."""
     # Hoist import/package lines from user code to the top so they appear
     # before any class declaration (Java requires this ordering).
@@ -774,7 +813,7 @@ class Main {{
                 "results": [{"input": tc["input"], "expected": tc["expected"], "actual": error, "passed": False} for tc in test_cases],
                 "total": len(test_cases), "passed": 0,
             }
-        results = _parse_batch_output(proc.stdout, test_cases)
+        results = _parse_batch_output(proc.stdout, test_cases, problem_title)
         return {
             "output": "\n".join(r["actual"] for r in results),
             "runtime_ms": elapsed, "results": results,
@@ -799,11 +838,12 @@ class Main {{
                 pass
 
 
-def _run_python(code: str, fn_name: str, test_cases: list, time_limit: int) -> dict:
+def _run_python(code: str, fn_name: str, test_cases: list, time_limit: int, problem_title: str = "") -> dict:
     """Run Python test cases one at a time (no compilation step)."""
     results = []
     total_time = 0
     combined_out = []
+    is_two_sum = "two sum" in problem_title.lower() or "twosum" in problem_title.lower()
 
     for tc in test_cases:
         tc_input = tc["input"]
@@ -833,7 +873,10 @@ print(json.dumps(_result))
             else:
                 actual = proc.stdout.strip()
                 try:
-                    passed = json.loads(actual) == json.loads(tc["expected"])
+                    if is_two_sum:
+                        passed = _validate_two_sum(actual, tc["input"])
+                    else:
+                        passed = json.loads(actual) == json.loads(tc["expected"])
                 except Exception:
                     passed = actual == tc["expected"]
         except subprocess.TimeoutExpired:
