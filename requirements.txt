@@ -23,6 +23,7 @@ numpy
 
 # Cloud AI
 groq>=0.9.0
+google-generativeai
 
 # Voice analysis
 # openai-whisper removed (using Groq STT)
