@@ -365,22 +365,20 @@ function LoginPage({ onLogin, onBack }) {
             </button>
           </form>
 
-          {mode === "login" && (
-            <div style={{ animation: "fadeIn 0.4s ease both" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "22px 0" }}>
-                <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.06)" }} />
-                <span style={{ color: "#4B5563", fontSize: 11, fontWeight: 500, letterSpacing: "0.05em" }}>OR</span>
-                <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.06)" }} />
-              </div>
-              <button onClick={handleGoogleLogin} disabled={loading}
-                style={{ width: "100%", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "#F1F5F9", fontWeight: 500, fontSize: 14, padding: "12px", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", gap: 10, transition: "all 0.2s ease" }}
-                onMouseEnter={e => { e.target.style.background = "rgba(255,255,255,0.08)"; e.target.style.borderColor = "rgba(255,255,255,0.15)"; }}
-                onMouseLeave={e => { e.target.style.background = "rgba(255,255,255,0.04)"; e.target.style.borderColor = "rgba(255,255,255,0.08)"; }}>
-                <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3C33.9 33 29.4 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 8 3l5.7-5.7C34 6 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.2-2.7-.4-3.9z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.5 15.5 18.8 12 24 12c3.1 0 5.8 1.2 8 3l5.7-5.7C34 6 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.4 0-9.9-3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.2-2.7-.4-3.9z"/></svg>
-                Continue with Google
-              </button>
+          <div style={{ animation: "fadeIn 0.4s ease both" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "22px 0" }}>
+              <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.06)" }} />
+              <span style={{ color: "#4B5563", fontSize: 11, fontWeight: 500, letterSpacing: "0.05em" }}>OR</span>
+              <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.06)" }} />
             </div>
-          )}
+            <button onClick={handleGoogleLogin} disabled={loading}
+              style={{ width: "100%", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "#F1F5F9", fontWeight: 500, fontSize: 14, padding: "12px", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", gap: 10, transition: "all 0.2s ease" }}
+              onMouseEnter={e => { e.target.style.background = "rgba(255,255,255,0.08)"; e.target.style.borderColor = "rgba(255,255,255,0.15)"; }}
+              onMouseLeave={e => { e.target.style.background = "rgba(255,255,255,0.04)"; e.target.style.borderColor = "rgba(255,255,255,0.08)"; }}>
+              <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3C33.9 33 29.4 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 8 3l5.7-5.7C34 6 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.2-2.7-.4-3.9z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.5 15.5 18.8 12 24 12c3.1 0 5.8 1.2 8 3l5.7-5.7C34 6 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.4 0-9.9-3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.2-2.7-.4-3.9z"/></svg>
+              Continue with Google
+            </button>
+          </div>
 
           <p style={{ textAlign: "center", marginTop: 24, fontSize: 13, color: "#64748B" }}>
             {mode === "login" ? "Don't have an account? " : "Already have an account? "}
