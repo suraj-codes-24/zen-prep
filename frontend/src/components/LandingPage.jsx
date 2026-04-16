@@ -667,7 +667,20 @@ function LandingPage({ onLogin, onGetStarted }) {
                 </div>
                 <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", marginTop: 4 }}>
                   <button onClick={() => setModal(null)} style={{ padding: "10px 20px", borderRadius: 8, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", color: "#94A3B8", fontSize: 14 }}>Cancel</button>
-                  <button onClick={() => { if (contactForm.name && contactForm.email && contactForm.message) setContactSent(true); }} style={{ padding: "10px 24px", borderRadius: 8, background: "linear-gradient(135deg, #6366F1, #818CF8)", color: "#fff", fontWeight: 600, fontSize: 14, opacity: (contactForm.name && contactForm.email && contactForm.message) ? 1 : 0.5 }}>Send Message</button>
+                  <button onClick={async () => {
+                    if (contactForm.name && contactForm.email && contactForm.message) {
+                      try {
+                        const res = await fetch(`${API}/contact/submit`, {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify(contactForm)
+                        });
+                        if (res.ok) setContactSent(true);
+                      } catch (e) {
+                        console.error("Failed to send contact form:", e);
+                      }
+                    }
+                  }} style={{ padding: "10px 24px", borderRadius: 8, background: "linear-gradient(135deg, #6366F1, #818CF8)", color: "#fff", fontWeight: 600, fontSize: 14, opacity: (contactForm.name && contactForm.email && contactForm.message) ? 1 : 0.5 }}>Send Message</button>
                 </div>
               </div>
               <div style={{ marginTop: 28, paddingTop: 20, borderTop: "1px solid rgba(255,255,255,0.06)" }}>

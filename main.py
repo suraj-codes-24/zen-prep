@@ -24,6 +24,7 @@ from routes.report_routes import router as report_router
 from routes.coding_v2_routes import router as coding_v2_router
 from routes.communication_routes import router as comm_router
 from routes.gd_routes import router as gd_router
+from routes.contact_routes import router as contact_router
 
 from database import engine, Base
 
@@ -122,6 +123,7 @@ app.include_router(report_router)
 app.include_router(coding_v2_router)
 app.include_router(comm_router)
 app.include_router(gd_router)
+app.include_router(contact_router)
 
 # ── Global error handlers ────────────────────────────────────────────────────
 

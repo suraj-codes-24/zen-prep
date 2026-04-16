@@ -69,3 +69,54 @@ The Zen Prep Team
     except Exception as e:
         print(f"[EMAIL] Failed to send validation email: {str(e)}")
         return False
+
+
+def send_contact_email(sender_name: str, sender_email: str, message: str) -> bool:
+    """
+    Send contact form submission email to the admin.
+    
+    Args:
+        sender_name: Name of the person submitting the contact form
+        sender_email: Email of the person submitting the contact form
+        message: Message from the contact form
+        
+    Returns:
+        bool: True if email sent successfully, False otherwise
+    """
+    if not SMTP_USER or not SMTP_PASSWORD:
+        print("[EMAIL] SMTP not configured, skipping contact email")
+        return False
+    
+    subject = f"New Contact Form Submission from {sender_name}"
+    body = f"""
+New contact form submission from ZenPrep landing page.
+
+Name: {sender_name}
+Email: {sender_email}
+
+Message:
+{message}
+
+---
+This is an automated message from ZenPrep contact form.
+"""
+    
+    try:
+        msg = MIMEMultipart()
+        msg['From'] = FROM_EMAIL
+        msg['To'] = FROM_EMAIL  # Send to the same email (admin email)
+        msg['Subject'] = subject
+        
+        msg.attach(MIMEText(body, 'plain'))
+        
+        with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
+            server.starttls()
+            server.login(SMTP_USER, SMTP_PASSWORD)
+            server.send_message(msg)
+        
+        print(f"[EMAIL] Contact form email sent from {sender_email}")
+        return True
+        
+    except Exception as e:
+        print(f"[EMAIL] Failed to send contact email: {str(e)}")
+        return False
