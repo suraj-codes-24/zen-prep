@@ -31,9 +31,8 @@ frontend/*.zip
 
 # Temporary scripts
 rephrase_questions.py
-REPORT_PLAN.md
 THEME_UPGRADE.md
-DEPLOY_PLAN.md
+
 
 # Test / CI tooling
 test_results.md

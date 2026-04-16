@@ -14,6 +14,30 @@ A full-stack mock interview platform that combines NLP scoring, voice analysis, 
 
 ---
 
+## Problem Statement
+
+**The Gap in Interview Preparation**
+
+Millions of students and job seekers struggle with interview preparation due to several critical gaps in traditional learning methods:
+
+1. **Lack of Realistic Practice** — Mock interviews with peers or mentors are scarce, expensive, and often don't simulate real interview conditions
+2. **No Multimodal Feedback** — Most platforms only evaluate text responses, ignoring critical non-verbal cues like voice tone, pacing, facial expressions, and body language
+3. **No Adaptive Difficulty** — Static question banks don't adjust to the candidate's skill level, leading to either boredom or overwhelm
+4. **Limited Subject Coverage** — Platforms focus on either technical interviews OR communication skills, but rarely both
+5. **No Group Discussion Practice** — GD rounds are crucial for many companies (especially in India) but lack dedicated practice platforms
+6. **Career Guidance Gap** — Resume analysis and job matching are often manual, time-consuming, and inconsistent
+7. **No Follow-up Questions** — Real interviewers ask probing questions; most platforms only evaluate the first answer
+
+**ZenPrep addresses all these gaps by providing:**
+- **Multimodal AI evaluation** (NLP + Voice + Face) for realistic scoring
+- **Adaptive difficulty** that adjusts question complexity based on performance
+- **Comprehensive coverage** (Technical HR, Coding, Communication, GD, Career AI)
+- **AI-powered follow-up questions** for deeper assessment
+- **Real-time feedback** with detailed coaching insights
+- **Accessible, affordable** alternative to expensive coaching programs
+
+---
+
 ## Features
 
 ### Mock Interview
@@ -73,13 +97,15 @@ A full-stack mock interview platform that combines NLP scoring, voice analysis, 
 |-------|-----------|
 | Backend | FastAPI, SQLAlchemy, PostgreSQL (psycopg2) |
 | Frontend | React, Vite, inline CSS (no Tailwind) |
-| LLM | Ollama — `qwen2.5-coder:7b` (interview/coding), `llama3.1:8b` (GD bots) |
+| LLM | Gemini (primary), Groq Cloud (fallback), Ollama — `qwen2.5-coder:7b`, `llama3.1:8b` |
 | Voice | OpenAI Whisper (local), librosa, parselmouth |
 | Face | MediaPipe FaceMesh 0.10.11 |
 | Code Execution | subprocess sandbox (Python, C++, Java) |
 | Charts | recharts |
 | PDF | reportlab (reports), PyMuPDF (resume parsing) |
 | Editor | Monaco Editor (`@monaco-editor/react`) |
+| Authentication | Google OAuth, JWT |
+| Email | SMTP (validation emails) |
 
 ---
 
@@ -145,6 +171,23 @@ DATABASE_URL=postgresql://postgres:<your_password>@localhost/interview_db
 SECRET_KEY=your_jwt_secret_key_here
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=30
+
+# Google OAuth (optional, for Google login/signup)
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+GOOGLE_REDIRECT_URI=http://localhost:5173/auth/callback
+
+# Email/SMTP (optional, for validation emails)
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your_gmail_address
+SMTP_PASSWORD=your_app_specific_password
+FROM_EMAIL=noreply@zen-prep.com
+FRONTEND_URL=http://localhost:5173
+
+# LLM API Keys (optional, for Gemini/Groq)
+GEMINI_API_KEY=your_gemini_api_key
+GROQ_API_KEY=your_groq_api_key
 ```
 
 > Ollama is expected to be running at `http://localhost:11434` (hardcoded). No env var needed for it.
@@ -254,7 +297,10 @@ interview_simulator/
 │   ├── gd_voice_service.py
 │   ├── resume_service.py
 │   ├── jd_service.py
-│   └── report_service.py
+│   ├── report_service.py
+│   ├── google_oauth_service.py      # Google OAuth authentication
+│   ├── email_service.py            # Email validation
+│   └── llm_utils.py                # LLM generation (Gemini + Groq)
 ├── ai_engine/                      # Scoring engines
 │   ├── nlp_engine.py               # NLP + CONCEPT_MAP (79 concepts)
 │   ├── hr_engine.py                # Ollama HR evaluation
@@ -322,6 +368,9 @@ Score  = avg(participation, leadership, listening, idea_quality, teamwork)
 |--------|----------|-------------|
 | POST | `/auth/login` | Login → JWT |
 | POST | `/auth/register` | Register new user |
+| GET | `/auth/google/url` | Get Google OAuth authorization URL |
+| POST | `/auth/google/callback` | Handle Google OAuth callback |
+| GET | `/auth/validate-email` | Validate email via token |
 | POST | `/interview/start` | Start interview session |
 | GET | `/interview/question` | Next adaptive question |
 | POST | `/interview/answer` | Submit answer + multimodal scores |
