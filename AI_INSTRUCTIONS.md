@@ -15,7 +15,9 @@ AI-powered multimodal mock interview platform. FastAPI backend + React/Vite fron
 - Python 3.11.8, Node v24
 - FastAPI + SQLAlchemy + PostgreSQL (psycopg2)
 - React + Vite (CSS-in-JSX, no Tailwind classes — inline styles)
-- Ollama (`qwen2.5-coder:7b` default, `llama3.1:8b` for GD bots) on local GPU (NVIDIA RTX 4050)
+- LLM: Gemini (primary), Groq Cloud (fallback), Ollama (local) — `qwen2.5-coder:7b`, `llama3.1:8b`
+- Google OAuth 2.0 for login/signup
+- SMTP for email validation
 - Whisper (local, CPU), librosa, parselmouth, MediaPipe 0.10.11
 - Monaco Editor (`@monaco-editor/react@4.7.0`) for coding interviews
 - recharts for analytics charts
@@ -37,10 +39,12 @@ AI-powered multimodal mock interview platform. FastAPI backend + React/Vite fron
 | `routes/coding_v2_routes.py` | Coding V2 routes (companies, levels, sessions, run, submit) |
 | `models/coding.py` | CodingProblem, CodingSet, CodingSession, CodingSubmission |
 | `seed_coding_v2.py` | Seeds 24 LeetCode-style problems (2 levels × 4 companies) |
-| `services/ollama_utils.py` | Centralized Ollama API wrapper |
+| `services/llm_utils.py` | Centralized LLM API wrapper (Gemini + Groq + Ollama) |
+| `services/google_oauth_service.py` | Google OAuth 2.0 token exchange and user info |
+| `services/email_service.py` | Email validation link sending via SMTP |
 | `services/followup_service.py` | AI follow-up question generation |
-| `services/resume_service.py` | Resume PDF analysis via Ollama |
-| `services/jd_service.py` | JD gap analysis via Ollama |
+| `services/resume_service.py` | Resume PDF analysis via LLM |
+| `services/jd_service.py` | JD gap analysis via LLM |
 | `services/report_service.py` | PDF report generation (interview + comm + GD) |
 | `services/session_feedback_service.py` | AI coaching summary |
 | `services/communication_service.py` | Comm test scoring + session orchestration |
@@ -85,6 +89,9 @@ GD Score (5-dim avg): participation + leadership + listening + idea_quality + te
 |--------|----------|-------------|
 | POST | `/auth/login` | `{email, password}` → `{access_token, user}` |
 | POST | `/auth/register` | `{name, email, password, branch, year}` |
+| GET | `/auth/google/url` | Get Google OAuth authorization URL |
+| POST | `/auth/google/callback` | Handle Google OAuth callback |
+| GET | `/auth/validate-email` | Validate email via token |
 | PUT | `/auth/profile` | Update user profile |
 | PUT | `/auth/password` | Change password |
 | GET | `/interview/subjects` | List all subjects |
@@ -155,6 +162,8 @@ GD Score (5-dim avg): participation + leadership + listening + idea_quality + te
 - Phase 16 — Coding Room Hardening (batch compile, safety expansion, error sanitization, subprocess flags): DONE
 - Phase 17 — GD Room (circular bot layout, glassmorphism, editorial topic grid, coaching tabs, Share of Voice): DONE
 - Phase 17.5 — GD Backend Upgrade (voice scoring, Ollama sentiment, participation intelligence, keyword extraction, argument analysis, difficulty-aware bots, 60 topics, PDF report, analytics tab): DONE
+- Phase 18 — Google OAuth + Email Validation (login/signup with Google, SMTP validation emails, browser history navigation): DONE
+- Phase 19 — LLM Architecture Upgrade (Gemini primary, Groq fallback): DONE
 - Phase 13 — Docker + Deploy: PLANNED
 
 ## Known Issues
