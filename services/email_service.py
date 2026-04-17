@@ -26,9 +26,11 @@ def _resend_settings() -> tuple[str | None, str | None]:
 def _send_via_resend(to_email: str, subject: str, body: str) -> bool:
     api_key, from_email = _resend_settings()
     if not api_key or not from_email:
+        logger.info("Resend email provider not configured for %s", to_email)
         return False
 
     try:
+        logger.info("Attempting Resend email send to %s from %s", to_email, from_email)
         response = requests.post(
             "https://api.resend.com/emails",
             headers={
@@ -44,6 +46,7 @@ def _send_via_resend(to_email: str, subject: str, body: str) -> bool:
             timeout=15,
         )
         if response.ok:
+            logger.info("Resend email accepted for %s", to_email)
             return True
         logger.warning("Resend email API failed for %s: %s %s", to_email, response.status_code, response.text)
     except Exception as exc:
@@ -55,6 +58,7 @@ def send_email(to_email: str, subject: str, body: str) -> bool:
     if _send_via_resend(to_email, subject, body):
         return True
 
+    logger.info("Falling back to SMTP for %s", to_email)
     host, port, username, password, from_email = _smtp_settings()
 
     if not host or not username or not password or not from_email:
