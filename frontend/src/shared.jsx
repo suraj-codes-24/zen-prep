@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 // Shared constants, styles, and small helper components
-const API = import.meta.env.VITE_API_URL || "https://suraj7667-zen-prep-api.hf.space";
+const API = import.meta.env.VITE_API_URL || "https://suraj-codes-24-suraj-codes-24.hf.space";
 
 const globalCss = `
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
