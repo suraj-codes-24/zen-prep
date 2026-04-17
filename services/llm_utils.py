@@ -1,8 +1,9 @@
 import os
 import json
 import re
-from groq import Groq, APIConnectionError
-import google.generativeai as genai
+from google import genai
+from google.genai import types
+from groq import Groq
 
 # Initialize Groq client (fallback)
 _groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
@@ -10,8 +11,7 @@ _groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 # Initialize Gemini client (primary)
 _gemini_api_key = os.getenv("GEMINI_API_KEY")
 if _gemini_api_key:
-    genai.configure(api_key=_gemini_api_key)
-    _gemini_client = genai.GenerativeModel("gemini-1.5-flash")
+    _gemini_client = genai.Client(api_key=_gemini_api_key)
 else:
     _gemini_client = None
 
@@ -32,13 +32,13 @@ def generate(prompt, model="llama3.1:8b", temperature=0.7, num_predict=512):
     # Try Gemini first
     if _gemini_client:
         try:
-            genai.configure(api_key=_gemini_api_key)
-            response = _gemini_client.generate_content(
-                prompt,
-                generation_config=genai.types.GenerationConfig(
+            response = _gemini_client.models.generate_content(
+                model="gemini-1.5-flash",
+                contents=prompt,
+                config=types.GenerateContentConfig(
                     temperature=temperature,
                     max_output_tokens=num_predict,
-                )
+                ),
             )
             return response.text.strip()
         except Exception as e:
