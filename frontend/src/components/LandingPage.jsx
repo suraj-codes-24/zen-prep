@@ -91,7 +91,7 @@ function LandingPage({ onLogin, onGetStarted }) {
       <div style={{ background: "#0F1629", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 20, maxWidth: 640, width: "90%", maxHeight: "80vh", overflow: "auto", padding: "36px 40px", position: "relative", animation: "scaleIn 0.25s ease" }} onClick={e => e.stopPropagation()}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
           <h2 style={{ fontSize: 24, fontWeight: 700 }}>{title}</h2>
-          <button onClick={onClose} style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#94A3B8", fontSize: 18, display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
+          <button type="button" onClick={onClose} style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#94A3B8", fontSize: 18, display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
         </div>
         {children}
       </div>
@@ -647,7 +647,7 @@ function LandingPage({ onLogin, onGetStarted }) {
               <div style={{ fontSize: 48, marginBottom: 16, animation: "scaleIn 0.3s ease" }}>✅</div>
               <h3 style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>Message Sent!</h3>
               <p style={{ color: "#94A3B8", fontSize: 14, marginBottom: 24 }}>Thank you for reaching out. We'll get back to you within 24 hours.</p>
-              <button onClick={() => { setModal(null); setContactSent(false); setContactForm({ name: "", email: "", message: "" }); }} style={{ background: "linear-gradient(135deg, #6366F1, #818CF8)", color: "#fff", padding: "10px 24px", borderRadius: 8, fontWeight: 600, fontSize: 14 }}>Close</button>
+              <button type="button" onClick={() => { setModal(null); setContactSent(false); setContactForm({ name: "", email: "", message: "" }); }} style={{ background: "linear-gradient(135deg, #6366F1, #818CF8)", color: "#fff", padding: "10px 24px", borderRadius: 8, fontWeight: 600, fontSize: 14 }}>Close</button>
             </div>
           ) : (
             <div>
@@ -666,8 +666,8 @@ function LandingPage({ onLogin, onGetStarted }) {
                   <textarea value={contactForm.message} onChange={e => setContactForm({ ...contactForm, message: e.target.value })} onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) e.preventDefault(); }} placeholder="Tell us how we can help..." rows={4} style={{ width: "100%", padding: "10px 14px", borderRadius: 10, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", color: "#F1F5F9", fontSize: 14, resize: "vertical" }} />
                 </div>
                 <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", marginTop: 4 }}>
-                  <button onClick={() => setModal(null)} style={{ padding: "10px 20px", borderRadius: 8, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", color: "#94A3B8", fontSize: 14 }}>Cancel</button>
-                  <button onClick={async () => {
+                  <button type="button" onClick={() => setModal(null)} style={{ padding: "10px 20px", borderRadius: 8, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", color: "#94A3B8", fontSize: 14 }}>Cancel</button>
+                  <button type="button" onClick={async () => {
                     if (contactForm.name && contactForm.email && contactForm.message) {
                       try {
                         const res = await fetch(`${API}/contact/submit`, {
