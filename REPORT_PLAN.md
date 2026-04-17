@@ -1,362 +1,166 @@
-# ZenPrep — Technical Design Document Plan
+# ZenPrep Technical Report Plan
 
-> Full 90+ page technical report covering all architecture, diagrams, flowcharts, and screenshots.
-> Discussed on 2026-03-28. **Not started yet.**
+Updated: 2026-04-17
 
----
+This file is the living outline for the formal ZenPrep project report. It now reflects the real codebase and the latest product fixes instead of the earlier pre-implementation draft.
 
-## Estimated Total: ~92 pages
+## Report Goal
 
-| Chapter | Topic | Est. Pages |
-|---------|-------|------------|
-| 1 | Introduction & Project Overview | 4 |
-| 2 | System Architecture | 8 |
-| 3 | Database Design (full ERD) | 7 |
-| 4 | Authentication & User Management | 4 |
-| 5 | AI Engine (NLP + Voice + Face + Fusion) | 12 |
-| 6 | Interview System (adaptive difficulty, state machine) | 7 |
-| 7 | Coding Interview (sandbox, multi-lang, security) | 6 |
-| 8 | Communication Test (Versant-style, 8 sections) | 7 |
-| 9 | GD Room (bots, turn flow, scoring, coaching) | 10 |
-| 10 | Resume & JD Analyser | 4 |
-| 11 | PDF Report Generation | 3 |
-| 12 | Frontend Architecture (16 components, recording pipeline) | 7 |
-| 13 | API Reference (all endpoints) | 5 |
-| 14 | Security Considerations | 3 |
-| 15 | Performance & Known Issues | 2 |
-| 16 | Deployment Roadmap (Phase 13 Docker) | 3 |
-| **TOTAL** | | **~92 pages** |
+Produce a technical report that can support:
 
----
+- college or portfolio submission
+- architecture handoff
+- deployment and maintenance onboarding
+- feature walkthroughs backed by the current codebase
 
-## Chapter 1 — Introduction & Project Overview (4 pages)
-- What ZenPrep is and the problem it solves
-- Target users and use cases
-- Key differentiators: multimodal scoring, adaptive difficulty, GD with AI bots
-- Technology choices and why (FastAPI over Django, Groq Cloud API for fast inference, edge-tts for TTS)
-- High-level feature list table
+## Current Status
 
-**Visuals:** Feature overview table, screenshot of Dashboard, screenshot of app navigation
+- Core product implementation: done
+- Deployment path: done and documented
+- Demo data for screenshots: available
+- Report writing: not written yet
+- Report scope and chapter facts: verified through the codebase on 2026-04-17
 
----
+## Recommended Deliverables
 
-## Chapter 2 — System Architecture (8 pages)
-- Overall system design — monolithic vs microservice decision
-- Three-layer architecture: Presentation → API → Data/AI
-- How frontend communicates with backend (REST, FormData for audio/video)
-- JWT authentication lifecycle
-- Google OAuth 2.0 integration — token exchange, user account linking
-- Email validation system via SMTP
-- LLM architecture: Gemini (primary) with Groq Cloud API (LLaMA models)
-- STT pipeline: Groq Cloud API for fast speech-to-text
-- TTS pipeline: edge-tts for AI interviewer voice
-- MediaPipe integration
+1. A full technical report in Markdown or Word export.
+2. A diagram pack covering architecture, flows, and database relationships.
+3. A screenshot appendix using the seeded demo account.
+4. A deployment appendix based on the current Vercel + Hugging Face + Neon setup.
 
-**Visuals:**
-- Full system architecture diagram (React ↔ FastAPI ↔ PostgreSQL ↔ Gemini/Groq Cloud ↔ edge-tts ↔ MediaPipe)
-- JWT auth flow diagram (register → login → token → protected routes)
-- Request lifecycle diagram (frontend → middleware → router → service → DB → response)
-- Screenshot: Swagger API docs
+## Suggested Report Size
 
----
+Target: 60-80 pages
 
-## Chapter 3 — Database Design (7 pages)
-- Design philosophy — why PostgreSQL, schema decisions
-- Every table explained: Users, Sessions, Answers, Questions, Subjects, Topics, Subtopics
-- Coding tables: CodingProblem, CodingSet, CodingSession, CodingSubmission
-- Communication tables: CommQuestion, CommSession, CommAnswer
-- GD tables: GDTopic, GDSession, GDTurn, GDScore
-- Indexing strategy, foreign key relationships
-- Why certain fields are stored inline (multimodal scores on Answer row)
+This is leaner than the original 90+ page estimate and better matches the real project without padding.
 
-**Visuals:**
-- Full ERD diagram (all tables, all relationships, cardinality)
-- Schema reference tables (every column, type, nullable, description)
-- Screenshot: example DB rows showing score data
+## Proposed Chapters
 
----
+### 1. Introduction
+- Problem statement
+- Why interview prep needs multimodal feedback
+- ZenPrep goals and user types
 
-## Chapter 4 — Authentication & User Management (4 pages)
-- JWT implementation — token generation, expiry, refresh strategy
-- Password hashing (bcrypt)
-- Profile management — what can be updated
-- Session ownership — how every resource is user-scoped
+### 2. Product Scope
+- Interview
+- Coding
+- Communication
+- GD
+- Career AI
+- Analytics and reports
 
-### 4.3 Google OAuth Integration
-- Google OAuth 2.0 flow implementation
-- Token exchange with Google API
-- User account creation/linking
-- Email validation for new users
-- SMTP-based validation email sending
-- Account linking for existing users (Google ID to existing email)
-- Frontend OAuth callback handling
-- Browser history management for SPA navigation
+### 3. System Architecture
+- React frontend
+- FastAPI backend
+- PostgreSQL database
+- External AI services
+- Audio and vision pipelines
 
-**Visuals:**
-- Auth flow diagram (login → JWT → API calls → token expiry)
-- Registration flow diagram
-- Google OAuth flow diagram (user → Google → callback → token → login)
-- Email validation flow diagram
-- Screenshots: Login page, Profile page, Settings page, Google login button
+### 4. Database Design
+- Main entities
+- Session ownership by user
+- Interview, coding, communication, and GD storage
+- Verification and auth tables
 
----
+### 5. Authentication And Account Flows
+- Email/password login
+- Google OAuth
+- Email verification
+- JWT-protected routes
 
-## Chapter 5 — AI Engine Architecture (12 pages)
+### 6. Interview Engine
+- Session creation
+- Adaptive question flow
+- Answer submission
+- NLP scoring
+- Voice scoring
+- Face scoring
+- Follow-up questions
+- Finish and replay flow
 
-### 5.1 NLP Engine
-- LLM architecture: Gemini (primary) with Groq Cloud API (LLaMA models)
-- CONCEPT_MAP — 79 concepts, structure
-- Semantic similarity using sentence embeddings (sentence-transformers)
-- Keyword extraction and matching logic
-- Answer depth scoring
-- Structure scoring
-- Follow-up question generation via LLM
-- Final formula: 45% semantic + 25% keywords + 20% depth + 10% structure
+### 7. Coding Module
+- Problem bank
+- Language support
+- Execution strategy
+- Submission scoring
+- Safety constraints
 
-### 5.2 Voice Engine
-- Audio pipeline: WebM blob → Groq Cloud API (STT) → librosa → parselmouth
-- All 9 features explained individually:
-  - Pace (WPM calculation)
-  - Filler word detection (regex patterns)
-  - Pronunciation (confidence from Groq STT)
-  - Intonation (pitch variation)
-  - Modulation (pitch range)
-  - Rhythm (pause distribution)
-  - Stress patterns
-  - Silence ratio
-  - Energy level (RMS amplitude)
-- Parselmouth 0 Hz fallback to librosa
-- Final voice formula
+### 8. Communication Test
+- Section model
+- TTS playback
+- Audio answer scoring
+- Result calculation and history
 
-### 5.3 Face Engine
-- MediaPipe FaceMesh — 468 landmark points
-- Eye contact detection (gaze vector calculation)
-- Attention score derivation
-- Why version 0.10.11 is locked on Windows
+### 9. Group Discussion
+- Topic setup
+- Bot personalities
+- Pause and raise-hand logic
+- Forced-turn logic
+- Ready-script coaching sidebar
+- Results and coaching generation
 
-### 5.4 Multimodal Score Fusion
-- Technical interview: 70% NLP + 20% Voice + 10% Face
-- HR interview: 50% NLP + 30% Voice + 20% Face
-- Score normalization
+### 10. Career AI
+- Resume parsing
+- JD gap analysis
+- Analytics-informed recommendations
 
-**Visuals:**
-- NLP scoring pipeline diagram
-- Voice feature extraction pipeline (audio → FFT → 9 features → score)
-- Face analysis pipeline (frame → MediaPipe → landmarks → score)
-- Multimodal fusion diagram (weight combinations)
-- Score formula reference table (all formulas)
-- Screenshots: live scoring panel, voice breakdown in results
+### 11. Analytics And Reporting
+- Dashboard aggregation
+- Session history
+- Module-wise stats
+- PDF report generation
 
----
+### 12. Deployment
+- Vercel frontend
+- Hugging Face Docker backend
+- Neon Postgres
+- Environment variables
+- Deployment workflow
 
-## Chapter 6 — Interview System (7 pages)
-- Subject → Topic → Subtopic → Question hierarchy
-- Question bank: 482 questions, categorization
-- Adaptive difficulty algorithm — score history → next question difficulty
-- No-repeat question logic — session-level deduplication
-- Answer submission pipeline (audio + video + text together)
-- Follow-up question generation via LLM (Gemini/Groq) — prompt design
-- Session state machine: start → question → answer → follow-up → next → end
-- Evaluation routing: HR vs Technical different scoring weights
-- Interview replay — transcript timeline construction
+### 13. Testing, Bugs, And Stability Work
+- Build verification
+- Startup smoke checks
+- Runtime fixes applied
+- Known limitations
 
-**Visuals:**
-- Adaptive difficulty flowchart (score thresholds → difficulty adjustment)
-- Session state machine diagram
-- Answer submission flow (frontend → multimodal scoring → DB write)
-- Follow-up generation flowchart (answer → LLM prompt → follow-up)
-- Screenshots: interview room, question card, follow-up card, replay
+## Code-Verified Changes That Must Be In The Report
 
----
+These items were missing from the older plan and should now be included explicitly:
 
-## Chapter 7 — Coding Interview System (6 pages)
-- Problem structure — difficulty levels, company tags, problem sets
-- 24 seeded problems — 2 difficulty levels × 4 companies
-- Multi-language execution: Python, C++, Java
-- Sandbox design — how code execution is isolated
-- Batch compile approach
-- Security measures — restricted imports, timeout, subprocess flags
-- Test case evaluation — pass/fail logic, partial scoring
-- Error sanitization
-- Monaco editor integration
+- Interview voice uploads require auth and now send it correctly from the frontend.
+- Face analysis is recorded per question and consumed server-side during evaluation.
+- Follow-up answers are stored without tripping the duplicate-answer guard.
+- Empty interview sessions are marked `abandoned`, not `completed`.
+- Interview analytics no longer count communication tests as interviews.
+- The GD forced-turn sidebar now includes a `Ready Script` card with copy support.
+- The seeded demo account gives data across all major modules for screenshots.
 
-**Visuals:**
-- Code execution pipeline (user code → sandbox → compiler → output → evaluator)
-- Security layer diagram (what's blocked vs allowed)
-- Screenshots: coding room with Monaco editor, test case results, problem list
+## Diagrams To Prepare
 
----
+- Full system architecture
+- Interview request lifecycle
+- Interview evaluation pipeline
+- Communication test flow
+- GD room turn state machine
+- Database ERD
+- Deployment topology
 
-## Chapter 8 — Communication Test System (7 pages)
-- Versant-style design — what it tests and why
-- 8 sections explained: Read Aloud, Repeat Sentence, Open Question, Sentence Build, Keywords, Free Response, Opinion, Vocabulary
-- 140 seeded questions
-- TTS integration — Edge Neural voices pipeline
-- Per-section scoring formulas (all 8 different formulas):
-  - A: 60% pace + 40% fluency
-  - B: 70% wordMatch + 30% fluency
-  - C: 80% keyword + 20% fluency
-  - D: 75% sentenceMatch + 25% fluency
-  - E: 60% semantic + 40% fluency
-  - F: 40% fluency + 30% depth + 30% confidence
-  - G: 50% depth + 30% fluency + 20% confidence
-  - H: 80% keyword + 20% fluency
-- Silence auto-submit — AudioContext/AnalyserNode polling logic
-- Session orchestration — section progression, early finish
+## Screenshot Checklist
 
-**Visuals:**
-- Section progression diagram (8 sections → scoring → aggregate)
-- TTS pipeline diagram (text → Edge Neural → audio stream → frontend)
-- Silence detection flowchart (RMS polling → threshold → auto-submit)
-- Per-section scoring formula table
-- Screenshots: comm test in progress, results with radar chart + section scores
+- Dashboard with populated cards
+- Analytics page with cross-module data
+- Interview setup and room
+- Interview results and replay
+- Coding room and submission results
+- Communication section screen and report
+- GD room with the right-side ready-script card
+- GD results and coaching
+- Career AI resume or JD output
+- Profile page
 
----
+## Open Decisions
 
-## Chapter 9 — GD Room (Group Discussion) (10 pages)
-- 60 topics across 5 categories: Technology, Business, Society, Policy, Abstract
-- 5 AI bot personalities: Alex (structured), Maya (challenger), Ravi (synthesizer), Priya (data-driven), Sam (questioner)
-- Round-based turn flow: bot speaks → 7-sec pause → raise hand to queue turn → mic auto-opens if queued
-- Forced user turn if all bots have spoken and user hasn't (40-sec window, 5-sec silence auto-submit)
-- Groq Cloud API transcription per turn
-- 5-dimension scoring: participation, leadership, listening, idea quality, teamwork
-- Phase-aware instructions (early/mid/late)
-- Bot-specific overrides (Zoe challenges weak args, Sam directs questions, Ethan synthesizes late)
-- Silent user handling — `[user did not speak]` marker and bot reaction
-
-### 9.3 Turn Flow State Machine
-- Turn orchestration: bot speaks → pause → next bot or user
-- Round tracking: botsSpokeRef, userSpokeRef, forcedDoneRef
-- Forced turn logic — when and why user gets forced
-- Silence detection during forced turns (5-second threshold)
-- forcedDoneRef must be set in catch block (critical bug fix)
-
-### 9.4 GD Scoring System
-- 5 dimensions: participation, leadership, listening, idea_quality, teamwork
-- Keyword extraction, argument analysis
-- Sentiment analysis via LLM (Gemini/Groq)
-- Participation intelligence — share of voice, turn count, consistency
-- Voice scoring: 4-feature (30% pace + 25% filler + 25% pause + 20% clarity)
-- Final GD score: average of 5 dimensions
-
-### 9.5 Coaching Generation
-- End-of-session coaching via LLM (Gemini/Groq)
-- Data fed into coaching prompt
-- Filtering `[user did not speak]` from analytics
-
-**Visuals:**
-- Bot personality architecture diagram
-- Turn flow state machine (bot_speaking → pause → forced_turn → user_turn → processing)
-- Forced turn flowchart (silence → auto-stop → submit → forcedDoneRef)
-- GD scoring pipeline diagram
-- Round tracking flowchart (botsSpokeRef reset logic)
-- Screenshots: circular bot layout, hint card during forced turn, GD results + coaching tabs, setup topic grid
-
----
-
-## Chapter 10 — Resume & JD Analyser (4 pages)
-- PyMuPDF — PDF text extraction
-- Resume section parsing (Skills, Experience, Education)
-- LLM prompt for resume analysis (Gemini/Groq)
-- JD Gap Analysis — difflib similarity + keyword matching
-- Matched vs missing skills identification
-- ATS compatibility scoring
-
-**Visuals:**
-- Resume analysis pipeline (PDF → PyMuPDF → text → LLM → output)
-- JD gap analysis flowchart
-- Screenshots: resume upload + analysis results, JD gap matched/missing skills
-
----
-
-## Chapter 11 — PDF Report Generation (3 pages)
-- reportlab pipeline — session data → PDF layout
-- 3 report types: Interview, Communication, GD
-- What each report contains
-- Chart embedding in PDF
-- Download endpoint design
-
-**Visuals:**
-- Screenshots: sample interview PDF, sample GD PDF report
-
----
-
-## Chapter 12 — Frontend Architecture (7 pages)
-- 16 lazy-loaded components — why lazy loading
-- State management: local state + localStorage, no Redux
-- State-based routing vs React Router decision
-- Recording pipeline: getUserMedia → MediaRecorder → ondataavailable → Blob → FormData → fetch
-- VoiceRecorder and VisionRecorder — why locked
-- SidebarLayout wrapping system
-- Design system tokens (colors, spacing, glassmorphism)
-- recharts integration
-- Monaco editor integration
-- localStorage keys — what's persisted and why
-
-**Visuals:**
-- Component tree diagram (App.jsx → lazy routes → page components)
-- Recording pipeline diagram (getUserMedia → MediaRecorder → Blob → API)
-- Interview session state flow diagram
-- Design system color/token reference table
-- Screenshot: App.jsx route structure
-
----
-
-## Chapter 13 — API Reference (5 pages)
-- Every endpoint: method, path, auth required, request body, response shape
-- Error codes and meanings
-- File upload endpoints (audio, video, PDF)
-
-#### 13.1.1 Authentication Endpoints
-- POST `/auth/login` — Traditional email/password login
-- POST `/auth/register` — New user registration
-- GET `/auth/google/url` — Get Google OAuth authorization URL
-- POST `/auth/google/callback` — Handle Google OAuth callback
-- GET `/auth/validate-email` — Validate email via token
-
-**Visuals:**
-- Full endpoint table grouped by domain
-- Screenshot: Swagger docs
-
----
-
-## Chapter 14 — Security Considerations (3 pages)
-- JWT security — token storage, expiry, no refresh token (current limitation)
-- Code execution sandbox — what's restricted
-- File upload validation
-- SQL injection prevention (SQLAlchemy ORM)
-- Passwords hashed, no plaintext storage
-- Cloud API security — API key management (Gemini, Groq)
-- Google OAuth 2.0 security — token storage and validation
-- CSRF protection via state parameter
-- Email validation token security
-- Secure redirect URI validation
-- App-specific passwords for SMTP
-
----
-
-## Chapter 15 — Performance & Known Issues (2 pages)
-- Groq Cloud API latency — fast inference
-- Parselmouth 0 Hz edge case — librosa fallback
-- MediaPipe 0.10.11 lock on Windows — why upgrading breaks it
-- Large GD sessions memory considerations
-- Google API rate limits
-- Email delivery delays (SMTP)
-- Token expiration handling
-- Fallback LLM latency (Groq vs Gemini)
-
----
-
-## Chapter 16 — Deployment Roadmap / Phase 13 (3 pages)
-- Docker containerization plan — which services get containers
-- Docker Compose design (FastAPI + PostgreSQL + frontend)
-- Environment variable management
-- Cloud deployment considerations
-
----
-
-## Pending Decisions
-- [ ] Format: Word / LaTeX / Markdown?
-- [ ] Diagrams: Mermaid code (auto-renders) or draw.io descriptions?
-- [ ] Screenshots: user takes from running app
-- [ ] Audience: college submission / portfolio / internal docs?
+- Final output format: Markdown first, then export to PDF or DOCX
+- Diagram tool: Mermaid or draw.io
+- Screenshot style: local dev or deployed production
+- Audience emphasis: academic documentation or product showcase
