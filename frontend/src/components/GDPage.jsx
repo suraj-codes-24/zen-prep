@@ -108,6 +108,69 @@ const gdCss = `
 
 // ── Main Component ────────────────────────────────────────────────────────────
 
+function cleanTopicTitle(title = "") {
+  return String(title || "").replace(/[?!.]+$/, "").trim();
+}
+
+function summarizeBotPoint(text = "") {
+  const compact = String(text || "").replace(/\s+/g, " ").trim();
+  if (!compact) return "";
+  return compact.length > 110 ? `${compact.slice(0, 107).trim()}...` : compact;
+}
+
+function getTopicLens(topic) {
+  switch (topic?.category) {
+    case "Technology":
+      return "The strongest view is usually the one that balances innovation, long-term skills, and responsible adoption.";
+    case "Business":
+      return "A strong answer should weigh productivity, cost, collaboration, and execution quality together.";
+    case "Society":
+      return "A convincing point usually connects individual benefit with the wider social effect.";
+    case "Policy":
+      return "The best response normally combines innovation with accountability, transparency, and public trust.";
+    default:
+      return "A balanced answer should show both upside and risk before landing on a clear position.";
+  }
+}
+
+function getPhaseCloser(gdPhase) {
+  if (gdPhase === "summary") {
+    return "So my summary is that the better approach is the one that stays practical, balanced, and sustainable over time.";
+  }
+  if (gdPhase === "closing") {
+    return "So my final stand is that we should choose the approach that creates the best long-term outcome, not just the fastest short-term gain.";
+  }
+  return "That is why I would support a balanced approach instead of treating this as an all-or-nothing choice.";
+}
+
+function getScriptPhaseLabel(gdPhase) {
+  if (gdPhase === "opening") return "Opening stance";
+  if (gdPhase === "summary") return "Summary script";
+  if (gdPhase === "closing") return "Closing script";
+  return "Discussion reply";
+}
+
+function buildReadyScript(topic, lastBot, gdPhase) {
+  const title = cleanTopicTitle(topic?.title || "this topic");
+  const opener =
+    gdPhase === "opening"
+      ? `My view on ${title} is that we should take a balanced position instead of looking at only one side.`
+      : gdPhase === "summary"
+        ? `To summarize my position on ${title}, I think the strongest argument is the one that stays practical and balanced.`
+        : gdPhase === "closing"
+          ? `My final point on ${title} is that the better choice is the one that works in the long run, not just in the moment.`
+          : `Building on the discussion around ${title}, I think the strongest position is the one that balances opportunity with real-world limits.`;
+
+  const bridge = lastBot
+    ? `${lastBot.speaker} raised the point that "${summarizeBotPoint(lastBot.text)}", and I would add that we also need to look at the broader impact.`
+    : "One important angle here is that we should not judge the issue from only one perspective.";
+
+  const lens = getTopicLens(topic);
+  const closer = getPhaseCloser(gdPhase);
+
+  return `${opener} ${bridge} ${lens} ${closer}`;
+}
+
 export default function GDPage({ token, user, onNav, onLogout }) {
   const [view,          setView]          = useState("setup");
   const [topics,        setTopics]        = useState([]);
@@ -1160,6 +1223,16 @@ export default function GDPage({ token, user, onNav, onLogout }) {
             {forcedTurn && (() => {
               const topic = sessionData?.topic;
               const lastBot = [...transcript].reverse().find(t => t.speaker !== "You");
+              const readyScript = buildReadyScript(topic, lastBot, gdPhase);
+              const scriptPhaseLabel = getScriptPhaseLabel(gdPhase);
+              const handleCopyReadyScript = async () => {
+                try {
+                  await navigator.clipboard.writeText(readyScript);
+                  setStatusMsg("Ready script copied. Read it naturally and keep the discussion moving.");
+                } catch {
+                  setStatusMsg("Copy failed. You can still read the script from the panel.");
+                }
+              };
               const hints = [
                 `State your position on "${topic?.title}" — agree, disagree, or introduce a new angle.`,
                 lastBot ? `Build on or challenge ${lastBot.speaker}'s last point.` : "Open with a clear stance and justify it briefly.",
@@ -1167,45 +1240,82 @@ export default function GDPage({ token, user, onNav, onLogout }) {
                 "Wrap up with a question to keep the discussion moving.",
               ];
               return (
-                <div style={{ background: "rgba(239,68,68,0.07)", border: "1px solid rgba(239,68,68,0.25)", borderRadius: 16, padding: 16, animation: "gdPulse 2s infinite" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <span style={{ fontSize: 15 }}>⚡</span>
-                      <span style={{ fontSize: 11, fontWeight: 800, color: "#EF4444", letterSpacing: "0.12em", textTransform: "uppercase" }}>Your Turn — Speak Now</span>
+                <>
+                  <div style={{ background: "rgba(239,68,68,0.07)", border: "1px solid rgba(239,68,68,0.25)", borderRadius: 16, padding: 16, animation: "gdPulse 2s infinite" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <span style={{ fontSize: 15 }}>⚡</span>
+                        <span style={{ fontSize: 11, fontWeight: 800, color: "#EF4444", letterSpacing: "0.12em", textTransform: "uppercase" }}>Your Turn — Speak Now</span>
+                      </div>
+                      <span style={{ fontSize: 18, fontWeight: 900, color: "#EF4444" }}>{userTurnCountdown}s</span>
                     </div>
-                    <span style={{ fontSize: 18, fontWeight: 900, color: "#EF4444" }}>{userTurnCountdown}s</span>
-                  </div>
 
-                  {/* Tab toggle */}
-                  <div style={{ display: "flex", background: "rgba(0,0,0,0.2)", borderRadius: 8, padding: 3, marginBottom: 12 }}>
-                    {["hints", "paragraph"].map(mode => (
-                      <button key={mode} onClick={() => setHintMode(mode)} style={{
-                        flex: 1, padding: "5px 0", borderRadius: 6, fontSize: 10, fontWeight: 700,
-                        background: hintMode === mode ? "rgba(239,68,68,0.2)" : "transparent",
-                        color: hintMode === mode ? "#EF4444" : "#64748B",
-                        border: hintMode === mode ? "1px solid rgba(239,68,68,0.3)" : "1px solid transparent",
-                        cursor: "pointer", letterSpacing: "0.08em", textTransform: "uppercase", transition: "all 0.15s",
-                      }}>
-                        {mode === "hints" ? "💡 Hints" : "📄 Topic"}
-                      </button>
-                    ))}
-                  </div>
-
-                  {hintMode === "hints" ? (
-                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                      {hints.map((h, i) => (
-                        <div key={i} style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
-                          <span style={{ fontSize: 10, fontWeight: 800, color: "#EF4444", marginTop: 2, flexShrink: 0 }}>{i + 1}.</span>
-                          <p style={{ fontSize: 12, color: "#CBD5E1", lineHeight: 1.55, margin: 0 }}>{h}</p>
-                        </div>
+                    {/* Tab toggle */}
+                    <div style={{ display: "flex", background: "rgba(0,0,0,0.2)", borderRadius: 8, padding: 3, marginBottom: 12 }}>
+                      {["hints", "paragraph"].map(mode => (
+                        <button key={mode} onClick={() => setHintMode(mode)} style={{
+                          flex: 1, padding: "5px 0", borderRadius: 6, fontSize: 10, fontWeight: 700,
+                          background: hintMode === mode ? "rgba(239,68,68,0.2)" : "transparent",
+                          color: hintMode === mode ? "#EF4444" : "#64748B",
+                          border: hintMode === mode ? "1px solid rgba(239,68,68,0.3)" : "1px solid transparent",
+                          cursor: "pointer", letterSpacing: "0.08em", textTransform: "uppercase", transition: "all 0.15s",
+                        }}>
+                          {mode === "hints" ? "💡 Hints" : "📄 Topic"}
+                        </button>
                       ))}
                     </div>
-                  ) : (
-                    <p style={{ fontSize: 12, color: "#CBD5E1", lineHeight: 1.7, margin: 0 }}>
-                      {topic?.description || "No description available for this topic."}
+
+                    {hintMode === "hints" ? (
+                      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                        {hints.map((h, i) => (
+                          <div key={i} style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
+                            <span style={{ fontSize: 10, fontWeight: 800, color: "#EF4444", marginTop: 2, flexShrink: 0 }}>{i + 1}.</span>
+                            <p style={{ fontSize: 12, color: "#CBD5E1", lineHeight: 1.55, margin: 0 }}>{h}</p>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p style={{ fontSize: 12, color: "#CBD5E1", lineHeight: 1.7, margin: 0 }}>
+                        {topic?.description || "No description available for this topic."}
+                      </p>
+                    )}
+                  </div>
+
+                  <div style={{ background: "rgba(99,102,241,0.12)", border: "1px solid rgba(99,102,241,0.28)", borderRadius: 16, padding: 16 }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 10 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <span style={{ fontSize: 15 }}>📝</span>
+                        <span style={{ fontSize: 11, fontWeight: 800, color: "#818CF8", letterSpacing: "0.12em", textTransform: "uppercase" }}>Ready Script</span>
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <span style={{ fontSize: 10, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.08em" }}>{scriptPhaseLabel}</span>
+                        <button
+                          onClick={handleCopyReadyScript}
+                          style={{
+                            border: "1px solid rgba(129,140,248,0.32)",
+                            background: "rgba(99,102,241,0.16)",
+                            color: "#C7D2FE",
+                            borderRadius: 9999,
+                            padding: "5px 10px",
+                            fontSize: 10,
+                            fontWeight: 700,
+                            cursor: "pointer",
+                            letterSpacing: "0.08em",
+                            textTransform: "uppercase",
+                          }}
+                        >
+                          Copy
+                        </button>
+                      </div>
+                    </div>
+                    <p style={{ fontSize: 12, color: "#E2E8F0", lineHeight: 1.75, margin: 0 }}>
+                      {readyScript}
                     </p>
-                  )}
-                </div>
+                    <p style={{ fontSize: 11, color: "#A5B4FC", lineHeight: 1.6, margin: "10px 0 0" }}>
+                      Use this as your base script, then add one example, rebuttal, or question in your own words.
+                    </p>
+                  </div>
+                </>
               );
             })()}
 
