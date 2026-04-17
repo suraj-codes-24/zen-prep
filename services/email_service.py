@@ -3,6 +3,8 @@ import secrets
 import smtplib
 from email.message import EmailMessage
 
+import requests
+
 from core.logger import logger
 
 
@@ -15,11 +17,48 @@ def _smtp_settings() -> tuple[str | None, int, str | None, str | None, str | Non
     return host, port, username, password, from_email
 
 
+def _resend_settings() -> tuple[str | None, str | None]:
+    api_key = os.getenv("RESEND_API_KEY")
+    from_email = os.getenv("RESEND_FROM_EMAIL") or os.getenv("SMTP_FROM_EMAIL") or os.getenv("FROM_EMAIL")
+    return api_key, from_email
+
+
+def _send_via_resend(to_email: str, subject: str, body: str) -> bool:
+    api_key, from_email = _resend_settings()
+    if not api_key or not from_email:
+        return False
+
+    try:
+        response = requests.post(
+            "https://api.resend.com/emails",
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
+            },
+            json={
+                "from": from_email,
+                "to": [to_email],
+                "subject": subject,
+                "text": body,
+            },
+            timeout=15,
+        )
+        if response.ok:
+            return True
+        logger.warning("Resend email API failed for %s: %s %s", to_email, response.status_code, response.text)
+    except Exception as exc:
+        logger.warning("Resend email request failed for %s: %s", to_email, exc)
+    return False
+
+
 def send_email(to_email: str, subject: str, body: str) -> bool:
+    if _send_via_resend(to_email, subject, body):
+        return True
+
     host, port, username, password, from_email = _smtp_settings()
 
     if not host or not username or not password or not from_email:
-        logger.warning("SMTP is not configured. Email to %s skipped. Subject: %s Body: %s", to_email, subject, body)
+        logger.warning("No email provider is configured. Email to %s skipped. Subject: %s Body: %s", to_email, subject, body)
         return False
 
     msg = EmailMessage()
