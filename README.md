@@ -97,15 +97,19 @@ Millions of students and job seekers struggle with interview preparation due to 
 |-------|-----------|
 | Backend | FastAPI, SQLAlchemy, PostgreSQL (psycopg2) |
 | Frontend | React, Vite, inline CSS (no Tailwind) |
-| LLM | Gemini (primary), Groq Cloud (fallback), Ollama — `qwen2.5-coder:7b`, `llama3.1:8b` |
-| Voice | OpenAI Whisper (local), librosa, parselmouth |
-| Face | MediaPipe FaceMesh 0.10.11 |
+| LLM | Gemini (primary), Groq Cloud API (LLaMA models), Google Generative AI |
+| Voice Analysis | librosa, soundfile, praat-parselmouth, scipy |
+| Voice Input (STT) | Groq Cloud API (fast speech-to-text) |
+| TTS | edge-tts (Microsoft Edge Text-to-Speech) |
+| Face | opencv-python-headless, MediaPipe FaceMesh 0.10.11, imageio-ffmpeg |
 | Code Execution | subprocess sandbox (Python, C++, Java) |
 | Charts | recharts |
 | PDF | reportlab (reports), PyMuPDF (resume parsing) |
 | Editor | Monaco Editor (`@monaco-editor/react`) |
-| Authentication | Google OAuth, JWT |
-| Email | SMTP (validation emails) |
+| NLP | sentence-transformers, scikit-learn, numpy |
+| Authentication | Google OAuth 2.0, JWT (python-jose, passlib, argon2) |
+| Email | SMTP (smtplib for validation emails) |
+| HTTP | requests, httpx (for Google OAuth) |
 
 ---
 
@@ -118,7 +122,6 @@ Millions of students and job seekers struggle with interview preparation due to 
 | Python | 3.11.8 | Backend runtime |
 | Node.js | v24 | Frontend dev server |
 | PostgreSQL | 14+ | Database |
-| Ollama | latest | Local LLM inference |
 | Java JDK | 11+ | Coding sandbox (Java) |
 | g++ | any | Coding sandbox (C++) |
 
@@ -130,25 +133,6 @@ Millions of students and job seekers struggle with interview preparation due to 
 git clone https://github.com/suraj-codes-24/interview-simulator.git
 cd interview-simulator
 ```
-
----
-
-### 2. Set up Ollama
-
-Install Ollama from [ollama.com](https://ollama.com), then pull the required models:
-
-```bash
-ollama pull qwen2.5-coder:7b   # used for interview scoring + follow-up questions
-ollama pull llama3.1:8b        # used for GD bot personalities
-```
-
-Ollama must be running in the background before starting the backend:
-
-```bash
-ollama serve
-```
-
-It runs at `http://localhost:11434` by default.
 
 ---
 
@@ -185,12 +169,12 @@ SMTP_PASSWORD=your_app_specific_password
 FROM_EMAIL=noreply@zen-prep.com
 FRONTEND_URL=http://localhost:5173
 
-# LLM API Keys (optional, for Gemini/Groq)
+# LLM API Keys (recommended for best performance)
 GEMINI_API_KEY=your_gemini_api_key
 GROQ_API_KEY=your_groq_api_key
 ```
 
-> Ollama is expected to be running at `http://localhost:11434` (hardcoded). No env var needed for it.
+> **Note:** LLM functionality works with cloud APIs (Gemini, Groq). Ollama is no longer required.
 
 ---
 
@@ -236,13 +220,12 @@ Frontend runs at `http://localhost:5173`
 
 ### 7. Verify everything is running
 
-Open three terminals:
+Open two terminals:
 
 | Terminal | Command | URL |
 |----------|---------|-----|
-| 1 — Ollama | `ollama serve` | `http://localhost:11434` |
-| 2 — Backend | `uvicorn main:app --reload` | `http://localhost:8000` |
-| 3 — Frontend | `cd frontend && npm run dev` | `http://localhost:5173` |
+| 1 — Backend | `uvicorn main:app --reload` | `http://localhost:8000` |
+| 2 — Frontend | `cd frontend && npm run dev` | `http://localhost:5173` |
 
 Register a new account or log in. All features — interview, coding, comm test, GD Room, career AI — are accessible from the dashboard sidebar.
 
@@ -303,8 +286,8 @@ interview_simulator/
 │   └── llm_utils.py                # LLM generation (Gemini + Groq)
 ├── ai_engine/                      # Scoring engines
 │   ├── nlp_engine.py               # NLP + CONCEPT_MAP (79 concepts)
-│   ├── hr_engine.py                # Ollama HR evaluation
-│   ├── voice_engine.py             # Whisper + librosa + parselmouth
+│   ├── hr_engine.py                # LLM HR evaluation (Gemini/Groq)
+│   ├── voice_engine.py             # librosa + parselmouth
 │   └── vision_engine.py            # MediaPipe FaceMesh
 └── frontend/
     └── src/
@@ -371,6 +354,7 @@ Score  = avg(participation, leadership, listening, idea_quality, teamwork)
 | GET | `/auth/google/url` | Get Google OAuth authorization URL |
 | POST | `/auth/google/callback` | Handle Google OAuth callback |
 | GET | `/auth/validate-email` | Validate email via token |
+| POST | `/contact/submit` | Submit contact form (sends email) |
 | POST | `/interview/start` | Start interview session |
 | GET | `/interview/question` | Next adaptive question |
 | POST | `/interview/answer` | Submit answer + multimodal scores |

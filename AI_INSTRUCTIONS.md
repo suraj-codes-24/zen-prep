@@ -15,10 +15,13 @@ AI-powered multimodal mock interview platform. FastAPI backend + React/Vite fron
 - Python 3.11.8, Node v24
 - FastAPI + SQLAlchemy + PostgreSQL (psycopg2)
 - React + Vite (CSS-in-JSX, no Tailwind classes — inline styles)
-- LLM: Gemini (primary), Groq Cloud (fallback), Ollama (local) — `qwen2.5-coder:7b`, `llama3.1:8b`
+- LLM: Gemini (primary), Groq Cloud API (LLaMA models), Google Generative AI
 - Google OAuth 2.0 for login/signup
 - SMTP for email validation
-- Whisper (local, CPU), librosa, parselmouth, MediaPipe 0.10.11
+- Voice Analysis: librosa, parselmouth, scipy
+- Voice Input (STT): Groq Cloud API (fast speech-to-text)
+- TTS: edge-tts (Microsoft Edge Text-to-Speech)
+- Face: opencv-python-headless, MediaPipe 0.10.11, imageio-ffmpeg
 - Monaco Editor (`@monaco-editor/react@4.7.0`) for coding interviews
 - recharts for analytics charts
 - reportlab for PDF report generation
@@ -30,8 +33,8 @@ AI-powered multimodal mock interview platform. FastAPI backend + React/Vite fron
 | `main.py` | FastAPI entry point, all routers registered |
 | `database.py` | PostgreSQL engine + Base |
 | `ai_engine/nlp_engine.py` | NLP scoring + CONCEPT_MAP (79 concepts) |
-| `ai_engine/hr_engine.py` | Ollama HR evaluation |
-| `ai_engine/voice_engine.py` | Whisper + librosa + parselmouth (9-feature scoring) |
+| `ai_engine/hr_engine.py` | LLM HR evaluation (Gemini/Groq) |
+| `ai_engine/voice_engine.py` | librosa + parselmouth (9-feature scoring) |
 | `ai_engine/vision_engine.py` | MediaPipe FaceMesh |
 | `services/evaluation_service.py` | Routes hr vs technical + multimodal scoring |
 | `services/interview_service.py` | Adaptive difficulty + no-repeat questions |
@@ -39,7 +42,7 @@ AI-powered multimodal mock interview platform. FastAPI backend + React/Vite fron
 | `routes/coding_v2_routes.py` | Coding V2 routes (companies, levels, sessions, run, submit) |
 | `models/coding.py` | CodingProblem, CodingSet, CodingSession, CodingSubmission |
 | `seed_coding_v2.py` | Seeds 24 LeetCode-style problems (2 levels × 4 companies) |
-| `services/llm_utils.py` | Centralized LLM API wrapper (Gemini + Groq + Ollama) |
+| `services/llm_utils.py` | Centralized LLM API wrapper (Gemini + Groq) |
 | `services/google_oauth_service.py` | Google OAuth 2.0 token exchange and user info |
 | `services/email_service.py` | Email validation link sending via SMTP |
 | `services/followup_service.py` | AI follow-up question generation |
@@ -53,10 +56,10 @@ AI-powered multimodal mock interview platform. FastAPI backend + React/Vite fron
 | `seed_communication.py` | Seeds 140 comm questions across 8 sections |
 | `models/gd.py` | GDTopic, GDSession, GDTurn, GDScore models |
 | `services/gd_service.py` | GD session orchestration — start, user turn, finish, results |
-| `services/gd_bot_service.py` | 5 bot personalities (Alex/Maya/Ravi/Priya/Sam) via llama3.1:8b |
+| `services/gd_bot_service.py` | 5 bot personalities (Alex/Maya/Ravi/Priya/Sam) via Groq Cloud API |
 | `services/gd_eval_service.py` | GD scoring: 5 dimensions, keywords, arguments, sentiment, participation intelligence |
 | `services/gd_voice_service.py` | Lightweight 4-feature GD voice scoring (pace, filler, pause, clarity) |
-| `routes/gd_routes.py` | 6 GD endpoints + Whisper transcription per turn |
+| `routes/gd_routes.py` | 6 GD endpoints + Groq Cloud API transcription per turn |
 | `seed_gd.py` | Seeds 60 GD topics across 5 categories (idempotent) |
 | `frontend/src/components/GDPage.jsx` | GD Room — 4 views: setup (editorial topic grid), prep (two-col timer), room (circular bot layout), results (tabbed coaching) |
 | `frontend/src/App.jsx` | Router + lazy imports for all 16 page components |
@@ -92,6 +95,7 @@ GD Score (5-dim avg): participation + leadership + listening + idea_quality + te
 | GET | `/auth/google/url` | Get Google OAuth authorization URL |
 | POST | `/auth/google/callback` | Handle Google OAuth callback |
 | GET | `/auth/validate-email` | Validate email via token |
+| POST | `/contact/submit` | Submit contact form (sends email) |
 | PUT | `/auth/profile` | Update user profile |
 | PUT | `/auth/password` | Change password |
 | GET | `/interview/subjects` | List all subjects |
@@ -142,16 +146,16 @@ GD Score (5-dim avg): participation + leadership + listening + idea_quality + te
 
 ## Current Phase Status
 - Phase 1 — Core Backend (JWT, PostgreSQL, NLP, 133 questions): DONE
-- Phase 2 — Intelligence Layer (Ollama HR + adaptive difficulty): DONE
-- Phase 3 — Voice Analysis (Whisper + librosa + parselmouth): DONE
+- Phase 2 — Intelligence Layer (LLM HR + adaptive difficulty): DONE
+- Phase 3 — Voice Analysis (librosa + parselmouth): DONE
 - Phase 4 — Face Analysis (MediaPipe + multimodal scoring): DONE
 - Phase 5 — Frontend Redesign (16 pages, recharts, state-based routing): DONE
 - Phase 5b — DB Redesign (drop dead tables, enrich answers/users/sessions): DONE
 - Phase 6 — Profile + Settings + Onboarding pages: DONE
 - Phase 7 — Coding Interview (Monaco Editor + multi-language: Python, C++, Java): DONE
-- Phase 8 — AI Follow-up Questions (Ollama): DONE
-- Phase 9 — Resume Analyser (PyMuPDF + Ollama): DONE
-- Phase 10 — JD Gap Analyser (Ollama + difflib): DONE
+- Phase 8 — AI Follow-up Questions (LLM): DONE
+- Phase 9 — Resume Analyser (PyMuPDF + LLM): DONE
+- Phase 10 — JD Gap Analyser (LLM + difflib): DONE
 - Phase 11 — Interview Replay (transcript timeline): DONE
 - Phase 12 — PDF Reports (reportlab): DONE
 - Phase 12.5 — UX & stability improvements: DONE
@@ -161,9 +165,10 @@ GD Score (5-dim avg): participation + leadership + listening + idea_quality + te
 - Phase 15.10 — Comm UX polish (AI TTS for questions, section animations, silence auto-submit, radar chart fix): DONE
 - Phase 16 — Coding Room Hardening (batch compile, safety expansion, error sanitization, subprocess flags): DONE
 - Phase 17 — GD Room (circular bot layout, glassmorphism, editorial topic grid, coaching tabs, Share of Voice): DONE
-- Phase 17.5 — GD Backend Upgrade (voice scoring, Ollama sentiment, participation intelligence, keyword extraction, argument analysis, difficulty-aware bots, 60 topics, PDF report, analytics tab): DONE
+- Phase 17.5 — GD Backend Upgrade (voice scoring, LLM sentiment, participation intelligence, keyword extraction, argument analysis, difficulty-aware bots, 60 topics, PDF report, analytics tab): DONE
 - Phase 18 — Google OAuth + Email Validation (login/signup with Google, SMTP validation emails, browser history navigation): DONE
-- Phase 19 — LLM Architecture Upgrade (Gemini primary, Groq fallback): DONE
+- Phase 19 — LLM Architecture Upgrade (Gemini primary, Groq Cloud API fallback): DONE
+- Phase 20 — Contact Form Email Notification (SMTP): DONE
 - Phase 13 — Docker + Deploy: PLANNED
 
 ## Known Issues
