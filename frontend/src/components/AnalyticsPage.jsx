@@ -111,6 +111,12 @@ function AnalyticsPage({ token, user, onNav, onLogout }) {
 
   const commSections = comm.section_averages ? Object.entries(comm.section_averages) : [];
   const sectionNames = { A: "Read Aloud", B: "Repeat", C: "Short Answer", D: "Arrange", E: "Story Retell", F: "Open Question", G: "Describe Image", H: "Listening" };
+  const hasAnyAnalyticsData =
+    (analytics?.total_sessions ?? 0) > 0 ||
+    (analytics?.total_answers ?? 0) > 0 ||
+    (coding.total_sessions ?? 0) > 0 ||
+    (comm.tests_taken ?? 0) > 0 ||
+    (gd.total_sessions ?? 0) > 0;
 
   // ── Coding chart data ──
   const codingRecent = coding.recent_sessions || [];
@@ -175,7 +181,7 @@ function AnalyticsPage({ token, user, onNav, onLogout }) {
 
         {loading ? (
           <div style={{ textAlign: "center", padding: 80 }}><Spinner /></div>
-        ) : (!analytics || (analytics.total_answers === 0 && (analytics.coding?.total_sessions ?? 0) === 0 && (analytics.communication?.tests_taken ?? 0) === 0)) ? (
+        ) : (!analytics || !hasAnyAnalyticsData) ? (
           <div style={{ textAlign: "center", padding: "80px 24px" }}>
             <div style={{ fontSize: 48, marginBottom: 16, filter: "drop-shadow(0 0 8px rgba(201,168,76,0.3))" }}>📊</div>
             <h3 style={{ color: "#F1F5F9", fontWeight: 700, fontSize: 20, marginBottom: 8 }}>No data yet</h3>

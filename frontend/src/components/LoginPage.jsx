@@ -164,6 +164,12 @@ function LoginPage({ onLogin, onBack }) {
     forgot: "Send Reset Code",
     reset: "Update Password",
   };
+  const features = [
+    { icon: "🎙", title: "Voice Analysis", desc: "9-dimension speech scoring", color: "#C9A84C" },
+    { icon: "👁", title: "Vision Tracking", desc: "Real-time face analysis", color: "#22C55E" },
+    { icon: "🧠", title: "NLP Scoring", desc: "AI-powered answer evaluation", color: "#F59E0B" },
+    { icon: "💻", title: "Code Editor", desc: "Monaco-powered sandbox", color: "#3B82F6" },
+  ];
 
   const needsEmail = ["login", "register", "verify", "forgot", "reset"].includes(mode);
   const needsPassword = ["login", "register"].includes(mode);
@@ -189,23 +195,78 @@ function LoginPage({ onLogin, onBack }) {
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0B0F1E", display: "grid", gridTemplateColumns: "minmax(320px, 0.9fr) minmax(380px, 1fr)", fontFamily: "Inter" }}>
-      <div style={{ padding: "42px 48px", background: "linear-gradient(160deg, #0F1629 0%, #131B36 100%)", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-        <div onClick={onBack} style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }}>
-          <ZenPrepLogo size={38} />
-          <span style={{ color: "#fff", fontWeight: 800, fontSize: 19 }}>ZenPrep</span>
+    <div style={{ minHeight: "100vh", background: "#0B0F1E", display: "grid", gridTemplateColumns: "1.1fr 1fr", fontFamily: "Inter", overflow: "hidden" }}>
+      <div style={{ background: "linear-gradient(160deg, #0F1629 0%, #131B36 50%, #0F1629 100%)", padding: "40px 48px", display: "flex", flexDirection: "column", position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(rgba(201,168,76,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(201,168,76,0.03) 1px, transparent 1px)", backgroundSize: "60px 60px", pointerEvents: "none" }} />
+
+        <div onClick={onBack} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 48, position: "relative", zIndex: 1, cursor: "pointer" }}>
+          <ZenPrepLogo size={36} />
+          <span style={{ fontWeight: 700, fontSize: 18, color: "#fff" }}>ZenPrep</span>
         </div>
-        <div>
-          <p style={{ color: THEME.gold, fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 14 }}>Secure access</p>
-          <h1 style={{ color: "#fff", fontSize: 38, lineHeight: 1.15, marginBottom: 16 }}>Practice starts after the right person is in.</h1>
-          <p style={{ color: "#94A3B8", fontSize: 15, lineHeight: 1.7, maxWidth: 440 }}>
-            Email accounts are verified with a 6-digit code. Google accounts are accepted only after Google confirms the email is verified.
-          </p>
+
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", position: "relative", zIndex: 1 }}>
+          <div style={{ marginBottom: 32 }}>
+            <h2 style={{ fontSize: 28, fontWeight: 800, color: "#fff", lineHeight: 1.3, marginBottom: 10 }}>
+              Focus Flows
+              <span style={{ display: "block", background: "linear-gradient(90deg, #C9A84C, #E2C97E)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Here.</span>
+            </h2>
+            <p style={{ color: "#94A3B8", fontSize: 14, lineHeight: 1.6, maxWidth: 380 }}>
+              AI-powered interview prep with voice, vision, and NLP. Secure sign-in, verified email codes, and Google login that actually behaves.
+            </p>
+          </div>
+
+          <div style={{ background: "rgba(15,22,41,0.8)", backdropFilter: "blur(12px)", borderRadius: 16, overflow: "hidden", border: "1px solid rgba(201,168,76,0.15)", marginBottom: 28, boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 16px", borderBottom: "1px solid rgba(255,255,255,0.06)", background: "rgba(201,168,76,0.04)" }}>
+              <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#22C55E", boxShadow: "0 0 8px rgba(34,197,94,0.5)" }} />
+              <span style={{ color: "#94A3B8", fontSize: 12, fontWeight: 500 }}>Live Interview Session</span>
+              <span style={{ marginLeft: "auto", color: "#64748B", fontSize: 11 }}>00:42 / 05:00</span>
+            </div>
+
+            <div style={{ height: 140, background: "linear-gradient(160deg, rgba(201,168,76,0.05), rgba(226,201,126,0.03))", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
+              <div style={{ width: 72, height: 72, borderRadius: "50%", background: "linear-gradient(135deg, rgba(201,168,76,0.25), rgba(226,201,126,0.15))", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 32, border: "2px solid rgba(201,168,76,0.3)" }}>🤖</div>
+              <div style={{ position: "absolute", top: 12, right: 16, background: "rgba(201,168,76,0.15)", border: "1px solid rgba(201,168,76,0.25)", borderRadius: 8, padding: "4px 10px", fontSize: 10, color: "#E2C97E", fontWeight: 600 }}>
+                AI-Powered
+              </div>
+            </div>
+
+            <div style={{ padding: "12px 16px", borderTop: "1px solid rgba(255,255,255,0.04)" }}>
+              <div style={{ fontSize: 10, color: "#C9A84C", fontWeight: 600, letterSpacing: "0.08em", marginBottom: 4 }}>CURRENT QUESTION</div>
+              <div style={{ color: "#F1F5F9", fontWeight: 600, fontSize: 13 }}>Explain the Quicksort algorithm and its time complexity.</div>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 1, background: "rgba(255,255,255,0.03)" }}>
+              {[{ label: "Voice", val: 82, color: "#C9A84C", icon: "🎙" }, { label: "Vision", val: 75, color: "#22C55E", icon: "👁" }, { label: "NLP", val: 90, color: "#F59E0B", icon: "🧠" }].map(s => (
+                <div key={s.label} style={{ background: "rgba(15,22,41,0.6)", padding: "10px 12px" }}>
+                  <div style={{ color: "#64748B", fontSize: 10, marginBottom: 3, display: "flex", alignItems: "center", gap: 4 }}>
+                    <span style={{ fontSize: 10 }}>{s.icon}</span> {s.label}
+                  </div>
+                  <div style={{ color: "#fff", fontWeight: 700, fontSize: 18, marginBottom: 4 }}>{s.val}<span style={{ fontSize: 11, color: "#64748B", fontWeight: 400 }}>%</span></div>
+                  <div style={{ height: 3, background: "rgba(255,255,255,0.06)", borderRadius: 2, overflow: "hidden" }}>
+                    <div style={{ height: "100%", width: `${s.val}%`, background: s.color, borderRadius: 2 }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+            {features.map(f => (
+              <div key={f.title} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", background: "rgba(15,22,41,0.5)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: 8 }}>
+                <div style={{ width: 32, height: 32, borderRadius: 8, background: `${f.color}15`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, flexShrink: 0 }}>{f.icon}</div>
+                <div>
+                  <div style={{ color: "#F1F5F9", fontSize: 12, fontWeight: 600 }}>{f.title}</div>
+                  <div style={{ color: "#64748B", fontSize: 10 }}>{f.desc}</div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-          {["Email verification", "Google sign-in", "Password reset", "JWT sessions"].map(item => (
-            <div key={item} style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 8, padding: "13px 14px", color: "#CBD5E1", fontSize: 13, fontWeight: 600 }}>
-              {item}
+
+        <div style={{ display: "flex", alignItems: "center", gap: 20, position: "relative", zIndex: 1 }}>
+          {[{ n: "482+", l: "Questions" }, { n: "9", l: "Voice Dims" }, { n: "8", l: "Comm Sections" }].map(s => (
+            <div key={s.l} style={{ display: "flex", alignItems: "baseline", gap: 5 }}>
+              <span style={{ color: "#C9A84C", fontWeight: 700, fontSize: 16 }}>{s.n}</span>
+              <span style={{ color: "#64748B", fontSize: 11 }}>{s.l}</span>
             </div>
           ))}
         </div>
