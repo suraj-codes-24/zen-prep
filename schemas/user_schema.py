@@ -1,3 +1,4 @@
+from datetime import datetime
 from pydantic import BaseModel, EmailStr, Field
 from typing import Optional
 
@@ -22,6 +23,7 @@ class UserResponse(BaseModel):
     year: Optional[int] = None
     college: Optional[str] = None
     avatar_url: Optional[str] = None
+    created_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True

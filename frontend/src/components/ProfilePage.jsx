@@ -147,9 +147,11 @@ function ProfilePage({ token, user, onNav, onLogout, onUpdateUser }) {
   const avgScore         = analytics?.avg_total_score || 0;
   const bestScore        = analytics?.best_score || 0;
   const totalAnswers     = analytics?.total_answers || 0;
-  const perfBand         = analytics?.performance?.band || null;
-  const strongestTopic   = analytics?.strongest_topic || null;
-  const weakestTopic     = analytics?.weakest_topic || null;
+  const perfBand         = analytics?.performance || null;
+  const strongestTopicName = analytics?.strongest_topic && analytics.strongest_topic !== "N/A" ? analytics.strongest_topic : null;
+  const weakestTopicName   = analytics?.weakest_topic && analytics.weakest_topic !== "N/A" ? analytics.weakest_topic : null;
+  const strongestTopicScore = strongestTopicName ? analytics?.topic_breakdown?.[strongestTopicName] : null;
+  const weakestTopicScore   = weakestTopicName ? analytics?.topic_breakdown?.[weakestTopicName] : null;
   const codingTotal      = analytics?.coding?.total_sessions || 0;
   const codingAvg        = analytics?.coding?.avg_score || 0;
   const codingBest       = analytics?.coding?.best_score || 0;
@@ -162,7 +164,7 @@ function ProfilePage({ token, user, onNav, onLogout, onUpdateUser }) {
   const recentSessions   = analytics?.recent_sessions || [];
   const gdDims           = analytics?.gd?.dimension_averages || {};
 
-  const BAND_COLORS = { Excellent: "#22C55E", Good: "#6366F1", Average: "#F59E0B", Poor: "#EF4444" };
+  const BAND_COLORS = { Excellent: "#22C55E", Good: "#6366F1", Average: "#F59E0B", Poor: "#EF4444", "Needs Improvement": "#EF4444" };
 
   const moduleCards = [
     {
@@ -480,7 +482,7 @@ function ProfilePage({ token, user, onNav, onLogout, onUpdateUser }) {
             </div>
 
             {/* Topic Insights */}
-            {(strongestTopic || weakestTopic) && (
+            {(strongestTopicName || weakestTopicName) && (
               <div style={cardBase}>
                 <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: "linear-gradient(90deg, transparent, rgba(34,197,94,0.4), transparent)" }} />
                 <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
@@ -488,18 +490,18 @@ function ProfilePage({ token, user, onNav, onLogout, onUpdateUser }) {
                   <h3 style={{ color: "#F1F5F9", fontWeight: 700, fontSize: 15, margin: 0 }}>Topic Insights</h3>
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                  {strongestTopic && (
+                  {strongestTopicName && (
                     <div style={{ background: "rgba(34,197,94,0.06)", border: "1px solid rgba(34,197,94,0.15)", borderRadius: 12, padding: "14px" }}>
                       <div style={{ fontSize: 10, color: "#22C55E", fontWeight: 700, letterSpacing: "0.08em", marginBottom: 6 }}>▲ STRONGEST</div>
-                      <div style={{ fontSize: 12, fontWeight: 700, color: "#F1F5F9", lineHeight: 1.3 }}>{strongestTopic.topic}</div>
-                      <div style={{ fontSize: 20, fontWeight: 800, color: "#22C55E", marginTop: 6 }}>{strongestTopic.avg_score}%</div>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: "#F1F5F9", lineHeight: 1.3 }}>{strongestTopicName}</div>
+                      <div style={{ fontSize: 20, fontWeight: 800, color: "#22C55E", marginTop: 6 }}>{strongestTopicScore != null ? `${strongestTopicScore}%` : "—"}</div>
                     </div>
                   )}
-                  {weakestTopic && (
+                  {weakestTopicName && (
                     <div style={{ background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.15)", borderRadius: 12, padding: "14px" }}>
                       <div style={{ fontSize: 10, color: "#F87171", fontWeight: 700, letterSpacing: "0.08em", marginBottom: 6 }}>▼ NEEDS WORK</div>
-                      <div style={{ fontSize: 12, fontWeight: 700, color: "#F1F5F9", lineHeight: 1.3 }}>{weakestTopic.topic}</div>
-                      <div style={{ fontSize: 20, fontWeight: 800, color: "#F87171", marginTop: 6 }}>{weakestTopic.avg_score}%</div>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: "#F1F5F9", lineHeight: 1.3 }}>{weakestTopicName}</div>
+                      <div style={{ fontSize: 20, fontWeight: 800, color: "#F87171", marginTop: 6 }}>{weakestTopicScore != null ? `${weakestTopicScore}%` : "—"}</div>
                     </div>
                   )}
                 </div>
