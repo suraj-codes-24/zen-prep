@@ -52,9 +52,10 @@ def _create_code(email: str, purpose: str, db: Session) -> None:
         expires_at=datetime.utcnow() + timedelta(minutes=OTP_TTL_MINUTES),
     )
     db.add(verification)
-    db.commit()
     if not send_verification_code(email, code, purpose):
+        db.rollback()
         raise HTTPException(status_code=503, detail="We could not send the verification email right now. Please try again shortly.")
+    db.commit()
 
 
 def _verify_code(email: str, code: str, purpose: str, db: Session) -> None:
