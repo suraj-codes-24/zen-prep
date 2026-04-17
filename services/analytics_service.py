@@ -1,96 +1,97 @@
 from sqlalchemy.orm import Session
 
+from core.logger import logger
 from models.answer import Answer
+from models.coding import CodingSession, CodingSet
+from models.communication import CommSession
+from models.gd import GDScore, GDSession
 from models.interview_session import InterviewSession
 from models.question import Question
 from models.subject import Subject
 from models.topic import Topic
-from models.communication import CommSession
-from models.coding import CodingSession, CodingSet
-from models.gd import GDSession, GDScore
 from services.gd_eval_service import get_performance_band
-from core.logger import logger
 
 
 def get_user_analytics(db: Session, user_id: int) -> dict:
     """Full performance summary for the user."""
 
-    sessions = db.query(InterviewSession).filter(
-        InterviewSession.user_id == user_id
-    ).order_by(InterviewSession.start_time.desc()).all()
+    all_interview_sessions = (
+        db.query(InterviewSession)
+        .filter(InterviewSession.user_id == user_id)
+        .order_by(InterviewSession.start_time.desc())
+        .all()
+    )
 
-    if not sessions:
-        return {
-            "total_sessions": 0,
-            "completed_sessions": 0,
-            "completion_rate": 0,
-            "total_answers": 0,
-            "avg_nlp_score": 0,
-            "avg_total_score": 0,
-            "best_score": 0,
-            "strongest_topic": "N/A",
-            "weakest_topic": "N/A",
-            "subject_breakdown": {},
-            "topic_breakdown": {},
-            "recent_sessions": [],
-            "performance": "No data yet",
-        }
+    session_ids = [session.id for session in all_interview_sessions]
+    all_answers = (
+        db.query(Answer).filter(Answer.session_id.in_(session_ids)).all()
+        if session_ids
+        else []
+    )
 
-    session_ids = [s.id for s in sessions]
+    answers_by_session = {}
+    for answer in all_answers:
+        answers_by_session.setdefault(answer.session_id, []).append(answer)
 
-    answers = db.query(Answer).filter(
-        Answer.session_id.in_(session_ids)
-    ).all()
+    # Ignore empty interview starts so they do not show up as real interviews.
+    interview_sessions = [
+        session
+        for session in all_interview_sessions
+        if (session.questions_answered or 0) > 0
+        or bool(answers_by_session.get(session.id))
+        or (session.final_score or 0) > 0
+    ]
+    tracked_session_ids = {session.id for session in interview_sessions}
+    interview_answers = [
+        answer for answer in all_answers if answer.session_id in tracked_session_ids
+    ]
 
-    if not answers:
-        return {
-            "total_sessions": len(sessions),
-            "completed_sessions": 0,
-            "completion_rate": 0,
-            "total_answers": 0,
-            "avg_nlp_score": 0,
-            "avg_total_score": 0,
-            "best_score": 0,
-            "strongest_topic": "N/A",
-            "weakest_topic": "N/A",
-            "subject_breakdown": {},
-            "topic_breakdown": {},
-            "recent_sessions": [],
-            "performance": "No data yet",
-        }
+    question_ids = list({answer.question_id for answer in interview_answers})
+    questions = (
+        db.query(Question).filter(Question.id.in_(question_ids)).all()
+        if question_ids
+        else []
+    )
+    questions_map = {question.id: question for question in questions}
 
-    # ── Batch-load questions, subjects, topics to avoid N+1 ──────────────
-    question_ids = list({a.question_id for a in answers})
-    questions = db.query(Question).filter(Question.id.in_(question_ids)).all()
-    questions_map = {q.id: q for q in questions}
+    subject_ids = list({question.subject_id for question in questions if question.subject_id})
+    subjects = (
+        db.query(Subject).filter(Subject.id.in_(subject_ids)).all()
+        if subject_ids
+        else []
+    )
+    subjects_map = {subject.id: subject for subject in subjects}
 
-    subject_ids = list({q.subject_id for q in questions if q.subject_id})
-    subjects = db.query(Subject).filter(Subject.id.in_(subject_ids)).all()
-    subjects_map = {s.id: s for s in subjects}
+    topic_ids = list({question.topic_id for question in questions if question.topic_id})
+    topics = (
+        db.query(Topic).filter(Topic.id.in_(topic_ids)).all()
+        if topic_ids
+        else []
+    )
+    topics_map = {topic.id: topic for topic in topics}
 
-    topic_ids = list({q.topic_id for q in questions if q.topic_id})
-    topics = db.query(Topic).filter(Topic.id.in_(topic_ids)).all()
-    topics_map = {t.id: t for t in topics}
+    total_answers = len(interview_answers)
+    nlp_scores = [answer.nlp_score or 0.0 for answer in interview_answers]
+    total_scores = [answer.total_score or 0.0 for answer in interview_answers]
+    avg_nlp = round(sum(nlp_scores) / total_answers, 1) if total_answers else 0
+    avg_total = round(sum(total_scores) / total_answers, 1) if total_answers else 0
+    best_score = round(max(total_scores), 1) if total_scores else 0
 
-    # ── Overall stats ─────────────────────────────────────────────────────
-    total_answers = len(answers)
-    nlp_scores    = [a.nlp_score or 0.0 for a in answers]
-    total_scores  = [a.total_score or 0.0 for a in answers]
-    avg_nlp       = round(sum(nlp_scores) / total_answers, 1)
-    avg_total     = round(sum(total_scores) / total_answers, 1)
-    best_score    = round(max(total_scores), 1)
+    completed_sessions = sum(
+        1 for session in interview_sessions if session.status == "completed"
+    )
+    completion_rate = (
+        round((completed_sessions / len(interview_sessions)) * 100)
+        if interview_sessions
+        else 0
+    )
 
-    # ── Completion tracking ──────────────────────────────────────────────
-    completed_sessions = sum(1 for s in sessions if s.status == "completed")
-    completion_rate = round((completed_sessions / len(sessions)) * 100) if sessions else 0
-
-    # ── Subject & topic breakdown (by total_score) ────────────────────────
     subject_scores = {}
     subject_counts = {}
-    topic_scores   = {}
-    topic_counts   = {}
+    topic_scores = {}
+    topic_counts = {}
 
-    for answer in answers:
+    for answer in interview_answers:
         question = questions_map.get(answer.question_id)
         if not question:
             continue
@@ -99,27 +100,32 @@ def get_user_analytics(db: Session, user_id: int) -> dict:
 
         subject = subjects_map.get(question.subject_id)
         if subject:
-            sname = subject.name
-            subject_scores[sname] = subject_scores.get(sname, 0.0) + score
-            subject_counts[sname] = subject_counts.get(sname, 0) + 1
+            name = subject.name
+            subject_scores[name] = subject_scores.get(name, 0.0) + score
+            subject_counts[name] = subject_counts.get(name, 0) + 1
 
         topic = topics_map.get(question.topic_id)
         if topic:
-            tname = topic.name
-            topic_scores[tname] = topic_scores.get(tname, 0.0) + score
-            topic_counts[tname] = topic_counts.get(tname, 0) + 1
+            name = topic.name
+            topic_scores[name] = topic_scores.get(name, 0.0) + score
+            topic_counts[name] = topic_counts.get(name, 0) + 1
 
     subject_averages = {
-        s: round(subject_scores[s] / subject_counts[s], 1) for s in subject_scores
+        name: round(subject_scores[name] / subject_counts[name], 1)
+        for name in subject_scores
     }
     topic_averages = {
-        t: round(topic_scores[t] / topic_counts[t], 1) for t in topic_scores
+        name: round(topic_scores[name] / topic_counts[name], 1)
+        for name in topic_scores
     }
 
-    strongest_topic = max(topic_averages, key=topic_averages.get) if topic_averages else "N/A"
-    weakest_topic   = min(topic_averages, key=topic_averages.get) if topic_averages else "N/A"
+    strongest_topic = (
+        max(topic_averages, key=topic_averages.get) if topic_averages else "N/A"
+    )
+    weakest_topic = (
+        min(topic_averages, key=topic_averages.get) if topic_averages else "N/A"
+    )
 
-    # ── Performance label ─────────────────────────────────────────────────
     if avg_total >= 75:
         performance = "Excellent"
     elif avg_total >= 55:
@@ -129,35 +135,56 @@ def get_user_analytics(db: Session, user_id: int) -> dict:
     else:
         performance = "Needs Improvement"
 
-    # ── Recent sessions (last 5) ──────────────────────────────────────────
     recent_sessions = []
-    for session in sessions[:5]:
-        sess_answers = [a for a in answers if a.session_id == session.id]
-        ans_count = len(sess_answers)
-        if sess_answers:
-            avg_s = round(sum(a.total_score or 0 for a in sess_answers) / ans_count, 1)
-        else:
-            avg_s = None
+    for session in interview_sessions[:5]:
+        session_answers = answers_by_session.get(session.id, [])
+        answer_count = len(session_answers)
+        avg_score = (
+            round(
+                sum(answer.total_score or 0 for answer in session_answers) / answer_count,
+                1,
+            )
+            if session_answers
+            else None
+        )
 
         subject = subjects_map.get(session.subject_id)
-        recent_sessions.append({
-            "session_id":         session.id,
-            "date":               session.start_time.strftime("%b %d, %Y") if session.start_time else "—",
-            "subject":            subject.name if subject else "—",
-            "difficulty":         session.difficulty,
-            "total_answered":     session.questions_answered or ans_count,
-            "avg_score":          avg_s if avg_s is not None else (session.final_score or 0),
-            "status":             session.status or "active",
-        })
+        recent_sessions.append(
+            {
+                "session_id": session.id,
+                "date": session.start_time.strftime("%b %d, %Y")
+                if session.start_time
+                else "-",
+                "subject": subject.name if subject else "-",
+                "difficulty": session.difficulty,
+                "total_answered": session.questions_answered or answer_count,
+                "avg_score": avg_score
+                if avg_score is not None
+                else (session.final_score or 0),
+                "status": session.status or "active",
+            }
+        )
 
-    # ── Communication test stats ─────────────────────────────────────────
-    comm_sessions = db.query(CommSession).filter(
-        CommSession.user_id == user_id
-    ).order_by(CommSession.start_time.desc()).all()
+    comm_sessions = (
+        db.query(CommSession)
+        .filter(CommSession.user_id == user_id)
+        .order_by(CommSession.start_time.desc())
+        .all()
+    )
 
-    logger.info(f"Communication sessions for user {user_id}: {len(comm_sessions)} sessions")
-    for s in comm_sessions:
-        logger.info(f"  Session {s.id}: status={s.status}, overall_score={s.overall_score}, section_scores={s.section_scores}")
+    logger.info(
+        "Communication sessions for user %s: %s sessions",
+        user_id,
+        len(comm_sessions),
+    )
+    for session in comm_sessions:
+        logger.info(
+            "  Session %s: status=%s, overall_score=%s, section_scores=%s",
+            session.id,
+            session.status,
+            session.overall_score,
+            session.section_scores,
+        )
 
     comm_stats = {
         "tests_taken": len(comm_sessions),
@@ -167,22 +194,32 @@ def get_user_analytics(db: Session, user_id: int) -> dict:
         "section_averages": {},
     }
     if comm_sessions:
-        completed_comm = [s for s in comm_sessions if s.status == "completed"]
-        logger.info(f"Completed communication sessions: {len(completed_comm)}")
+        completed_comm = [
+            session for session in comm_sessions if session.status == "completed"
+        ]
+        logger.info("Completed communication sessions: %s", len(completed_comm))
         if completed_comm:
-            comm_stats["best_score"] = round(max(s.overall_score or 0 for s in completed_comm), 1)
-            comm_stats["latest_score"] = round(completed_comm[0].overall_score or 0, 1)
+            comm_stats["best_score"] = round(
+                max(session.overall_score or 0 for session in completed_comm), 1
+            )
+            comm_stats["latest_score"] = round(
+                completed_comm[0].overall_score or 0, 1
+            )
             comm_stats["latest_band"] = completed_comm[0].band or "N/A"
             if completed_comm[0].section_scores:
                 comm_stats["section_averages"] = completed_comm[0].section_scores
-                logger.info(f"Section averages: {comm_stats['section_averages']}")
+                logger.info(
+                    "Section averages: %s", comm_stats["section_averages"]
+                )
             else:
-                logger.warning(f"Latest completed session has no section_scores")
+                logger.warning("Latest completed session has no section_scores")
 
-    # ── Coding stats ──────────────────────────────────────────────────────
-    coding_sessions = db.query(CodingSession).filter(
-        CodingSession.user_id == user_id
-    ).order_by(CodingSession.start_time.desc()).all()
+    coding_sessions = (
+        db.query(CodingSession)
+        .filter(CodingSession.user_id == user_id)
+        .order_by(CodingSession.start_time.desc())
+        .all()
+    )
 
     coding_stats = {
         "total_sessions": len(coding_sessions),
@@ -193,44 +230,66 @@ def get_user_analytics(db: Session, user_id: int) -> dict:
         "recent_sessions": [],
     }
     if coding_sessions:
-        # Batch-load coding sets to avoid N+1
-        cs_ids = list({s.coding_set_id for s in coding_sessions if s.coding_set_id})
-        coding_sets = db.query(CodingSet).filter(CodingSet.id.in_(cs_ids)).all() if cs_ids else []
-        cs_map = {cs.id: cs for cs in coding_sets}
+        coding_set_ids = list(
+            {session.coding_set_id for session in coding_sessions if session.coding_set_id}
+        )
+        coding_sets = (
+            db.query(CodingSet).filter(CodingSet.id.in_(coding_set_ids)).all()
+            if coding_set_ids
+            else []
+        )
+        coding_set_map = {coding_set.id: coding_set for coding_set in coding_sets}
 
-        completed_coding = [s for s in coding_sessions if s.status == "completed"]
+        completed_coding = [
+            session for session in coding_sessions if session.status == "completed"
+        ]
         coding_stats["completed_sessions"] = len(completed_coding)
-        scored = [s for s in completed_coding if s.score is not None]
-        if scored:
-            coding_stats["avg_score"] = round(sum(s.score for s in scored) / len(scored), 1)
-            coding_stats["best_score"] = round(max(s.score for s in scored), 1)
+        scored_coding = [
+            session for session in completed_coding if session.score is not None
+        ]
+        if scored_coding:
+            coding_stats["avg_score"] = round(
+                sum(session.score for session in scored_coding) / len(scored_coding), 1
+            )
+            coding_stats["best_score"] = round(
+                max(session.score for session in scored_coding), 1
+            )
 
-        # Company breakdown
         company_scores = {}
         company_counts = {}
-        for s in scored:
-            cs = cs_map.get(s.coding_set_id)
-            if cs:
-                company_scores[cs.company] = company_scores.get(cs.company, 0) + s.score
-                company_counts[cs.company] = company_counts.get(cs.company, 0) + 1
+        for session in scored_coding:
+            coding_set = coding_set_map.get(session.coding_set_id)
+            if not coding_set:
+                continue
+            company_scores[coding_set.company] = (
+                company_scores.get(coding_set.company, 0) + session.score
+            )
+            company_counts[coding_set.company] = (
+                company_counts.get(coding_set.company, 0) + 1
+            )
         coding_stats["company_breakdown"] = {
-            c: round(company_scores[c] / company_counts[c], 1) for c in company_scores
+            company: round(company_scores[company] / company_counts[company], 1)
+            for company in company_scores
         }
 
-        # Recent coding sessions (last 5)
-        for s in coding_sessions[:5]:
-            cs = cs_map.get(s.coding_set_id)
-            coding_stats["recent_sessions"].append({
-                "session_id": s.id,
-                "date": s.start_time.strftime("%b %d, %Y") if s.start_time else "—",
-                "company": cs.company if cs else "—",
-                "level": cs.level_number if cs else 0,
-                "topic": cs.topic if cs else "—",
-                "score": round(s.score, 1) if s.score is not None else None,
-                "status": s.status or "active",
-            })
+        for session in coding_sessions[:5]:
+            coding_set = coding_set_map.get(session.coding_set_id)
+            coding_stats["recent_sessions"].append(
+                {
+                    "session_id": session.id,
+                    "date": session.start_time.strftime("%b %d, %Y")
+                    if session.start_time
+                    else "-",
+                    "company": coding_set.company if coding_set else "-",
+                    "level": coding_set.level_number if coding_set else 0,
+                    "topic": coding_set.topic if coding_set else "-",
+                    "score": round(session.score, 1)
+                    if session.score is not None
+                    else None,
+                    "status": session.status or "active",
+                }
+            )
 
-    # ── GD stats ──────────────────────────────────────────────────────────────
     gd_sessions = (
         db.query(GDSession)
         .filter(GDSession.user_id == user_id, GDSession.status == "completed")
@@ -246,59 +305,82 @@ def get_user_analytics(db: Session, user_id: int) -> dict:
         "latest_band": "N/A",
         "dimension_averages": {
             "participation": 0.0,
-            "leadership":    0.0,
-            "listening":     0.0,
-            "idea_quality":  0.0,
-            "teamwork":      0.0,
+            "leadership": 0.0,
+            "listening": 0.0,
+            "idea_quality": 0.0,
+            "teamwork": 0.0,
         },
         "recent_sessions": [],
     }
 
     if gd_sessions:
-        scored_gd = [s for s in gd_sessions if s.overall_score is not None]
+        scored_gd = [
+            session for session in gd_sessions if session.overall_score is not None
+        ]
         if scored_gd:
-            gd_stats["avg_score"]    = round(sum(s.overall_score for s in scored_gd) / len(scored_gd), 1)
-            gd_stats["best_score"]   = round(max(s.overall_score for s in scored_gd), 1)
+            gd_stats["avg_score"] = round(
+                sum(session.overall_score for session in scored_gd) / len(scored_gd), 1
+            )
+            gd_stats["best_score"] = round(
+                max(session.overall_score for session in scored_gd), 1
+            )
             gd_stats["latest_score"] = round(scored_gd[0].overall_score, 1)
-            gd_stats["latest_band"]  = get_performance_band(scored_gd[0].overall_score)
+            gd_stats["latest_band"] = get_performance_band(
+                scored_gd[0].overall_score
+            )
 
-        # Dimension averages across all completed sessions with scores
-        gd_session_ids = [s.id for s in gd_sessions]
-        gd_score_rows  = db.query(GDScore).filter(GDScore.session_id.in_(gd_session_ids)).all()
+        gd_session_ids = [session.id for session in gd_sessions]
+        gd_score_rows = (
+            db.query(GDScore).filter(GDScore.session_id.in_(gd_session_ids)).all()
+        )
         if gd_score_rows:
-            dims = ["participation", "leadership", "listening", "idea_quality", "teamwork"]
-            for dim in dims:
-                vals = [getattr(r, dim) for r in gd_score_rows if getattr(r, dim) is not None]
-                if vals:
-                    gd_stats["dimension_averages"][dim] = round(sum(vals) / len(vals), 1)
+            for dimension in [
+                "participation",
+                "leadership",
+                "listening",
+                "idea_quality",
+                "teamwork",
+            ]:
+                values = [
+                    getattr(row, dimension)
+                    for row in gd_score_rows
+                    if getattr(row, dimension) is not None
+                ]
+                if values:
+                    gd_stats["dimension_averages"][dimension] = round(
+                        sum(values) / len(values), 1
+                    )
 
-        # Recent GD sessions (last 5)
-        for s in gd_sessions[:5]:
-            gd_stats["recent_sessions"].append({
-                "session_id":    s.id,
-                "date":          s.started_at.strftime("%b %d, %Y"),
-                "topic":         s.topic.title if s.topic else "—",
-                "category":      s.topic.category if s.topic else "—",
-                "bot_count":     s.bot_count,
-                "overall_score": round(s.overall_score, 1) if s.overall_score is not None else None,
-                "band":          get_performance_band(s.overall_score or 0),
-            })
+        for session in gd_sessions[:5]:
+            gd_stats["recent_sessions"].append(
+                {
+                    "session_id": session.id,
+                    "date": session.started_at.strftime("%b %d, %Y"),
+                    "topic": session.topic.title if session.topic else "-",
+                    "category": session.topic.category if session.topic else "-",
+                    "bot_count": session.bot_count,
+                    "overall_score": round(session.overall_score, 1)
+                    if session.overall_score is not None
+                    else None,
+                    "band": get_performance_band(session.overall_score or 0),
+                }
+            )
 
     return {
-        "total_sessions":      len(sessions),
-        "completed_sessions":  completed_sessions,
-        "completion_rate":     completion_rate,
-        "total_answers":       total_answers,
-        "avg_nlp_score":       avg_nlp,
-        "avg_total_score":     avg_total,
-        "best_score":          best_score,
-        "strongest_topic":     strongest_topic,
-        "weakest_topic":       weakest_topic,
-        "subject_breakdown":   subject_averages,
-        "topic_breakdown":     topic_averages,
-        "recent_sessions":     recent_sessions,
-        "performance":         performance,
-        "communication":       comm_stats,
-        "coding":              coding_stats,
-        "gd":                  gd_stats,
+        "total_sessions": len(interview_sessions),
+        "completed_sessions": completed_sessions,
+        "completion_rate": completion_rate,
+        "total_answers": total_answers,
+        "avg_nlp_score": avg_nlp,
+        "avg_total_score": avg_total,
+        "best_score": best_score,
+        "strongest_topic": strongest_topic,
+        "weakest_topic": weakest_topic,
+        "subject_breakdown": subject_averages,
+        "topic_breakdown": topic_averages,
+        "recent_sessions": recent_sessions,
+        "performance": performance,
+        "communication": comm_stats,
+        "coding": coding_stats,
+        "gd": gd_stats,
     }

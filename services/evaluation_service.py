@@ -6,6 +6,7 @@ from models.interview_session import InterviewSession
 from ai_engine.nlp_engine import evaluate_answer
 from ai_engine.hr_engine import evaluate_hr_answer
 from core.logger import logger
+from services.vision_session_service import consume_average_face_score
 
 
 def submit_and_score_answer(
@@ -15,7 +16,8 @@ def submit_and_score_answer(
     user_answer: str,
     user_id: int,
     voice_score: float = 0.0,
-    face_score: float = 0.0
+    face_score: float = 0.0,
+    is_followup: bool = False,
 ) -> dict:
 
     # --- Validate session ---
@@ -36,13 +38,16 @@ def submit_and_score_answer(
         Answer.session_id == session_id,
         Answer.question_id == question_id,
     ).first()
-    if existing:
+    if existing and not is_followup:
         return {"error": "This question has already been answered in this session."}
 
     # --- Validate question belongs to session's subject ---
     if question.subject_id and session.subject_id:
         if question.subject_id != session.subject_id:
             return {"error": "Question does not belong to this session's subject."}
+
+    server_face_score = consume_average_face_score(user_id, session_id, question_id)
+    resolved_face_score = server_face_score if server_face_score is not None else face_score
 
     # --- Route to correct engine ---
     if question.type == "hr":
@@ -55,7 +60,7 @@ def submit_and_score_answer(
             result = {"hr_score": 50, "feedback": "AI engine unavailable — default score applied."}
 
         # HR: 50% LLM + 30% Voice + 20% Face
-        total_score = (nlp_score * 0.5) + (voice_score * 0.3) + (face_score * 0.2)
+        total_score = (nlp_score * 0.5) + (voice_score * 0.3) + (resolved_face_score * 0.2)
 
         semantic_score  = result.get("clarity", 0.0)
         keyword_score   = result.get("structure", 0.0)
@@ -74,7 +79,7 @@ def submit_and_score_answer(
             result = {"overall_score": 50, "feedback": "NLP engine error — default score applied."}
 
         # Technical: 70% NLP + 20% Voice + 10% Face
-        total_score = (nlp_score * 0.7) + (voice_score * 0.2) + (face_score * 0.1)
+        total_score = (nlp_score * 0.7) + (voice_score * 0.2) + (resolved_face_score * 0.1)
 
         semantic_score  = result.get("semantic_score", 0.0)
         keyword_score   = result.get("keyword_score", 0.0)
@@ -96,14 +101,15 @@ def submit_and_score_answer(
         structure_score = round(float(structure_score), 2),
         nlp_score       = round(float(nlp_score), 2),
         voice_score     = round(float(voice_score), 2),
-        face_score      = round(float(face_score), 2),
+        face_score      = round(float(resolved_face_score), 2),
         total_score     = total_score,
         feedback        = feedback,
     )
     db.add(answer)
 
     # --- Update session stats ---
-    session.questions_answered = (session.questions_answered or 0) + 1
+    if not is_followup:
+        session.questions_answered = (session.questions_answered or 0) + 1
 
     db.commit()
     db.refresh(answer)

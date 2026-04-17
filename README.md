@@ -8,205 +8,162 @@ pinned: false
 license: mit
 ---
 
-# ZenPrep — AI Multimodal Interview Simulator
+# ZenPrep
 
-A full-stack mock interview platform that combines NLP scoring, voice analysis, face analysis, coding evaluation, communication testing, and group discussion practice into one unified experience.
+ZenPrep is a full-stack interview preparation platform built with FastAPI, React, and PostgreSQL. It combines text evaluation, voice analysis, face analysis, coding practice, communication testing, group discussion practice, analytics, and PDF reports in one product.
 
----
+## What Is Working Now
 
-## Problem Statement
+- Interview flow is live end to end, including follow-up questions.
+- Voice uploads now send auth correctly from the interview room.
+- Face analysis is computed server-side and fed into interview evaluation through recorded vision metrics.
+- Empty interview exits are marked as `abandoned`, so communication tests no longer inflate interview analytics.
+- GD forced turns now include a third sidebar card with a phase-aware ready script and one-click copy action.
+- Dashboard and analytics can be demoed immediately with seeded data for the current app account.
 
-**The Gap in Interview Preparation**
-
-Millions of students and job seekers struggle with interview preparation due to several critical gaps in traditional learning methods:
-
-1. **Lack of Realistic Practice** — Mock interviews with peers or mentors are scarce, expensive, and often don't simulate real interview conditions
-2. **No Multimodal Feedback** — Most platforms only evaluate text responses, ignoring critical non-verbal cues like voice tone, pacing, facial expressions, and body language
-3. **No Adaptive Difficulty** — Static question banks don't adjust to the candidate's skill level, leading to either boredom or overwhelm
-4. **Limited Subject Coverage** — Platforms focus on either technical interviews OR communication skills, but rarely both
-5. **No Group Discussion Practice** — GD rounds are crucial for many companies (especially in India) but lack dedicated practice platforms
-6. **Career Guidance Gap** — Resume analysis and job matching are often manual, time-consuming, and inconsistent
-7. **No Follow-up Questions** — Real interviewers ask probing questions; most platforms only evaluate the first answer
-
-**ZenPrep addresses all these gaps by providing:**
-- **Multimodal AI evaluation** (NLP + Voice + Face) for realistic scoring
-- **Adaptive difficulty** that adjusts question complexity based on performance
-- **Comprehensive coverage** (Technical HR, Coding, Communication, GD, Career AI)
-- **AI-powered follow-up questions** for deeper assessment
-- **Real-time feedback** with detailed coaching insights
-- **Accessible, affordable** alternative to expensive coaching programs
-
----
-
-## Features
+## Core Features
 
 ### Mock Interview
-- Adaptive difficulty — questions get harder as you score better
-- 482 questions across multiple subjects and topics
-- NLP scoring: semantic similarity, keyword coverage, answer depth, structure
-- 9-feature voice scoring: pace, filler words, pronunciation, intonation, modulation, rhythm, stress, silence, energy
-- Face analysis via MediaPipe FaceMesh
-- Multimodal score: 70% NLP + 20% Voice + 10% Face (Technical) / 50% NLP + 30% Voice + 20% Face (HR)
-- AI follow-up question generation
-- Interview replay with full transcript timeline
-- PDF report download
+- Subject, topic, and subtopic driven interview setup
+- Adaptive question fetching with no-repeat behavior inside a session
+- Technical and HR interview modes
+- NLP scoring plus voice and face inputs
+- Follow-up question generation for weaker responses
+- Replay, analytics, and PDF reporting
 
 ### Coding Interview
-- Monaco Editor with syntax highlighting
-- Multi-language: Python, C++, Java
-- LeetCode-style problems (4 companies × 2 difficulty levels = 24 problems)
-- Sandboxed code execution
+- Monaco editor based coding room
+- Python, C++, and Java execution
+- Session tracking, submissions, and scoring
 
-### Communication Test (Versant-style)
-- 8 sections: Read Aloud, Repeat Sentence, Short Answer, Arrange, Story Retell, Open Question, Describe Image, Listening
-- 140 questions seeded across all sections
-- AI TTS reads questions aloud
-- 9-feature voice fluency scoring per answer
-- Band scoring (A1 → C2) with radar chart breakdown
-- PDF report download
+### Communication Test
+- Multi-section speaking test
+- Edge TTS prompt playback
+- Voice-based fluency scoring
+- History, results, and PDF export
 
-### GD Room (Group Discussion)
-- 60 topics across 5 categories: Technology, Business, Society, Policy, Abstract
-- 5 AI bot personalities: Alex (structured), Maya (challenger), Ravi (synthesizer), Priya (data-driven), Sam (questioner)
-- Round-based turn flow: bot speaks → 7-sec pause → raise hand to queue turn → mic auto-opens if queued
-- Forced user turn if all bots have spoken and user hasn't (40-sec window, 5-sec silence auto-submit)
-- Whisper transcription per turn
-- 5-dimension scoring: participation, leadership, listening, idea quality, teamwork
-- Voice scoring: pace, filler words, pause, clarity
-- Sentiment analysis, keyword extraction, argument detection
-- Participation intelligence (share of voice, turn frequency)
-- Tabbed coaching results with strength/improvement breakdown
-- PDF report download
+### Group Discussion
+- Topic-based GD setup with multiple AI bot participants
+- Pause, raise-hand, and forced-turn flow
+- Whisper-style speech transcription through Groq STT
+- GD scoring across participation, leadership, listening, idea quality, and teamwork
+- Coaching results plus live right-side speaking guidance
 
 ### Career AI
-- Resume PDF parsing (PyMuPDF + Ollama)
-- JD gap analysis with skill matching
-- Personalized improvement suggestions
+- Resume PDF analysis
+- JD gap analysis
+- Skill comparison against user analytics
 
 ### Analytics
-- Unified dashboard across all 4 modules
-- Score trend charts, subject/topic breakdown, score distribution
-- GD dimension averages radar chart
-- Recent activity feed with all session types
+- Unified dashboard across interview, coding, communication, and GD
+- Recent activity, trends, averages, bands, and breakdowns
 
----
+## Architecture
 
-## Tech Stack
+| Layer | Stack |
+|-------|-------|
+| Frontend | React, Vite, inline styles |
+| Backend | FastAPI, SQLAlchemy |
+| Database | PostgreSQL via `DATABASE_URL` |
+| Voice | `librosa`, `parselmouth`, `soundfile`, `scipy` |
+| Vision | OpenCV + MediaPipe FaceMesh |
+| LLM | Gemini primary, Groq fallback |
+| STT | Groq Whisper transcription |
+| TTS | `edge-tts` |
+| Reports | `reportlab` |
 
-| Layer | Technology |
-|-------|-----------|
-| Backend | FastAPI, SQLAlchemy, PostgreSQL (psycopg2) |
-| Frontend | React, Vite, inline CSS (no Tailwind) |
-| LLM | Gemini (primary), Groq Cloud API (LLaMA models), Google Generative AI |
-| Voice Analysis | librosa, soundfile, praat-parselmouth, scipy |
-| Voice Input (STT) | Groq Cloud API (fast speech-to-text) |
-| TTS | edge-tts (Microsoft Edge Text-to-Speech) |
-| Face | opencv-python-headless, MediaPipe FaceMesh 0.10.11, imageio-ffmpeg |
-| Code Execution | subprocess sandbox (Python, C++, Java) |
-| Charts | recharts |
-| PDF | reportlab (reports), PyMuPDF (resume parsing) |
-| Editor | Monaco Editor (`@monaco-editor/react`) |
-| NLP | sentence-transformers, scikit-learn, numpy |
-| Authentication | Google OAuth 2.0, JWT (python-jose, passlib, argon2) |
-| Email | SMTP (smtplib for validation emails) |
-| HTTP | requests, httpx (for Google OAuth) |
+## Project Layout
 
----
+```text
+zen-prep/
+|-- main.py
+|-- database.py
+|-- ai_engine/
+|-- core/
+|-- data/
+|-- frontend/
+|-- models/
+|-- routes/
+|-- schemas/
+|-- services/
+|-- README.md
+|-- REPORT_PLAN.md
+|-- AI_INSTRUCTIONS.md
+|-- DEPLOY_PLAN.md
+```
 
 ## Local Setup
 
-### Prerequisites
+### 1. Prerequisites
 
-| Tool | Version | Purpose |
-|------|---------|---------|
-| Python | 3.11.8 | Backend runtime |
-| Node.js | v24 | Frontend dev server |
-| PostgreSQL | 14+ | Database |
-| Java JDK | 11+ | Coding sandbox (Java) |
-| g++ | any | Coding sandbox (C++) |
+- Python 3.11+
+- Node.js 20+ or newer
+- PostgreSQL or a Neon Postgres database
+- `g++` and JDK 11+ if you want local coding execution for C++ and Java
 
----
-
-### 1. Clone the repo
+### 2. Install backend dependencies
 
 ```bash
-git clone https://github.com/suraj-codes-24/interview-simulator.git
-cd interview-simulator
+python -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
 ```
 
----
+### 3. Configure environment variables
 
-### 3. PostgreSQL — create database
-
-```bash
-psql -U postgres
-CREATE DATABASE interview_db;
-\q
-```
-
----
-
-### 4. Environment variables
-
-Create a `.env` file in the project root:
+Create `.env` in the repo root.
 
 ```env
-DATABASE_URL=postgresql://postgres:<your_password>@localhost/interview_db
-SECRET_KEY=your_jwt_secret_key_here
+DATABASE_URL=postgresql://user:password@host:5432/dbname
+SECRET_KEY=change_me
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=30
 
-# Google OAuth (optional, for Google login/signup)
+GEMINI_API_KEY=your_gemini_key
+GROQ_API_KEY=your_groq_key
+
 GOOGLE_CLIENT_ID=your_google_client_id
 GOOGLE_CLIENT_SECRET=your_google_client_secret
 GOOGLE_REDIRECT_URI=http://localhost:5173/auth/callback
 
-# Email/SMTP (optional, for validation emails)
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
-SMTP_USER=your_gmail_address
-SMTP_PASSWORD=your_app_specific_password
+SMTP_USER=your_email
+SMTP_PASSWORD=your_app_password
 FROM_EMAIL=noreply@zen-prep.com
 FRONTEND_URL=http://localhost:5173
 
-# LLM API Keys (recommended for best performance)
-GEMINI_API_KEY=your_gemini_api_key
-GROQ_API_KEY=your_groq_api_key
+ADMIN_EMAILS=suraj14mk@gmail.com
 ```
 
-> **Note:** LLM functionality works with cloud APIs (Gemini, Groq). Ollama is no longer required.
-
----
-
-### 5. Backend
+### 4. Start the backend
 
 ```bash
-# Create and activate a virtual environment
-python -m venv venv
-venv\Scripts\activate        # Windows
-source venv/bin/activate     # Linux / Mac
-
-# Install Python dependencies
-pip install -r requirements.txt
-
-# Create all database tables
-python -c "from database import Base, engine; Base.metadata.create_all(engine)"
-
-# Seed question banks (run once)
-python seed_coding_v2.py       # 24 LeetCode-style coding problems
-python seed_communication.py   # 140 Versant-style comm questions
-python seed_gd.py              # 60 GD topics across 5 categories
-
-# Start the backend server
 uvicorn main:app --reload
 ```
 
-Backend runs at `http://localhost:8000`
-Interactive API docs at `http://localhost:8000/docs`
+Backend:
+- API: `http://localhost:8000`
+- Docs: `http://localhost:8000/docs`
+- Health: `http://localhost:8000/health`
 
----
+### 5. Seed data
 
-### 6. Frontend
+Create tables automatically by starting the app once, then seed optional content:
+
+```bash
+python seed_coding_v2.py
+python seed_communication.py
+python seed_gd.py
+```
+
+Interview questions are seeded through the admin-only endpoint:
+
+```text
+POST /interview/seed-questions
+```
+
+### 6. Start the frontend
 
 ```bash
 cd frontend
@@ -214,173 +171,37 @@ npm install
 npm run dev
 ```
 
-Frontend runs at `http://localhost:5173`
+Frontend:
+- App: `http://localhost:5173`
 
----
+## Important Runtime Notes
 
-### 7. Verify everything is running
+- Keep `mediapipe==0.10.11` on Windows.
+- `services/llm_utils.py` now tolerates missing `google.genai` imports so startup does not crash just because that SDK is unavailable.
+- Interview face scoring is now based on backend-recorded metrics, not a client-trusted aggregate alone.
+- Communication and interview analytics are intentionally counted separately.
 
-Open two terminals:
+## Main API Areas
 
-| Terminal | Command | URL |
-|----------|---------|-----|
-| 1 — Backend | `uvicorn main:app --reload` | `http://localhost:8000` |
-| 2 — Frontend | `cd frontend && npm run dev` | `http://localhost:5173` |
+| Area | Prefix |
+|------|--------|
+| Auth | `/auth` |
+| Interview | `/interview` |
+| Answers | `/answer` |
+| Voice analysis | `/api/voice` |
+| Vision analysis | `/api/vision` |
+| Coding | `/code` and coding v2 routes |
+| Communication | `/comm` |
+| GD | `/gd` |
+| Analytics | `/analytics` |
+| Reports | `/reports` |
+| Career AI | `/resume`, `/jd`, `/ai` |
 
-Register a new account or log in. All features — interview, coding, comm test, GD Room, career AI — are accessible from the dashboard sidebar.
+## Recent Fixes Reflected In This Repo
 
----
+- `3f114a5` fixed interview scoring flow, face-score persistence, follow-up submission, and analytics counting.
+- `8c9f441` improved the GD forced-turn sidebar with a phase-aware ready script and copy action.
 
-### Coding Sandbox Requirements
+## Deployment
 
-The coding room executes Python, C++, and Java locally via subprocess. Make sure:
-
-- **Python** — already available if backend is running
-- **C++** — install `g++` (Linux: `sudo apt install g++`, Windows: MinGW or MSYS2)
-- **Java** — install JDK 11+ and ensure `javac` + `java` are on your PATH
-
-Test with:
-
-```bash
-g++ --version
-java -version
-javac -version
-```
-
----
-
-## Project Structure
-
-```
-interview_simulator/
-├── main.py                         # FastAPI entry point
-├── database.py                     # PostgreSQL engine
-├── models/                         # SQLAlchemy models
-│   ├── user.py
-│   ├── question.py
-│   ├── coding.py
-│   ├── communication.py
-│   └── gd.py
-├── routes/                         # API route handlers
-│   ├── auth_routes.py
-│   ├── interview_routes.py
-│   ├── coding_v2_routes.py
-│   ├── communication_routes.py
-│   ├── gd_routes.py
-│   ├── analytics_routes.py
-│   └── report_routes.py
-├── services/                       # Business logic
-│   ├── interview_service.py
-│   ├── evaluation_service.py
-│   ├── coding_service.py
-│   ├── communication_service.py
-│   ├── gd_service.py
-│   ├── gd_bot_service.py
-│   ├── gd_eval_service.py
-│   ├── gd_voice_service.py
-│   ├── resume_service.py
-│   ├── jd_service.py
-│   ├── report_service.py
-│   ├── google_oauth_service.py      # Google OAuth authentication
-│   ├── email_service.py            # Email validation
-│   └── llm_utils.py                # LLM generation (Gemini + Groq)
-├── ai_engine/                      # Scoring engines
-│   ├── nlp_engine.py               # NLP + CONCEPT_MAP (79 concepts)
-│   ├── hr_engine.py                # LLM HR evaluation (Gemini/Groq)
-│   ├── voice_engine.py             # librosa + parselmouth
-│   └── vision_engine.py            # MediaPipe FaceMesh
-└── frontend/
-    └── src/
-        ├── App.jsx                 # Router + 16 lazy-loaded pages
-        ├── shared.jsx              # Shared components (Bar, Spinner, API)
-        ├── VoiceRecorder.jsx       # Audio capture
-        ├── VisionRecorder.jsx      # Camera + MediaPipe
-        └── components/
-            ├── DashboardPage.jsx
-            ├── InterviewPage.jsx
-            ├── InterviewRoomPage.jsx
-            ├── CodingInterviewPage.jsx
-            ├── CommunicationTestPage.jsx
-            ├── GDPage.jsx
-            ├── AnalyticsPage.jsx
-            ├── CareerAIPage.jsx
-            ├── ProfilePage.jsx
-            └── ...
-```
-
----
-
-## Score Formulas
-
-**Interview**
-```
-Technical = 70% NLP + 20% Voice + 10% Face
-HR        = 50% NLP + 30% Voice + 20% Face
-
-NLP  = 45% semantic + 25% keywords + 20% depth + 10% structure
-Voice = 15% pace + 15% filler + 15% pronunciation + 15% intonation
-      + 10% modulation + 10% rhythm + 10% stress + 5% silence + 5% energy
-```
-
-**Communication**
-```
-Fluency = 15% pace + 15% filler + 15% pronunciation + 12% intonation
-        + 10% modulation + 10% rhythm + 10% stress + 8% confidence + 5% silence
-
-Section A = 60% pace + 40% fluency
-Section B = 70% word match + 30% fluency
-Section C = 80% keyword + 20% fluency
-Section D = 75% sentence match + 25% fluency
-Section E = 60% semantic + 40% fluency
-Section F = 40% fluency + 30% depth + 30% confidence
-Section G = 50% depth + 30% fluency + 20% confidence
-Section H = 80% keyword + 20% fluency
-```
-
-**Group Discussion**
-```
-Voice  = 30% pace + 25% filler + 25% pause_avg + 20% clarity
-Score  = avg(participation, leadership, listening, idea_quality, teamwork)
-```
-
----
-
-## API Overview
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/auth/login` | Login → JWT |
-| POST | `/auth/register` | Register new user |
-| GET | `/auth/google/url` | Get Google OAuth authorization URL |
-| POST | `/auth/google/callback` | Handle Google OAuth callback |
-| GET | `/auth/validate-email` | Validate email via token |
-| POST | `/contact/submit` | Submit contact form (sends email) |
-| POST | `/interview/start` | Start interview session |
-| GET | `/interview/question` | Next adaptive question |
-| POST | `/interview/answer` | Submit answer + multimodal scores |
-| POST | `/api/voice/analyze` | Analyze audio file |
-| POST | `/api/vision/analyze` | Analyze video frame |
-| GET | `/analytics/me` | Full user analytics |
-| POST | `/code/run` | Run code in sandbox |
-| POST | `/comm/start` | Start comm test |
-| POST | `/comm/answer/{id}` | Submit comm answer (audio) |
-| GET | `/comm/results/{id}` | Comm test results |
-| POST | `/gd/start` | Start GD session |
-| POST | `/gd/user-turn/{id}` | Submit user audio turn |
-| POST | `/gd/bot-turn/{id}` | Get next bot response |
-| POST | `/gd/finish/{id}` | End GD + full scoring |
-| GET | `/gd/results/{id}` | GD results + coaching |
-| POST | `/resume/analyse` | Analyze resume PDF |
-| POST | `/jd/analyse` | JD gap analysis |
-| GET | `/reports/session/{id}` | Interview PDF report |
-| GET | `/reports/comm/{id}` | Comm PDF report |
-| GET | `/reports/gd/{id}` | GD PDF report |
-
-Full interactive docs at `/docs` when backend is running.
-
----
-
-## Known Issues
-
-- Parselmouth pitch occasionally returns 0 Hz on short recordings — librosa fallback handles this automatically
-- MediaPipe must stay at version `0.10.11` on Windows — newer versions break the FaceMesh pipeline
+Deployment details live in [DEPLOY_PLAN.md](/C:/Users/suraj/Desktop/zen-prep/DEPLOY_PLAN.md).

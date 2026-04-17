@@ -1,203 +1,148 @@
-# ZenPrep — Free Tier Deployment Plan
+# ZenPrep Deployment Plan
 
-## Stack (100% free, no credit card)
+Updated: 2026-04-17
 
-| Layer | Service | Cost |
-|-------|---------|------|
-| Frontend | Vercel | $0 |
-| Backend | HuggingFace Spaces (Docker) | $0 |
-| Database | Neon (PostgreSQL) | $0 |
-| LLM | Gemini (primary), Groq Cloud API (LLaMA models) | $0 |
-| STT | Groq Cloud API (fast speech-to-text) | $0 |
-| TTS | edge-tts (Microsoft Edge) | $0 |
+This is the current deployment reference for the live ZenPrep stack.
 
-```
-[User Browser]
-     ↓
-Vercel (React frontend)
-     ↓ VITE_API_URL
-HuggingFace Space (FastAPI, port 7860)
-  ├── librosa / parselmouth / mediapipe  (CPU, on HF VM)
-  ├── Neon PostgreSQL                    (external, free)
-  ├── Gemini API                         (primary LLM, free)
-  └── Groq Cloud API                     (LLaMA + STT, free)
-```
+## Live Stack
 
----
+| Layer | Provider | Status |
+|-------|----------|--------|
+| Frontend | Vercel | Live |
+| Backend | Hugging Face Spaces (Docker) | Live |
+| Database | Neon Postgres | Live |
+| LLM | Gemini primary, Groq fallback | Configured |
+| STT | Groq Whisper | Configured |
+| TTS | `edge-tts` | Configured |
 
-## Current Deployment Setup
+## Current Targets
 
-The codebase is already configured for deployment with:
-- **LLM:** Gemini (primary) + Groq Cloud API (LLaMA models)
-- **STT:** Groq Cloud API (fast speech-to-text)
-- **TTS:** edge-tts (Microsoft Edge)
-- **Face Analysis:** opencv-python-headless, MediaPipe 0.10.11
-- **Voice Analysis:** librosa, parselmouth, scipy
+- Frontend URL: [frontend-six-nu-77.vercel.app](https://frontend-six-nu-77.vercel.app)
+- Backend deployment source: Hugging Face Space repo `suraj-codes-24/suraj-codes-24`
+- Database: Neon Postgres via `DATABASE_URL`
+- Active branch used for recent deployment work: `codex/deployment-sync`
 
-### Backend Configuration
+## Recent Production-Relevant Fixes
 
-| # | File | Status |
-|---|------|--------|
-| 1 | `services/llm_utils.py` | Uses Gemini + Groq Cloud API |
-| 2 | `ai_engine/hr_engine.py` | Uses LLM (Gemini/Groq) |
-| 3 | `ai_engine/voice_engine.py` | Uses librosa + parselmouth |
-| 4 | `routes/gd_routes.py` | Uses Groq Cloud API for STT |
-| 5 | `core/config.py` | Has GEMINI_API_KEY, GROQ_API_KEY, GOOGLE_OAUTH config |
-| 6 | `requirements.txt` | Updated with groq, google-generativeai, httpx |
-| 7 | `Dockerfile` | Multi-stage build with libgl1 (not libgl1-mesa-glx) |
+- Interview room voice uploads now include auth.
+- Face analysis is stored and aggregated server-side for scoring.
+- Follow-up answers submit cleanly without duplicate-answer collisions.
+- Empty interview sessions are marked `abandoned`.
+- Dashboard and analytics no longer count communication tests as interviews.
+- GD forced-turn coaching now includes a ready-script card with copy support.
 
-### Frontend Configuration
+## Required Environment Variables
 
-| # | File | Status |
-|---|------|--------|
-| 8 | `frontend/src/shared.jsx` | Uses VITE_API_URL env var |
-| 9 | `frontend/src/VoiceRecorder.jsx` | Uses API_BASE from shared.jsx |
-| 10 | `frontend/src/VisionRecorder.jsx` | Uses API from shared.jsx |
-| 11 | `frontend/src/components/GDPage.jsx` | Uses API from shared.jsx |
-| 12 | `frontend/src/components/LandingPage.jsx` | Contact form sends email via backend |
+### Backend
 
-### Environment Variables Required
-
-**Backend (HuggingFace Space):**
 ```env
-DATABASE_URL=postgresql://user:pass@ep-xxx.us-east-2.aws.neon.tech/neondb?sslmode=require
-SECRET_KEY=your_jwt_secret_key
+DATABASE_URL=postgresql://user:password@host/dbname?sslmode=require
+SECRET_KEY=change_me
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=30
-ADMIN_EMAILS=admin@example.com
-GEMINI_API_KEY=your_gemini_api_key
-GROQ_API_KEY=your_groq_api_key
+
+ADMIN_EMAILS=suraj14mk@gmail.com
+
+GEMINI_API_KEY=your_gemini_key
+GROQ_API_KEY=your_groq_key
+
 GOOGLE_CLIENT_ID=your_google_client_id
 GOOGLE_CLIENT_SECRET=your_google_client_secret
-GOOGLE_REDIRECT_URI=https://your-app.vercel.app/auth/callback
+GOOGLE_REDIRECT_URI=https://frontend-six-nu-77.vercel.app/auth/callback
+
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
-SMTP_USER=your_gmail_address
-SMTP_PASSWORD=your_app_specific_password
+SMTP_USER=your_email
+SMTP_PASSWORD=your_app_password
 FROM_EMAIL=noreply@zen-prep.com
-FRONTEND_URL=https://your-app.vercel.app
+FRONTEND_URL=https://frontend-six-nu-77.vercel.app
 ```
 
-**Frontend (Vercel):**
+### Frontend
+
 ```env
-VITE_API_URL=https://your-space.hf.space
+VITE_API_URL=https://your-huggingface-space-url
 ```
 
-### Dockerfile
+## Backend Deployment Notes
 
-```dockerfile
-FROM python:3.11-slim AS builder
+- The backend runs as a Docker Space.
+- `main.py` creates tables on startup and runs the auth schema check.
+- CORS allows localhost dev URLs, the Vercel production URL, and `FRONTEND_URL`.
+- `services/llm_utils.py` is resilient to missing `google.genai` imports, which helps prevent startup failures in misconfigured environments.
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential gcc g++ libsndfile1 libgomp1 \
-    && rm -rf /var/lib/apt/lists/*
+## Docker Expectations
 
-WORKDIR /build
-COPY requirements.txt .
-RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
+The backend image must include:
 
-# Pre-download sentence-transformers model to avoid cold-start delay
-RUN PYTHONPATH=/install/lib/python3.11/site-packages \
-    python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')"
+- Python 3.11
+- build tools for native packages
+- `libsndfile1`
+- `libgomp1`
+- `libglib2.0-0`
+- `libgl1`
 
+The app should start with:
 
-FROM python:3.11-slim
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libsndfile1 libgomp1 libglib2.0-0 libgl1 \
-    && rm -rf /var/lib/apt/lists/*
-
-COPY --from=builder /install /usr/local
-COPY --from=builder /root/.cache /root/.cache
-
-RUN useradd -m -u 1000 appuser
-WORKDIR /app
-COPY --chown=appuser:appuser . .
-USER appuser
-
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-
-EXPOSE 7860
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "7860", "--workers", "1"]
+```bash
+uvicorn main:app --host 0.0.0.0 --port 7860 --workers 1
 ```
 
-### README.md Frontmatter
+## Deployment Workflow
 
-```yaml
----
-title: ZenPrep Interview Simulator
-emoji: 🎯
-colorFrom: blue
-colorTo: indigo
-sdk: docker
-pinned: false
-license: mit
----
-```
+### Frontend
 
----
+1. Push the branch with the desired frontend changes.
+2. Ensure Vercel is pointed at the `frontend/` directory.
+3. Confirm `VITE_API_URL` targets the active Hugging Face backend.
+4. Open the Vercel deployment and verify the build succeeds.
 
-## Risks & Mitigations
+### Backend
 
-| Risk | Severity | Mitigation |
-|------|----------|------------|
-| Groq STT rate limit: 20 req/min audio | Medium | App rate limiter already in place; fine for demo use |
-| Groq LLM rate limit: 14,400 req/day | Low | ~700 full interviews/day — more than enough |
-| Gemini API rate limits | Low | Free tier generous; fallback to Groq available |
-| HF cold start after inactivity (~30s wake) | Low | First request slow; subsequent requests fast |
-| Neon 10 connection limit | Low | Fixed by `pool_size=3, max_overflow=2` in database.py |
-| Docker image ~3.5 GB, 30–40 min build | Low | One-time cost; rebuilds only on code changes |
-| mediapipe 0.10.11 — AMD64 only | None | HF free tier is AMD64 Linux ✓ |
-| Google OAuth token expiration | Low | JWT refresh mechanism implemented |
+1. Push the backend changes to the Hugging Face Space repository.
+2. Wait for the Docker build to finish.
+3. Confirm the Space has all required secrets.
+4. Hit `/health` once the Space is up.
 
----
+### Database
 
-## Deployment Steps
+1. Confirm the Neon connection string is valid.
+2. Ensure the app can connect with pool settings from `database.py`.
+3. Seed or verify content as needed.
 
-```
-1. Sign up → neon.tech          → create project → copy DATABASE_URL
-2. Sign up → console.groq.com   → create API key → copy GROQ_API_KEY
-3. Sign up → ai.google.dev      → create API key → copy GEMINI_API_KEY
-4. Sign up → console.cloud.google.com → create OAuth credentials → copy GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
-5. Sign up → huggingface.co     → New Space → Docker → link GitHub repo
-   Add Secrets: DATABASE_URL, SECRET_KEY, GEMINI_API_KEY, GROQ_API_KEY, GOOGLE_CLIENT_ID, 
-                GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI, ADMIN_EMAILS, FRONTEND_URL,
-                SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD, FROM_EMAIL
-6. Wait for HF build (~30 min first time)
-7. Seed the database (run locally pointing at Neon):
-       DATABASE_URL="..." python seed_gd.py
-       DATABASE_URL="..." python seed_communication.py
-       DATABASE_URL="..." python seed_coding_v2.py
-       DATABASE_URL="..." python seed_questions.py   (or hit /interview/seed-questions)
-8. Sign up → vercel.com → import frontend/ subdirectory from GitHub
-   Add env var: VITE_API_URL = https://your-space.hf.space
-9. Update HF Secret: FRONTEND_URL = https://your-app.vercel.app
-10. Update Google OAuth redirect URI in Google Cloud Console to: https://your-app.vercel.app/auth/callback
-11. Test end-to-end from Vercel URL
-```
+## Post-Deploy Checklist
 
----
+1. Open the frontend home page.
+2. Log in with the demo account.
+3. Verify dashboard cards load.
+4. Open analytics and confirm interview, communication, coding, and GD counts all render.
+5. Start an interview and confirm:
+   - question loads
+   - audio upload succeeds
+   - face metrics post successfully
+   - finish marks the session correctly
+6. Open GD and confirm the forced-turn sidebar shows:
+   - hints/topic card
+   - ready-script card
+   - copy button
 
-## API Free Tier Summary
+## Demo Data Notes
 
-**Groq Cloud API:**
-| Resource | Free Limit | App Usage |
-|----------|-----------|-----------|
-| LLaMA models | 14,400 req/day | ~10 LLM calls per interview |
-| Whisper STT | 7,200 req/day + 2hrs audio/day | ~5 STT calls per interview |
-| Rate limit (LLM) | 30 req/min | Fine for single user |
-| Rate limit (audio) | 20 req/min | Fine for single user |
-| Signup | Email/Google/GitHub | No credit card |
+- The shared database currently keeps only `suraj14mk@gmail.com`.
+- Demo data has been inserted across interview, communication, coding, and GD for visualization.
+- If a fresh deployment uses a new database, seed the content and recreate demo sessions if product screenshots are needed.
 
-**Gemini API:**
-| Resource | Free Limit | App Usage |
-|----------|-----------|-----------|
-| Gemini models | Generous free tier | Primary LLM for scoring |
-| Rate limit | Depends on model | Fallback to Groq if needed |
-| Signup | Google account | No credit card |
+## Risks And Watch Items
 
-**edge-tts:**
-| Resource | Cost |
-|----------|------|
-| Text-to-Speech | Free (Microsoft Edge) |
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| Hugging Face cold starts | Slow first request | Warm the backend with a health hit before a demo |
+| Neon free-tier connection limits | Intermittent DB contention | Keep pool sizes small as configured |
+| Groq or Gemini quota issues | LLM or STT degradation | Keep both providers configured |
+| MediaPipe version drift | Vision breakage on Windows | Pin `mediapipe==0.10.11` |
+| Wrong `FRONTEND_URL` or OAuth redirect | Login or CORS failure | Keep Vercel URL and Google OAuth config aligned |
+
+## Latest Deployment-Linked Commits
+
+- `3f114a5` - interview flow, face-score handling, analytics counting fixes
+- `8c9f441` - GD ready-script sidebar enhancement

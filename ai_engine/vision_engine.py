@@ -28,6 +28,16 @@ def _safe_round(value, decimals=2):
     return round(value, decimals)
 
 
+def compute_face_score(eye_contact: float, head_stability: float, engagement_score: float) -> float:
+    """Blend the main visual cues into a single on-camera score."""
+    weighted_score = (
+        (eye_contact * 0.45)
+        + (head_stability * 0.25)
+        + (engagement_score * 0.30)
+    )
+    return max(0.0, min(100.0, weighted_score))
+
+
 def analyze_frame(image_b64: str) -> dict:
     """Analyzes a single frame for eye contact, head stability, and engagement."""
     try:
@@ -60,6 +70,7 @@ def analyze_frame(image_b64: str) -> dict:
         eye_contact = calculate_eye_contact(face_landmarks)
         head_stability = calculate_head_stability(face_landmarks)
         emotion, engagement = estimate_engagement(face_landmarks)
+        face_score = compute_face_score(eye_contact, head_stability, engagement)
 
         return {
             "face_detected": True,
@@ -67,6 +78,7 @@ def analyze_frame(image_b64: str) -> dict:
             "head_stability": _safe_round(head_stability),
             "emotion": emotion,
             "engagement_score": _safe_round(engagement),
+            "face_score": _safe_round(face_score),
         }
 
     except Exception as e:

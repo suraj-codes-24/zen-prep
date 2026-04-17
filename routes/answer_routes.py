@@ -31,7 +31,8 @@ def submit_answer(
         user_answer=body.user_answer,
         user_id=current_user.id,
         voice_score=body.voice_score,
-        face_score=body.face_score
+        face_score=body.face_score,
+        is_followup=body.is_followup,
     )
 
     if "error" in result:

@@ -247,7 +247,7 @@ function InterviewPage({ token, user, onNav, onLogout, onStart }) {
                     {[
                       { label: "NLP Analysis", pct: "70%", desc: "Semantic similarity, keywords, depth, structure", color: "#C9A84C" },
                       { label: "Voice Quality", pct: "20%", desc: "Pace, pronunciation, intonation + 6 more", color: "#22C55E" },
-                      { label: "Face Analysis", pct: "10%", desc: "Eye contact, confidence, engagement", color: "#3B82F6" },
+                      { label: "Face Analysis", pct: "10%", desc: "Eye contact, stability, engagement", color: "#3B82F6" },
                     ].map(s => (
                       <div key={s.label} style={{ textAlign: "center", padding: "12px 8px" }}>
                         <div style={{ color: s.color, fontWeight: 800, fontSize: 22, marginBottom: 4 }}>{s.pct}</div>

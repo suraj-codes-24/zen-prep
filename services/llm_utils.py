@@ -1,16 +1,21 @@
 import os
 import json
 import re
-from google import genai
-from google.genai import types
 from groq import Groq
+
+try:
+    from google import genai
+    from google.genai import types
+except ImportError:
+    genai = None
+    types = None
 
 # Initialize Groq client (fallback)
 _groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 # Initialize Gemini client (primary)
 _gemini_api_key = os.getenv("GEMINI_API_KEY")
-if _gemini_api_key:
+if _gemini_api_key and genai and types:
     _gemini_client = genai.Client(api_key=_gemini_api_key)
 else:
     _gemini_client = None
@@ -24,13 +29,16 @@ DEFAULT_MODEL = "llama-3.1-8b-instant"
 class LLMUnavailable(Exception):
     pass
 
-def generate(prompt, model="llama3.1:8b", temperature=0.7, num_predict=512):
+def generate(prompt, model="llama3.1:8b", temperature=0.7, num_predict=512, max_tokens=None):
     """
     Generates text using Gemini (primary) with Groq as fallback.
     Maintains the interface of the original llm_utils.
     """
+    if max_tokens is not None:
+        num_predict = max_tokens
+
     # Try Gemini first
-    if _gemini_client:
+    if _gemini_client and types:
         try:
             response = _gemini_client.models.generate_content(
                 model="gemini-1.5-flash",

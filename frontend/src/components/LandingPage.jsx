@@ -655,15 +655,15 @@ function LandingPage({ onLogin, onGetStarted }) {
               <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                 <div>
                   <label style={{ fontSize: 12, color: "#94A3B8", fontWeight: 600, marginBottom: 6, display: "block" }}>Name</label>
-                  <input value={contactForm.name} onChange={e => setContactForm({ ...contactForm, name: e.target.value })} placeholder="Your name" style={{ width: "100%", padding: "10px 14px", borderRadius: 10, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", color: "#F1F5F9", fontSize: 14 }} />
+                  <input value={contactForm.name} onChange={e => setContactForm({ ...contactForm, name: e.target.value })} onKeyDown={e => { if (e.key === "Enter") e.preventDefault(); }} placeholder="Your name" style={{ width: "100%", padding: "10px 14px", borderRadius: 10, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", color: "#F1F5F9", fontSize: 14 }} />
                 </div>
                 <div>
                   <label style={{ fontSize: 12, color: "#94A3B8", fontWeight: 600, marginBottom: 6, display: "block" }}>Email</label>
-                  <input value={contactForm.email} onChange={e => setContactForm({ ...contactForm, email: e.target.value })} placeholder="your@email.com" type="email" style={{ width: "100%", padding: "10px 14px", borderRadius: 10, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", color: "#F1F5F9", fontSize: 14 }} />
+                  <input value={contactForm.email} onChange={e => setContactForm({ ...contactForm, email: e.target.value })} onKeyDown={e => { if (e.key === "Enter") e.preventDefault(); }} placeholder="your@email.com" type="email" style={{ width: "100%", padding: "10px 14px", borderRadius: 10, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", color: "#F1F5F9", fontSize: 14 }} />
                 </div>
                 <div>
                   <label style={{ fontSize: 12, color: "#94A3B8", fontWeight: 600, marginBottom: 6, display: "block" }}>Message</label>
-                  <textarea value={contactForm.message} onChange={e => setContactForm({ ...contactForm, message: e.target.value })} placeholder="Tell us how we can help..." rows={4} style={{ width: "100%", padding: "10px 14px", borderRadius: 10, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", color: "#F1F5F9", fontSize: 14, resize: "vertical" }} />
+                  <textarea value={contactForm.message} onChange={e => setContactForm({ ...contactForm, message: e.target.value })} onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) e.preventDefault(); }} placeholder="Tell us how we can help..." rows={4} style={{ width: "100%", padding: "10px 14px", borderRadius: 10, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", color: "#F1F5F9", fontSize: 14, resize: "vertical" }} />
                 </div>
                 <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", marginTop: 4 }}>
                   <button onClick={() => setModal(null)} style={{ padding: "10px 20px", borderRadius: 8, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", color: "#94A3B8", fontSize: 14 }}>Cancel</button>

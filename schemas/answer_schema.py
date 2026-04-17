@@ -8,6 +8,7 @@ class SubmitAnswerRequest(BaseModel):
     user_answer: str
     voice_score: float = Field(0.0, ge=0.0, le=100.0)
     face_score: float = Field(0.0, ge=0.0, le=100.0)
+    is_followup: bool = False
 
 
 # --- Response: Score breakdown ---

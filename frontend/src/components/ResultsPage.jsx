@@ -60,7 +60,7 @@ function ResultsPage({ token, user, lastResult, onBack, onRetake }) {
   function parseImprovements() {
     const items = [];
     if (voiceC < 75) items.push({ key: "Filler words", desc: "Try to reduce use of \"um\" and \"like\" for clearer delivery." });
-    if (eyeC < 75) items.push({ key: "Eye contact", desc: "Try to look directly into the camera lens more consistently." });
+    if (eyeC < 75) items.push({ key: "On-camera presence", desc: "Try to maintain steadier eye contact and a more engaged camera presence." });
     if (items.length === 0) items.push({ key: "Pace", desc: "Maintain a steady speaking pace throughout your answers." });
     return items;
   }
@@ -118,7 +118,7 @@ function ResultsPage({ token, user, lastResult, onBack, onRetake }) {
               {[
                 { label: "Answer Quality", value: Math.round(answerQ), color: "#22C55E", icon: "✓" },
                 { label: "Voice Confidence", value: Math.round(voiceC), color: "#C9A84C", icon: "🎙" },
-                { label: "Eye Contact", value: Math.round(eyeC), color: "#F59E0B", icon: "👁" },
+                { label: "Face Analysis", value: Math.round(eyeC), color: "#F59E0B", icon: "👁" },
               ].map(s => (
                 <div key={s.label} style={{ background: "#0F1629", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 14, padding: "20px 22px" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>

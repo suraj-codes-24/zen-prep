@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-
-const API = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+import { API } from "./shared";
 
 export default function VisionRecorder({ sessionId, questionId, onVisionResult, token }) {
   const videoRef = useRef(null);
@@ -17,6 +16,7 @@ export default function VisionRecorder({ sessionId, questionId, onVisionResult, 
       });
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
+        setError("");
         setActive(true);
         console.log("[VISION] Camera started successfully");
       }
@@ -40,13 +40,15 @@ export default function VisionRecorder({ sessionId, questionId, onVisionResult, 
 
   // Periodic frame capture
   useEffect(() => {
-    if (!active) return;
+    if (!active || !questionId) return;
 
     const interval = setInterval(async () => {
       if (!videoRef.current || !canvasRef.current) return;
+      if (videoRef.current.readyState < 2) return;
 
       const canvas = canvasRef.current;
       const context = canvas.getContext("2d");
+      if (!context) return;
       context.drawImage(videoRef.current, 0, 0, 320, 240);
       const dataUrl = canvas.toDataURL("image/jpeg", 0.7); // Low quality to save bandwidth
 
@@ -66,6 +68,9 @@ export default function VisionRecorder({ sessionId, questionId, onVisionResult, 
         console.log("[VISION] API response status:", res.status);
         const data = await res.json();
         console.log("[VISION] API response:", data);
+        if (!res.ok) {
+          throw new Error(data?.detail || data?.error?.message || "Vision analysis failed");
+        }
         if (data.emotion) {
           setStatus(data.emotion);
           console.log("[VISION] Emotion detected:", data.emotion);
@@ -81,7 +86,7 @@ export default function VisionRecorder({ sessionId, questionId, onVisionResult, 
     }, 3000); // Check every 3 seconds
 
     return () => clearInterval(interval);
-  }, [active, sessionId, questionId, token]);
+  }, [active, sessionId, questionId, token, onVisionResult]);
 
   return (
     <div style={{ position: "relative", width: "100%", height: "100%", minHeight: 220, background: "#000", borderRadius: 12, overflow: "hidden", border: "1px solid #1e2d4a" }}>
