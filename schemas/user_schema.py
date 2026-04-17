@@ -16,6 +16,8 @@ class UserResponse(BaseModel):
     id: int
     name: str
     email: str
+    email_verified: bool = False
+    auth_provider: str = "password"
     branch: Optional[str] = None
     year: Optional[int] = None
     college: Optional[str] = None
@@ -40,3 +42,22 @@ class UpdateProfileRequest(BaseModel):
 class ChangePasswordRequest(BaseModel):
     current_password: str
     new_password: str = Field(min_length=6, max_length=128)
+
+
+class EmailRequest(BaseModel):
+    email: EmailStr
+
+
+class VerifyEmailRequest(BaseModel):
+    email: EmailStr
+    code: str = Field(min_length=6, max_length=6)
+
+
+class ResetPasswordRequest(BaseModel):
+    email: EmailStr
+    code: str = Field(min_length=6, max_length=6)
+    new_password: str = Field(min_length=6, max_length=128)
+
+
+class GoogleAuthRequest(BaseModel):
+    credential: str

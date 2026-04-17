@@ -18,6 +18,10 @@ function ProfilePage({ token, user, onNav, onLogout, onUpdateUser }) {
   const [pwSaving, setPwSaving]   = useState(false);
   const [pwMsg, setPwMsg]         = useState("");
   const [pwError, setPwError]     = useState("");
+  const [resetMode, setResetMode] = useState(false);
+  const [resetCode, setResetCode] = useState("");
+  const [resetNewPassword, setResetNewPassword] = useState("");
+  const [resetCodeSent, setResetCodeSent] = useState(false);
   const [focusedField, setFocusedField] = useState("");
   const [profilePic, setProfilePic] = useState(() => localStorage.getItem(`profile_pic_${user?.id || "user"}`) || "");
   const [analytics, setAnalytics] = useState(null);
@@ -78,6 +82,49 @@ function ProfilePage({ token, user, onNav, onLogout, onUpdateUser }) {
       const d = await r.json();
       if (!r.ok) { setPwError(d.detail || "Password change failed"); }
       else { setPwMsg("Password updated successfully."); setCurrentPassword(""); setNewPassword(""); setTimeout(() => setPwMsg(""), 3000); }
+    } catch { setPwError("Server error. Please try again."); }
+    setPwSaving(false);
+  }
+
+  async function readApiError(resp, fallback) {
+    try {
+      const data = await resp.json();
+      return data?.detail || data?.error?.message || data?.message || fallback;
+    } catch {
+      return fallback;
+    }
+  }
+
+  async function sendPasswordResetCode() {
+    setPwSaving(true); setPwMsg(""); setPwError("");
+    try {
+      const r = await fetch(`${API}/auth/forgot-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: user?.email }),
+      });
+      if (!r.ok) { setPwError(await readApiError(r, "Could not send reset code")); }
+      else { setResetCodeSent(true); setPwMsg("A 6-digit reset code has been sent to your email."); }
+    } catch { setPwError("Server error. Please try again."); }
+    setPwSaving(false);
+  }
+
+  async function resetPasswordWithCode() {
+    if (resetCode.length !== 6 || !resetNewPassword) { setPwError("Code and new password are required."); return; }
+    if (resetNewPassword.length < 6) { setPwError("New password must be at least 6 characters."); return; }
+    setPwSaving(true); setPwMsg(""); setPwError("");
+    try {
+      const r = await fetch(`${API}/auth/reset-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: user?.email, code: resetCode, new_password: resetNewPassword }),
+      });
+      if (!r.ok) { setPwError(await readApiError(r, "Password reset failed")); }
+      else {
+        setPwMsg("Password updated successfully.");
+        setResetCode(""); setResetNewPassword(""); setResetMode(false); setResetCodeSent(false);
+        setTimeout(() => setPwMsg(""), 3000);
+      }
     } catch { setPwError("Server error. Please try again."); }
     setPwSaving(false);
   }
@@ -317,33 +364,65 @@ function ProfilePage({ token, user, onNav, onLogout, onUpdateUser }) {
                 <div style={{ width: 32, height: 32, borderRadius: 8, background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15 }}>🔒</div>
                 <h3 style={{ color: "#F1F5F9", fontWeight: 700, fontSize: 15, margin: 0 }}>Change Password</h3>
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                <div>
-                  <label style={labelStyle}>Current Password</label>
-                  <div style={{ position: "relative" }}>
-                    <input type={showCurPw ? "text" : "password"} value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} placeholder="••••••••"
-                      onFocus={() => setFocusedField("curpw")} onBlur={() => setFocusedField("")}
-                      style={{ ...inp(focusedField === "curpw"), paddingRight: 42 }} />
-                    <button type="button" onClick={() => setShowCurPw(p => !p)} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", color: "#4B5563", fontSize: 14, padding: 2, border: "none", cursor: "pointer" }}>{showCurPw ? "🙈" : "👁"}</button>
+              {!resetMode ? (
+                <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                  <div>
+                    <label style={labelStyle}>Current Password</label>
+                    <div style={{ position: "relative" }}>
+                      <input type={showCurPw ? "text" : "password"} value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} placeholder="••••••••"
+                        onFocus={() => setFocusedField("curpw")} onBlur={() => setFocusedField("")}
+                        style={{ ...inp(focusedField === "curpw"), paddingRight: 42 }} />
+                      <button type="button" onClick={() => setShowCurPw(p => !p)} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", color: "#4B5563", fontSize: 14, padding: 2, border: "none", cursor: "pointer" }}>{showCurPw ? "🙈" : "👁"}</button>
+                    </div>
+                  </div>
+                  <div>
+                    <label style={labelStyle}>New Password</label>
+                    <div style={{ position: "relative" }}>
+                      <input type={showNewPw ? "text" : "password"} value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="Min. 6 characters"
+                        onFocus={() => setFocusedField("newpw")} onBlur={() => setFocusedField("")}
+                        style={{ ...inp(focusedField === "newpw"), paddingRight: 42 }} />
+                      <button type="button" onClick={() => setShowNewPw(p => !p)} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", color: "#4B5563", fontSize: 14, padding: 2, border: "none", cursor: "pointer" }}>{showNewPw ? "🙈" : "👁"}</button>
+                    </div>
                   </div>
                 </div>
-                <div>
-                  <label style={labelStyle}>New Password</label>
-                  <div style={{ position: "relative" }}>
-                    <input type={showNewPw ? "text" : "password"} value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="Min. 6 characters"
-                      onFocus={() => setFocusedField("newpw")} onBlur={() => setFocusedField("")}
-                      style={{ ...inp(focusedField === "newpw"), paddingRight: 42 }} />
-                    <button type="button" onClick={() => setShowNewPw(p => !p)} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", color: "#4B5563", fontSize: 14, padding: 2, border: "none", cursor: "pointer" }}>{showNewPw ? "🙈" : "👁"}</button>
-                  </div>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                  <p style={{ color: "#64748B", fontSize: 12, lineHeight: 1.5 }}>
+                    We will send a 6-digit code to {user?.email}. Use it here to set a new password.
+                  </p>
+                  <button onClick={sendPasswordResetCode} disabled={pwSaving}
+                    style={{ background: "rgba(201,168,76,0.1)", border: "1px solid rgba(201,168,76,0.25)", color: "#E2C97E", fontWeight: 600, padding: "10px", borderRadius: 8, cursor: pwSaving ? "default" : "pointer" }}>
+                    {resetCodeSent ? "Send New Code" : "Send Reset Code"}
+                  </button>
+                  {resetCodeSent && (
+                    <>
+                      <div>
+                        <label style={labelStyle}>6-Digit Code</label>
+                        <input value={resetCode} onChange={e => setResetCode(e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder="123456"
+                          onFocus={() => setFocusedField("resetcode")} onBlur={() => setFocusedField("")}
+                          style={{ ...inp(focusedField === "resetcode"), letterSpacing: 6, textAlign: "center" }} />
+                      </div>
+                      <div>
+                        <label style={labelStyle}>New Password</label>
+                        <input type="password" value={resetNewPassword} onChange={e => setResetNewPassword(e.target.value)} placeholder="Min. 6 characters"
+                          onFocus={() => setFocusedField("resetpw")} onBlur={() => setFocusedField("")}
+                          style={inp(focusedField === "resetpw")} />
+                      </div>
+                    </>
+                  )}
                 </div>
-              </div>
+              )}
               {pwMsg   && <div style={{ marginTop: 14, background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.2)", color: "#86EFAC", fontSize: 12, padding: "8px 12px", borderRadius: 8 }}>✓ {pwMsg}</div>}
               {pwError && <div style={{ marginTop: 14, background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", color: "#FCA5A5", fontSize: 12, padding: "8px 12px", borderRadius: 8 }}>✗ {pwError}</div>}
-              <button onClick={changePassword} disabled={pwSaving}
+              <button onClick={resetMode && resetCodeSent ? resetPasswordWithCode : changePassword} disabled={pwSaving || (resetMode && !resetCodeSent)}
                 onMouseEnter={e => { e.currentTarget.style.background = "rgba(59,130,246,0.2)"; }}
                 onMouseLeave={e => { e.currentTarget.style.background = "rgba(59,130,246,0.1)"; }}
                 style={{ marginTop: 16, width: "100%", background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.25)", color: "#93C5FD", fontWeight: 600, padding: "11px", borderRadius: 10, fontSize: 14, cursor: pwSaving ? "default" : "pointer", transition: "all 0.2s", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, opacity: pwSaving ? 0.7 : 1 }}>
-                {pwSaving ? <Spinner /> : <><span>🔑</span> Update Password</>}
+                {pwSaving ? <Spinner /> : <><span>🔑</span> {resetMode ? "Reset Password with Code" : "Update Password"}</>}
+              </button>
+              <button type="button" onClick={() => { setResetMode(v => !v); setPwMsg(""); setPwError(""); }}
+                style={{ marginTop: 10, width: "100%", background: "transparent", color: "#C9A84C", fontWeight: 600, fontSize: 12 }}>
+                {resetMode ? "I know my current password" : "I do not know my current password"}
               </button>
             </div>
           </div>

@@ -39,9 +39,12 @@ import models.answer
 import models.coding
 import models.communication
 import models.gd
+import models.verification_code
+from services.schema_migration import ensure_auth_schema
 
 # Create all tables on startup
 Base.metadata.create_all(bind=engine)
+ensure_auth_schema(engine)
 
 app = FastAPI(title="ZenPrep API", version="2.0.0")
 

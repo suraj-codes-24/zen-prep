@@ -21,6 +21,7 @@ frontend/node_modules/
 
 # Build output
 frontend/dist/
+frontend/.vercel/
 
 # Internal tooling
 .agents/

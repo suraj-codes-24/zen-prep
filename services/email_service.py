@@ -1,122 +1,85 @@
-"""
-Email Service - Handles sending emails including validation links.
-"""
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from core.config import SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD, FROM_EMAIL, FRONTEND_URL
+import os
 import secrets
-from fastapi import HTTPException
+import smtplib
+from email.message import EmailMessage
+
+from core.logger import logger
 
 
-def generate_validation_token():
-    """Generate a secure token for email validation."""
+def _smtp_settings() -> tuple[str | None, int, str | None, str | None, str | None]:
+    host = os.getenv("SMTP_HOST", "smtp.gmail.com")
+    port = int(os.getenv("SMTP_PORT", "587"))
+    username = os.getenv("SMTP_USERNAME") or os.getenv("SMTP_USER")
+    password = os.getenv("SMTP_PASSWORD")
+    from_email = os.getenv("SMTP_FROM_EMAIL") or os.getenv("FROM_EMAIL") or username
+    return host, port, username, password, from_email
+
+
+def send_email(to_email: str, subject: str, body: str) -> bool:
+    host, port, username, password, from_email = _smtp_settings()
+
+    if not host or not username or not password or not from_email:
+        logger.warning("SMTP is not configured. Email to %s skipped. Subject: %s Body: %s", to_email, subject, body)
+        return False
+
+    msg = EmailMessage()
+    msg["From"] = from_email
+    msg["To"] = to_email
+    msg["Subject"] = subject
+    msg.set_content(body)
+
+    try:
+        with smtplib.SMTP(host, port, timeout=15) as smtp:
+            smtp.starttls()
+            smtp.login(username, password)
+            smtp.send_message(msg)
+        return True
+    except Exception as exc:
+        logger.warning("Failed to send email to %s: %s", to_email, exc)
+        return False
+
+
+def send_verification_code(to_email: str, code: str, purpose: str) -> bool:
+    action = "verify your email" if purpose == "signup" else "reset your password"
+    subject = "Your ZenPrep verification code"
+    body = (
+        f"Your ZenPrep code is {code}.\n\n"
+        f"Use this code to {action}. It expires in 10 minutes.\n\n"
+        "If you did not request this, you can ignore this email."
+    )
+    return send_email(to_email, subject, body)
+
+
+def generate_validation_token() -> str:
     return secrets.token_urlsafe(32)
 
 
 def send_validation_email(user_email: str, user_name: str, validation_token: str) -> bool:
-    """
-    Send email validation link to the user.
-    
-    Args:
-        user_email: User's email address
-        user_name: User's name
-        validation_token: Validation token for the link
-        
-    Returns:
-        bool: True if email sent successfully, False otherwise
-    """
-    if not SMTP_USER or not SMTP_PASSWORD:
-        print("[EMAIL] SMTP not configured, skipping email validation")
-        return False
-    
-    validation_link = f"{FRONTEND_URL}/validate-email?token={validation_token}"
-    
-    subject = "Verify your email - Zen Prep"
-    body = f"""
-Hi {user_name},
-
-Thank you for signing up with Zen Prep!
-
-Please verify your email address by clicking the link below:
-
-{validation_link}
-
-This link will expire in 24 hours.
-
-If you didn't create an account with Zen Prep, please ignore this email.
-
-Best regards,
-The Zen Prep Team
-"""
-    
-    try:
-        msg = MIMEMultipart()
-        msg['From'] = FROM_EMAIL
-        msg['To'] = user_email
-        msg['Subject'] = subject
-        
-        msg.attach(MIMEText(body, 'plain'))
-        
-        with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
-            server.starttls()
-            server.login(SMTP_USER, SMTP_PASSWORD)
-            server.send_message(msg)
-        
-        print(f"[EMAIL] Validation email sent to {user_email}")
-        return True
-        
-    except Exception as e:
-        print(f"[EMAIL] Failed to send validation email: {str(e)}")
-        return False
+    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
+    validation_link = f"{frontend_url}/validate-email?token={validation_token}"
+    subject = "Verify your email - ZenPrep"
+    body = (
+        f"Hi {user_name},\n\n"
+        "Thank you for signing up with ZenPrep.\n\n"
+        f"Please verify your email address here:\n{validation_link}\n\n"
+        "If you did not create an account with ZenPrep, please ignore this email."
+    )
+    return send_email(user_email, subject, body)
 
 
 def send_contact_email(sender_name: str, sender_email: str, message: str) -> bool:
-    """
-    Send contact form submission email to the admin.
-    
-    Args:
-        sender_name: Name of the person submitting the contact form
-        sender_email: Email of the person submitting the contact form
-        message: Message from the contact form
-        
-    Returns:
-        bool: True if email sent successfully, False otherwise
-    """
-    if not SMTP_USER or not SMTP_PASSWORD:
-        print("[EMAIL] SMTP not configured, skipping contact email")
+    _, _, _, _, from_email = _smtp_settings()
+    admin_email = os.getenv("CONTACT_TO_EMAIL") or from_email
+    if not admin_email:
+        logger.warning("Contact email skipped because no admin email is configured")
         return False
-    
+
     subject = f"New Contact Form Submission from {sender_name}"
-    body = f"""
-New contact form submission from ZenPrep landing page.
-
-Name: {sender_name}
-Email: {sender_email}
-
-Message:
-{message}
-
----
-This is an automated message from ZenPrep contact form.
-"""
-    
-    try:
-        msg = MIMEMultipart()
-        msg['From'] = FROM_EMAIL
-        msg['To'] = FROM_EMAIL  # Send to the same email (admin email)
-        msg['Subject'] = subject
-        
-        msg.attach(MIMEText(body, 'plain'))
-        
-        with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
-            server.starttls()
-            server.login(SMTP_USER, SMTP_PASSWORD)
-            server.send_message(msg)
-        
-        print(f"[EMAIL] Contact form email sent from {sender_email}")
-        return True
-        
-    except Exception as e:
-        print(f"[EMAIL] Failed to send contact email: {str(e)}")
-        return False
+    body = (
+        "New contact form submission from ZenPrep landing page.\n\n"
+        f"Name: {sender_name}\n"
+        f"Email: {sender_email}\n\n"
+        f"Message:\n{message}\n\n"
+        "---\nThis is an automated message from ZenPrep contact form."
+    )
+    return send_email(admin_email, subject, body)
