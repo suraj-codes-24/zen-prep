@@ -4,6 +4,7 @@ from ai_engine.vision_engine import analyze_frame as analyze_vision_frame
 from core.dependencies import get_current_user
 from core.logger import logger
 from models.user import User
+from services.vision_session_service import record_face_metrics
 
 router = APIRouter(prefix="/api/vision", tags=["Vision"])
 
@@ -20,6 +21,13 @@ async def analyze_frame_endpoint(
     """Analyze a single frame for facial metrics."""
     try:
         results = analyze_vision_frame(request.image)
+        if not results.get("error"):
+            record_face_metrics(
+                user_id=current_user.id,
+                session_id=request.session_id,
+                question_id=request.question_id,
+                metrics=results,
+            )
         return results
     except Exception as e:
         logger.error("Vision analysis failed: %s", e)

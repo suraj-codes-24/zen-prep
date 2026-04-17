@@ -98,7 +98,7 @@ function InterviewRoomPage({ token, user, sessionData, onResult, onBack }) {
 
   async function fetchQuestion() {
     setLoading(true); setResult(null); setAnswer(""); setError("");
-    setVoiceResult(null); setVisionDataPoints([]);
+    setVoiceResult(null); setVisionDataPoints([]); setLatestVision(null);
     setFollowup(null); setFollowupAnswer(""); setFollowupResult(null); setFollowupCount(0);
     try {
       let q = `subject_id=${subjectId}&difficulty=${difficulty}&session_id=${sessionId}`;
@@ -118,11 +118,11 @@ function InterviewRoomPage({ token, user, sessionData, onResult, onBack }) {
     const finalAnswer = answer.trim() || voiceResult?.transcript || "";
     if (!finalAnswer) { setError("Record or type your answer first."); return; }
     setError(""); setSubmitting(true);
-    let avgFaceScore = 70;
+    let avgFaceScore = 0;
     if (visionDataPoints.length > 0) {
-      const valid = visionDataPoints.filter(p => p.face_detected && !isNaN(p.eye_contact) && !isNaN(p.head_stability));
+      const valid = visionDataPoints.filter(p => p.face_detected && !Number.isNaN(Number(p.face_score)));
       if (valid.length > 0) {
-        const sum = valid.reduce((acc, p) => acc + (p.eye_contact * 0.5 + p.head_stability * 0.5), 0);
+        const sum = valid.reduce((acc, p) => acc + Number(p.face_score), 0);
         avgFaceScore = sum / valid.length;
       }
     }
@@ -180,16 +180,23 @@ function InterviewRoomPage({ token, user, sessionData, onResult, onBack }) {
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({
           session_id: sessionId, question_id: question.question_id,
-          user_answer: followupAnswer, voice_score: 0, face_score: 0,
+          user_answer: followupAnswer, voice_score: 0, face_score: 0, is_followup: true,
         }),
       });
       const d = await r.json();
-      if (r.ok) setFollowupResult(d);
-    } catch { /* silent */ }
+      if (r.ok) {
+        setFollowupResult(d);
+      } else {
+        setError(d.detail || d?.error?.message || "Follow-up submission failed");
+      }
+    } catch {
+      setError("Follow-up submission failed");
+    }
     setFollowupSubmitting(false);
   }
 
   function handleVisionResult(data) {
+    if (!data || data.error) return;
     setLatestVision(data);
     setVisionDataPoints(prev => [...prev, data]);
   }
@@ -227,12 +234,17 @@ function InterviewRoomPage({ token, user, sessionData, onResult, onBack }) {
       for (const c of chunks) { merged.set(c, off); off += c.length; }
       const wav = buildWav(merged, srRef.current);
       const fd  = new FormData(); fd.append("audio", wav, "answer.wav");
-      const res = await fetch(`${API}/voice/analyze`, { method: "POST", body: fd });
-      if (res.ok) {
-        const data = await res.json();
-        setVoiceResult(data);
-        if (data.transcript) setAnswer(data.transcript);
+      const res = await fetch(`${API}/voice/analyze`, {
+        method: "POST",
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        body: fd,
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        throw new Error(data?.detail || data?.error?.message || "Voice analysis failed");
       }
+      setVoiceResult(data);
+      if (data?.transcript) setAnswer(data.transcript);
     } catch (e) { setError(`Voice error: ${e.message}`); }
     setVoiceLoading(false);
   }
@@ -400,7 +412,7 @@ function InterviewRoomPage({ token, user, sessionData, onResult, onBack }) {
               {[
                 { label: "NLP Score",   value: result.nlp_score,   color: "#C9A84C" },
                 { label: "Voice",       value: result.voice_score, color: "#F59E0B" },
-                { label: "Eye Contact", value: result.face_score,  color: "#22C55E" },
+                { label: "Face Analysis", value: result.face_score,  color: "#22C55E" },
               ].map(s => (
                 <div key={s.label}>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3, fontSize: 12 }}>

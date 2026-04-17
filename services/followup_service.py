@@ -1,10 +1,10 @@
-from services.llm_utils import generate, LLMUnavailable
+from services.llm_utils import LLMUnavailable, generate
 
 
 def generate_followup(question_text: str, user_answer: str) -> str:
     """
-    Ask Ollama to produce ONE short follow-up question (≤25 words).
-    Returns the question string. Falls back to a generic probe on error.
+    Generate one short follow-up question.
+    Returns the question string and falls back to a generic probe on error.
     """
     prompt = f"""You are a senior technical interviewer.
 
@@ -38,7 +38,7 @@ Rules:
         return _fallback(question_text)
 
     except LLMUnavailable:
-        return "Ollama is not running — please start it with: ollama serve"
+        return _fallback(question_text)
     except Exception:
         return _fallback(question_text)
 

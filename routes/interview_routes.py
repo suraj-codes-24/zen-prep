@@ -199,10 +199,10 @@ def finish_interview(
     if answers:
         scores = [a.total_score or 0 for a in answers]
         session.final_score = round(sum(scores) / len(scores), 1)
+        session.status = "completed"
     else:
-        session.final_score = 0
-
-    session.status = "completed"
+        session.final_score = None
+        session.status = "abandoned"
     session.end_time = datetime.utcnow()
     session.questions_answered = len(answers)
     db.commit()
