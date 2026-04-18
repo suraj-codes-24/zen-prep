@@ -318,7 +318,7 @@ function ContactModal({ onClose }) {
               >
                 📧{" "}
                 <span style={{ color: "#A5B4FC" }}>
-                  suraj14mk@gmail.com
+                  zenprep1@gmail.com
                 </span>
               </div>
               <div
@@ -329,7 +329,7 @@ function ContactModal({ onClose }) {
               <div
                 style={{ display: "flex", alignItems: "center", gap: 8 }}
               >
-                📍 Kanpur, India
+                📍 Kanpur, Uttar Pradesh, India
               </div>
               <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
                 <a
@@ -2438,7 +2438,7 @@ function LandingPage({ onLogin, onGetStarted }) {
                 {plan.desc}
               </p>
               <button
-                onClick={i === 2 ? () => setModalWithDebug("contact") : onGetStarted}
+                onClick={onGetStarted}
                 style={{
                   width: "100%",
                   padding: "12px 0",
@@ -3505,7 +3505,7 @@ function LandingPage({ onLogin, onGetStarted }) {
             </h3>
             <p>
               For privacy-related inquiries, please contact us at{" "}
-              <span style={{ color: "#A5B4FC" }}>privacy@zenprep.ai</span>
+              <span style={{ color: "#A5B4FC" }}>zenprep1@gmail.com</span>
             </p>
           </div>
         </ModalOverlay>
