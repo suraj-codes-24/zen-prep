@@ -329,6 +329,12 @@ function LandingPage({ onLogin, onGetStarted }) {
         animation: "fadeIn 0.2s ease",
       }}
       onClick={onClose}
+      onKeyDown={(e) => {
+        if (e.key === "Escape") {
+          onClose();
+        }
+      }}
+      tabIndex={-1}
     >
       <div
         style={{
