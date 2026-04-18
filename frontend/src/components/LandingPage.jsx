@@ -3267,6 +3267,7 @@ function LandingPage({ onLogin, onGetStarted }) {
                     }
                     onKeyDown={(e) => {
                       if (e.key === "Enter") e.preventDefault();
+                      e.stopPropagation();
                     }}
                     placeholder="Your name"
                     style={{
@@ -3299,6 +3300,7 @@ function LandingPage({ onLogin, onGetStarted }) {
                     }
                     onKeyDown={(e) => {
                       if (e.key === "Enter") e.preventDefault();
+                      e.stopPropagation();
                     }}
                     placeholder="your@email.com"
                     type="email"
@@ -3335,6 +3337,7 @@ function LandingPage({ onLogin, onGetStarted }) {
                     }
                     onKeyDown={(e) => {
                       if (e.key === "Enter" && !e.shiftKey) e.preventDefault();
+                      e.stopPropagation();
                     }}
                     placeholder="Tell us how we can help..."
                     rows={4}
