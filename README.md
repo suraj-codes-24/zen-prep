@@ -1,74 +1,72 @@
-# ZenPrep
+# ZenPrep 🧘
 
-ZenPrep is a full-stack interview preparation platform built with FastAPI, React, and PostgreSQL. It combines text evaluation, voice analysis, face analysis, coding practice, communication testing, group discussion practice, analytics, and PDF reports in one product.
+> AI-powered interview preparation platform with multimodal feedback — voice, face, and NLP analysis across interviews, coding, communication tests, and group discussions.
 
-## Features
+🔗 **Live App:** [zenprep.vercel.app](https://zenprep.vercel.app)
 
-- **Mock Interview**: Subject, topic, and subtopic driven interview setup with adaptive question fetching, NLP scoring, voice and face analysis, and follow-up question generation
-- **Coding Interview**: Monaco editor based coding room with Python, C++, and Java execution
-- **Communication Test**: Multi-section speaking test with TTS playback and voice-based fluency scoring
-- **Group Discussion**: Topic-based GD setup with multiple AI bot participants, pause/raise-hand flow, and comprehensive scoring
-- **Career AI**: Resume PDF analysis, JD gap analysis, and skill comparison against user analytics
-- **Analytics**: Unified dashboard across interview, coding, communication, and GD with trends and breakdowns
+---
 
+## ✨ Features
 
-## Architecture
+- 🎤 **AI Mock Interviews** — Adaptive questions, follow-up generation, voice & face scoring
+- 💻 **Coding Module** — Multi-language problem bank with execution and scoring
+- 🗣️ **Communication Tests** — TTS-driven sections with audio answer analysis
+- 👥 **Group Discussion** — Bot personalities, forced-turn coaching, ready-script sidebar
+- 📊 **Analytics Dashboard** — Cross-module stats, session history, PDF reports
+- 🤖 **Career AI** — Resume parsing, JD gap analysis, personalized recommendations
 
-| Layer | Stack |
-|-------|-------|
-| Frontend | React, Vite, inline styles |
-| Backend | FastAPI, SQLAlchemy |
-| Database | PostgreSQL via `DATABASE_URL` |
-| Voice | `librosa`, `parselmouth`, `soundfile`, `scipy` |
-| Vision | OpenCV + MediaPipe FaceMesh |
-| LLM | Gemini primary, Groq fallback |
-| STT | Groq Whisper transcription |
-| TTS | `edge-tts` |
-| Reports | `reportlab` |
+---
 
-## Project Layout
+## 🛠️ Tech Stack
 
-```text
-zen-prep/
-|-- main.py
-|-- database.py
-|-- ai_engine/
-|-- core/
-|-- data/
-|-- frontend/
-|-- models/
-|-- routes/
-|-- schemas/
-|-- services/
-|-- README.md
-```
+| Layer | Technology |
+|-------|------------|
+| Frontend | React + Vite |
+| Backend | FastAPI (Python) |
+| Database | PostgreSQL (Neon) |
+| LLM | Gemini (primary) + Groq (fallback) |
+| STT | Groq Whisper |
+| TTS | edge-tts |
+| Deployment | Vercel (frontend) + Hugging Face Docker (backend) |
 
-## Local Setup
+---
 
-### 1. Prerequisites
+## 🚀 Running Locally
 
+### Prerequisites
+
+- Node.js (v18+)
 - Python 3.11+
-- Node.js 20+ or newer
-- PostgreSQL or a Neon Postgres database
-- `g++` and JDK 11+ if you want local coding execution for C++ and Java
+- PostgreSQL database (or a [Neon](https://neon.tech) connection string)
+- API keys: Gemini, Groq, Google OAuth
 
-### 2. Install backend dependencies
+---
+
+### 1. Clone the repository
 
 ```bash
-python -m venv venv
-venv\Scripts\activate
+git clone https://github.com/your-username/zen-prep.git
+cd zen-prep
+```
+
+---
+
+### 2. Backend Setup
+
+```bash
+# Install Python dependencies
 pip install -r requirements.txt
 ```
 
-### 3. Configure environment variables
-
-Create `.env` in the repo root.
+Create a `.env` file in the root directory:
 
 ```env
-DATABASE_URL=postgresql://user:password@host:5432/dbname
-SECRET_KEY=change_me
+DATABASE_URL=postgresql://user:password@host/dbname?sslmode=require
+SECRET_KEY=your_secret_key
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=30
+
+ADMIN_EMAILS=your@email.com
 
 GEMINI_API_KEY=your_gemini_key
 GROQ_API_KEY=your_groq_key
@@ -79,85 +77,104 @@ GOOGLE_REDIRECT_URI=http://localhost:5173/auth/callback
 
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
-SMTP_USER=your_email
+SMTP_USER=your_email@gmail.com
 SMTP_PASSWORD=your_app_password
 FROM_EMAIL=noreply@zen-prep.com
 FRONTEND_URL=http://localhost:5173
-
-ADMIN_EMAILS=suraj14mk@gmail.com
 ```
 
-### 4. Start the backend
+Start the backend:
 
 ```bash
 uvicorn main:app --reload
 ```
 
-Backend:
-- API: `http://localhost:8000`
-- Docs: `http://localhost:8000/docs`
-- Health: `http://localhost:8000/health`
+Backend runs at: `http://localhost:8000`
+API docs available at: `http://localhost:8000/docs`
+Health check: `http://localhost:8000/health`
 
-### 5. Seed data
+---
 
-Create tables automatically by starting the app once, then seed optional content:
-
-```bash
-python seed_coding_v2.py
-python seed_communication.py
-python seed_gd.py
-```
-
-Interview questions are seeded through the admin-only endpoint:
-
-```text
-POST /interview/seed-questions
-```
-
-### 6. Start the frontend
+### 3. Frontend Setup
 
 ```bash
 cd frontend
 npm install
+```
+
+Create a `.env` file inside the `frontend/` directory:
+
+```env
+VITE_API_URL=http://localhost:8000
+```
+
+Start the frontend:
+
+```bash
 npm run dev
 ```
 
-Frontend:
-- App: `http://localhost:5173`
+Frontend runs at: `http://localhost:5173`
 
-## Important Runtime Notes
+---
 
-- Keep `mediapipe==0.10.11` on Windows.
-- `services/llm_utils.py` now tolerates missing `google.genai` imports so startup does not crash just because that SDK is unavailable.
-- Interview face scoring is now based on backend-recorded metrics, not a client-trusted aggregate alone.
-- Communication and interview analytics are intentionally counted separately.
+## 🏗️ Project Structure
 
-## Main API Areas
+```
+zen-prep/
+├── main.py                  # App entry point, middleware, CORS
+├── database.py              # SQLAlchemy engine and sessions
+├── routes/                  # API route handlers
+│   ├── interview_routes.py
+│   ├── answer_routes.py
+│   ├── voice_routes.py
+│   ├── vision_routes.py
+│   ├── analytics_routes.py
+│   ├── communication_routes.py
+│   └── gd_routes.py
+├── services/                # Business logic and AI integrations
+│   ├── evaluation_service.py
+│   ├── llm_utils.py
+│   ├── analytics_service.py
+│   └── ...
+└── frontend/                # React + Vite frontend
+    └── src/
+        ├── components/
+        └── ...
+```
 
-| Area | Prefix |
-|------|--------|
-| Auth | `/auth` |
-| Interview | `/interview` |
-| Answers | `/answer` |
-| Voice analysis | `/api/voice` |
-| Vision analysis | `/api/vision` |
-| Coding | `/code` and coding v2 routes |
-| Communication | `/comm` |
-| GD | `/gd` |
-| Analytics | `/analytics` |
-| Reports | `/reports` |
-| Career AI | `/resume`, `/jd`, `/ai` |
+---
 
-## Recent Fixes Reflected In This Repo
+## 🌐 Production Deployment
 
-- Fixed interview scoring flow, face-score persistence, follow-up submission, and analytics counting
-- Improved GD forced-turn sidebar with phase-aware ready script and copy action
-- Fixed contact form auto-refresh issue on landing page
+| Service | Provider | URL |
+|---------|----------|-----|
+| Frontend | Vercel | [zenprep.vercel.app](https://zenprep.vercel.app) |
+| Backend | Hugging Face Spaces (Docker) | — |
+| Database | Neon Postgres | — |
 
-## Deployment
+### Deploy Frontend (Vercel)
+1. Push your branch to GitHub.
+2. Point Vercel to the `frontend/` directory.
+3. Set `VITE_API_URL` to your Hugging Face backend URL.
 
-- **Frontend**: Deployed on Vercel
-- **Backend**: Deployed on Hugging Face Spaces (Docker)
-- **Database**: Neon PostgreSQL
+### Deploy Backend (Hugging Face Docker)
+1. Push backend changes to the Hugging Face Space repo.
+2. Wait for the Docker build to complete.
+3. Ensure all secrets are set in the Space settings.
+4. Hit `/health` to confirm the Space is live.
 
-See deployment configuration in `vercel.json` (root) and `frontend/vercel.json`.
+---
+
+## ⚠️ Notes
+
+- **Windows users:** Pin `mediapipe==0.10.11` to avoid vision breakage.
+- **Cold starts:** The Hugging Face backend may be slow on the first request — hit `/health` once before a demo.
+- **Database:** Tables are auto-created on backend startup via `main.py`.
+- The backend requires `libsndfile1`, `libgomp1`, `libglib2.0-0`, and `libgl1` in the Docker environment.
+
+---
+
+## 📄 License
+
+MIT
