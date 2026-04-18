@@ -1,3 +1,13 @@
+---
+title: ZenPrep
+emoji: 🧘
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+pinned: false
+license: mit
+---
+
 # ZenPrep 🧘
 
 > AI-powered interview preparation platform with multimodal feedback — voice, face, and NLP analysis across interviews, coding, communication tests, and group discussions.
