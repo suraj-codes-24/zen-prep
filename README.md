@@ -2,7 +2,7 @@
 
 > AI-powered interview preparation platform with multimodal feedback — voice, face, and NLP analysis across interviews, coding, communication tests, and group discussions.
 
-🔗 **Live App:** [zenprep.vercel.app](https://zenprep.vercel.app)
+🔗 **Live App:** [zenprep.xyz](https://zenprep.xyz)
 
 ---
 
@@ -147,7 +147,7 @@ zen-prep/
 
 | Service | Provider | URL |
 |---------|----------|-----|
-| Frontend | Vercel | [zenprep.vercel.app](https://zenprep.vercel.app) |
+| Frontend | Vercel | [zenprep.xyz](https://zenprep.xyz) |
 | Backend | Hugging Face Spaces (Docker) | — |
 | Database | Neon Postgres | — |
 

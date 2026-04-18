@@ -13,10 +13,10 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 # Google OAuth
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
-GOOGLE_REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI", "https://zenprep.vercel.app/auth/callback")
+GOOGLE_REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI", "https://zenprep.xyz/auth/callback")
 
 # Email configuration
 RESEND_API_KEY = os.getenv("RESEND_API_KEY")
 RESEND_FROM_EMAIL = os.getenv("RESEND_FROM_EMAIL") or os.getenv("FROM_EMAIL", "noreply@zen-prep.com")
 CONTACT_TO_EMAIL = os.getenv("CONTACT_TO_EMAIL") or os.getenv("FROM_EMAIL", "noreply@zen-prep.com")
-FRONTEND_URL = os.getenv("FRONTEND_URL", "https://zenprep.vercel.app")
+FRONTEND_URL = os.getenv("FRONTEND_URL", "https://zenprep.xyz")
