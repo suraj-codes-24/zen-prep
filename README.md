@@ -1,62 +1,16 @@
----
-title: ZenPrep API
-emoji: 🎯
-colorFrom: blue
-colorTo: indigo
-sdk: docker
-pinned: false
-license: mit
----
-
 # ZenPrep
 
 ZenPrep is a full-stack interview preparation platform built with FastAPI, React, and PostgreSQL. It combines text evaluation, voice analysis, face analysis, coding practice, communication testing, group discussion practice, analytics, and PDF reports in one product.
 
-## What Is Working Now
+## Features
 
-- Interview flow is live end to end, including follow-up questions.
-- Voice uploads now send auth correctly from the interview room.
-- Face analysis is computed server-side and fed into interview evaluation through recorded vision metrics.
-- Empty interview exits are marked as `abandoned`, so communication tests no longer inflate interview analytics.
-- GD forced turns now include a third sidebar card with a phase-aware ready script and one-click copy action.
-- Dashboard and analytics can be demoed immediately with seeded data for the current app account.
+- **Mock Interview**: Subject, topic, and subtopic driven interview setup with adaptive question fetching, NLP scoring, voice and face analysis, and follow-up question generation
+- **Coding Interview**: Monaco editor based coding room with Python, C++, and Java execution
+- **Communication Test**: Multi-section speaking test with TTS playback and voice-based fluency scoring
+- **Group Discussion**: Topic-based GD setup with multiple AI bot participants, pause/raise-hand flow, and comprehensive scoring
+- **Career AI**: Resume PDF analysis, JD gap analysis, and skill comparison against user analytics
+- **Analytics**: Unified dashboard across interview, coding, communication, and GD with trends and breakdowns
 
-## Core Features
-
-### Mock Interview
-- Subject, topic, and subtopic driven interview setup
-- Adaptive question fetching with no-repeat behavior inside a session
-- Technical and HR interview modes
-- NLP scoring plus voice and face inputs
-- Follow-up question generation for weaker responses
-- Replay, analytics, and PDF reporting
-
-### Coding Interview
-- Monaco editor based coding room
-- Python, C++, and Java execution
-- Session tracking, submissions, and scoring
-
-### Communication Test
-- Multi-section speaking test
-- Edge TTS prompt playback
-- Voice-based fluency scoring
-- History, results, and PDF export
-
-### Group Discussion
-- Topic-based GD setup with multiple AI bot participants
-- Pause, raise-hand, and forced-turn flow
-- Whisper-style speech transcription through Groq STT
-- GD scoring across participation, leadership, listening, idea quality, and teamwork
-- Coaching results plus live right-side speaking guidance
-
-### Career AI
-- Resume PDF analysis
-- JD gap analysis
-- Skill comparison against user analytics
-
-### Analytics
-- Unified dashboard across interview, coding, communication, and GD
-- Recent activity, trends, averages, bands, and breakdowns
 
 ## Architecture
 
@@ -87,9 +41,6 @@ zen-prep/
 |-- schemas/
 |-- services/
 |-- README.md
-|-- REPORT_PLAN.md
-|-- AI_INSTRUCTIONS.md
-|-- DEPLOY_PLAN.md
 ```
 
 ## Local Setup
@@ -199,9 +150,14 @@ Frontend:
 
 ## Recent Fixes Reflected In This Repo
 
-- `3f114a5` fixed interview scoring flow, face-score persistence, follow-up submission, and analytics counting.
-- `8c9f441` improved the GD forced-turn sidebar with a phase-aware ready script and copy action.
+- Fixed interview scoring flow, face-score persistence, follow-up submission, and analytics counting
+- Improved GD forced-turn sidebar with phase-aware ready script and copy action
+- Fixed contact form auto-refresh issue on landing page
 
 ## Deployment
 
-Deployment details live in [DEPLOY_PLAN.md](/C:/Users/suraj/Desktop/zen-prep/DEPLOY_PLAN.md).
+- **Frontend**: Deployed on Vercel
+- **Backend**: Deployed on Hugging Face Spaces (Docker)
+- **Database**: Neon PostgreSQL
+
+See deployment configuration in `vercel.json` (root) and `frontend/vercel.json`.
