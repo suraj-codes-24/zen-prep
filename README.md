@@ -75,11 +75,9 @@ GOOGLE_CLIENT_ID=your_google_client_id
 GOOGLE_CLIENT_SECRET=your_google_client_secret
 GOOGLE_REDIRECT_URI=http://localhost:5173/auth/callback
 
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=your_email@gmail.com
-SMTP_PASSWORD=your_app_password
-FROM_EMAIL=noreply@zen-prep.com
+RESEND_API_KEY=your_resend_api_key
+RESEND_FROM_EMAIL=noreply@zen-prep.com
+CONTACT_TO_EMAIL=your@email.com
 FRONTEND_URL=http://localhost:5173
 ```
 

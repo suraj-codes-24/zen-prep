@@ -1,32 +1,21 @@
 import os
 import secrets
-import smtplib
-from email.message import EmailMessage
 
 import requests
 
 from core.logger import logger
 
 
-def _smtp_settings() -> tuple[str | None, int, str | None, str | None, str | None]:
-    host = os.getenv("SMTP_HOST", "smtp.gmail.com")
-    port = int(os.getenv("SMTP_PORT", "587"))
-    username = os.getenv("SMTP_USERNAME") or os.getenv("SMTP_USER")
-    password = os.getenv("SMTP_PASSWORD")
-    from_email = os.getenv("SMTP_FROM_EMAIL") or os.getenv("FROM_EMAIL") or username
-    return host, port, username, password, from_email
-
-
 def _resend_settings() -> tuple[str | None, str | None]:
     api_key = os.getenv("RESEND_API_KEY")
-    from_email = os.getenv("RESEND_FROM_EMAIL") or os.getenv("SMTP_FROM_EMAIL") or os.getenv("FROM_EMAIL")
+    from_email = os.getenv("RESEND_FROM_EMAIL") or os.getenv("FROM_EMAIL")
     return api_key, from_email
 
 
-def _send_via_resend(to_email: str, subject: str, body: str) -> bool:
+def send_email(to_email: str, subject: str, body: str) -> bool:
     api_key, from_email = _resend_settings()
     if not api_key or not from_email:
-        logger.info("Resend email provider not configured for %s", to_email)
+        logger.warning("Resend email provider not configured. Email to %s skipped. Subject: %s", to_email, subject)
         return False
 
     try:
@@ -52,34 +41,6 @@ def _send_via_resend(to_email: str, subject: str, body: str) -> bool:
     except Exception as exc:
         logger.warning("Resend email request failed for %s: %s", to_email, exc)
     return False
-
-
-def send_email(to_email: str, subject: str, body: str) -> bool:
-    if _send_via_resend(to_email, subject, body):
-        return True
-
-    logger.info("Falling back to SMTP for %s", to_email)
-    host, port, username, password, from_email = _smtp_settings()
-
-    if not host or not username or not password or not from_email:
-        logger.warning("No email provider is configured. Email to %s skipped. Subject: %s Body: %s", to_email, subject, body)
-        return False
-
-    msg = EmailMessage()
-    msg["From"] = from_email
-    msg["To"] = to_email
-    msg["Subject"] = subject
-    msg.set_content(body)
-
-    try:
-        with smtplib.SMTP(host, port, timeout=15) as smtp:
-            smtp.starttls()
-            smtp.login(username, password)
-            smtp.send_message(msg)
-        return True
-    except Exception as exc:
-        logger.warning("Failed to send email to %s: %s", to_email, exc)
-        return False
 
 
 def send_verification_code(to_email: str, code: str, purpose: str) -> bool:
@@ -111,7 +72,7 @@ def send_validation_email(user_email: str, user_name: str, validation_token: str
 
 
 def send_contact_email(sender_name: str, sender_email: str, message: str) -> bool:
-    _, _, _, _, from_email = _smtp_settings()
+    _, from_email = _resend_settings()
     admin_email = os.getenv("CONTACT_TO_EMAIL") or from_email
     if not admin_email:
         logger.warning("Contact email skipped because no admin email is configured")

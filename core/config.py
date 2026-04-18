@@ -16,9 +16,7 @@ GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
 GOOGLE_REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI", "https://zenprep.vercel.app/auth/callback")
 
 # Email configuration
-SMTP_HOST = os.getenv("SMTP_HOST", "smtp.gmail.com")
-SMTP_PORT = int(os.getenv("SMTP_PORT", 587))
-SMTP_USER = os.getenv("SMTP_USER")
-SMTP_PASSWORD = os.getenv("SMTP_PASSWORD")
-FROM_EMAIL = os.getenv("FROM_EMAIL", "noreply@zen-prep.com")
+RESEND_API_KEY = os.getenv("RESEND_API_KEY")
+RESEND_FROM_EMAIL = os.getenv("RESEND_FROM_EMAIL") or os.getenv("FROM_EMAIL", "noreply@zen-prep.com")
+CONTACT_TO_EMAIL = os.getenv("CONTACT_TO_EMAIL") or os.getenv("FROM_EMAIL", "noreply@zen-prep.com")
 FRONTEND_URL = os.getenv("FRONTEND_URL", "https://zenprep.vercel.app")
