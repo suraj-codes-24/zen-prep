@@ -47,7 +47,7 @@
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/zen-prep.git
+git clone https://github.com/suraj-codes-24/zen-prep.git
 cd zen-prep
 ```
 
