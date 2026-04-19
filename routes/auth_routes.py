@@ -1,3 +1,4 @@
+import logging
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
@@ -31,6 +32,8 @@ from services.auth_service import (
 )
 from services.google_oauth_service import get_google_auth_url, get_google_user_info
 
+logger = logging.getLogger(__name__)
+
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
 
@@ -40,14 +43,25 @@ class GoogleCallbackRequest(BaseModel):
 
 @router.get("/google/url")
 def get_google_auth_url_endpoint():
-    return {"auth_url": get_google_auth_url()}
+    logger.info("Google auth URL requested")
+    auth_url = get_google_auth_url()
+    logger.info(f"Google auth URL generated: {auth_url[:50]}...")
+    return {"auth_url": auth_url}
 
 
 @router.post("/google/callback", response_model=TokenResponse)
 async def google_callback(data: GoogleCallbackRequest, db: Session = Depends(get_db)):
-    user_info = await get_google_user_info(data.code)
-    token, user = login_with_google_user_info(user_info, db)
-    return {"access_token": token, "token_type": "bearer", "user": user}
+    logger.info("Google callback received")
+    logger.info(f"Code received: {data.code[:20]}...")
+    try:
+        user_info = await get_google_user_info(data.code)
+        logger.info(f"User info retrieved: {user_info.get('email', 'unknown')}")
+        token, user = login_with_google_user_info(user_info, db)
+        logger.info(f"User logged in successfully: {user.email}")
+        return {"access_token": token, "token_type": "bearer", "user": user}
+    except Exception as e:
+        logger.error(f"Google callback error: {str(e)}")
+        raise
 
 
 @router.get("/validate-email")
