@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { API, Bar, ZenPrepLogo, THEME } from "../shared";
+import { API, Bar, ZenPrepLogo, THEME, useWindowSize } from "../shared";
 
 function ModalOverlay({ title, onClose, children }) {
   const [mounted, setMounted] = useState(false);
@@ -392,6 +392,8 @@ function ContactModal({ onClose }) {
 }
 
 function LandingPage({ onLogin, onGetStarted }) {
+  const { width: windowWidth } = useWindowSize();
+  const isMobile = windowWidth < 768;
   const [modal, setModal] = useState(null); // "terms" | "privacy" | "contact" | null
   const setModalWithDebug = (value) => {
     setModal(value);
@@ -829,12 +831,11 @@ function LandingPage({ onLogin, onGetStarted }) {
           position: "relative",
           maxWidth: 1200,
           margin: "0 auto",
-          padding: "140px 40px 80px",
+          padding: isMobile ? "80px 20px 40px" : "140px 40px 80px",
           display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: 60,
+          gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
+          gap: isMobile ? 30 : 60,
           alignItems: "center",
-          className: "mobile-stack-grid",
           overflow: "hidden",
         }}
       >
@@ -1309,10 +1310,9 @@ function LandingPage({ onLogin, onGetStarted }) {
 
             {/* Score row */}
             <div
-              className="mobile-stack-grid"
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(4, 1fr)",
+                gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, 1fr)",
                 gap: 0,
                 borderTop: "1px solid rgba(255,255,255,0.05)",
               }}
@@ -1394,10 +1394,9 @@ function LandingPage({ onLogin, onGetStarted }) {
         style={{ maxWidth: 1200, margin: "0 auto", padding: "0 40px 60px" }}
       >
         <div
-          className="mobile-stack-grid"
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(4, 1fr)",
+            gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, 1fr)",
             gap: 16,
             animation: "slideUp 0.6s ease 0.4s both",
           }}
@@ -1506,11 +1505,10 @@ function LandingPage({ onLogin, onGetStarted }) {
           </p>
         </div>
         <div
-          className="mobile-stack-grid"
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
-            gap: 20,
+            gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)",
+            gap: isMobile ? 16 : 20,
           }}
         >
           {features.map((f, i) => (
@@ -1577,10 +1575,9 @@ function LandingPage({ onLogin, onGetStarted }) {
         style={{ maxWidth: 1200, margin: "0 auto", padding: "0 40px 80px" }}
       >
         <div
-          className="mobile-stack-grid"
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(4, 1fr)",
+            gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, 1fr)",
             gap: 14,
           }}
         >
@@ -1949,11 +1946,10 @@ function LandingPage({ onLogin, onGetStarted }) {
           </p>
         </div>
         <div
-          className="mobile-stack-grid"
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
-            gap: 24,
+            gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)",
+            gap: isMobile ? 20 : 24,
             position: "relative",
           }}
         >
@@ -2101,12 +2097,11 @@ function LandingPage({ onLogin, onGetStarted }) {
             background: "linear-gradient(145deg, #0F1629 0%, #131B35 100%)",
             border: "1px solid rgba(255,255,255,0.06)",
             borderRadius: 24,
-            padding: 48,
+            padding: isMobile ? "24px 20px" : 48,
             display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: 48,
+            gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
+            gap: isMobile ? 24 : 48,
             alignItems: "center",
-            className: "mobile-stack-grid",
           }}
         >
           <div>

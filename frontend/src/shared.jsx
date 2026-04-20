@@ -1,4 +1,25 @@
 import { useState, useEffect } from "react";
+
+// Hook to detect window size for responsive styling
+function useWindowSize() {
+  const [windowSize, setWindowSize] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  });
+
+  useEffect(() => {
+    function handleResize() {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    }
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  return windowSize;
+}
 // Shared constants, styles, and small helper components
 const API = import.meta.env.VITE_API_URL || "https://suraj-codes-24-suraj-codes-24.hf.space";
 
@@ -87,6 +108,8 @@ function Spinner() {
 function ExamGuidanceModal({ type, onAccept, onCancel }) {
   const [accepted, setAccepted] = useState(false);
   const [checkedAll, setCheckedAll] = useState({});
+  const { width: windowWidth } = useWindowSize();
+  const isMobile = windowWidth < 768;
 
   const isInterview = type === "interview";
   const accent = isInterview ? "#C9A84C" : "#90cdff";
@@ -123,20 +146,20 @@ function ExamGuidanceModal({ type, onAccept, onCancel }) {
 
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)", animation: "fadeIn 0.3s ease" }}>
-      <div style={{ background: isInterview ? "#0F1629" : "#181c22", border: `1px solid ${accent}20`, borderRadius: 20, width: "90%", maxWidth: 640, maxHeight: "85vh", overflow: "auto", position: "relative", animation: "fadeInUp 0.4s ease", boxShadow: `0 24px 80px rgba(0,0,0,0.5), 0 0 40px ${accent}08` }}>
+      <div style={{ background: isInterview ? "#0F1629" : "#181c22", border: `1px solid ${accent}20`, borderRadius: 20, width: isMobile ? "95%" : "90%", maxWidth: isMobile ? "100%" : 640, maxHeight: "85vh", overflow: "auto", position: "relative", animation: "fadeInUp 0.4s ease", boxShadow: `0 24px 80px rgba(0,0,0,0.5), 0 0 40px ${accent}08` }}>
         {/* Top accent line */}
         <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: `linear-gradient(90deg, transparent, ${accent}, transparent)`, borderRadius: "20px 20px 0 0" }} />
 
         {/* Header */}
-        <div className="mobile-reduce-padding" style={{ padding: "28px 32px 20px", textAlign: "center", borderBottom: `1px solid ${accent}15` }}>
+        <div style={{ padding: isMobile ? "16px 20px 12px" : "28px 32px 20px", textAlign: "center", borderBottom: `1px solid ${accent}15` }}>
           <div style={{ fontSize: 32, marginBottom: 8 }}>{isInterview ? "📋" : "🎧"}</div>
           <h2 style={{ fontSize: 22, fontWeight: 800, marginBottom: 6, background: `linear-gradient(135deg, #F1F5F9 30%, ${accent} 100%)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{title}</h2>
           <p style={{ color: "#7C8BA8", fontSize: 13, margin: 0, lineHeight: 1.5 }}>{subtitle}</p>
         </div>
 
         {/* Rules */}
-        <div className="mobile-reduce-padding" style={{ padding: "20px 32px" }}>
-          <div className="mobile-stack-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        <div style={{ padding: isMobile ? "16px 20px" : "20px 32px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 12 }}>
             {rules.map((r, i) => (
               <div key={r.id} style={{ background: `${accent}06`, border: `1px solid ${accent}12`, borderRadius: 12, padding: "14px 16px", animation: `fadeInUp 0.3s ease ${0.1 + i * 0.05}s both` }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
@@ -150,7 +173,7 @@ function ExamGuidanceModal({ type, onAccept, onCancel }) {
         </div>
 
         {/* Terms */}
-        <div className="mobile-reduce-padding" style={{ padding: "0 32px 20px" }}>
+        <div style={{ padding: isMobile ? "0 20px 16px" : "0 32px 20px" }}>
           <div style={{ background: `${accent}04`, border: `1px solid ${accent}10`, borderRadius: 12, padding: "16px 20px" }}>
             <div style={{ color: "#F1F5F9", fontWeight: 600, fontSize: 12, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12, display: "flex", alignItems: "center", gap: 6 }}>
               <span style={{ fontSize: 14 }}>✋</span> Terms & Acknowledgement
@@ -168,7 +191,7 @@ function ExamGuidanceModal({ type, onAccept, onCancel }) {
         </div>
 
         {/* Actions */}
-        <div className="mobile-reduce-padding mobile-stack-buttons" style={{ padding: "0 32px 28px", display: "flex", gap: 12 }}>
+        <div style={{ padding: isMobile ? "0 20px 16px" : "0 32px 28px", display: "flex", flexDirection: isMobile ? "column" : "row", gap: 12 }}>
           <button onClick={onCancel} style={{ flex: 1, padding: "12px", borderRadius: 10, border: `1px solid ${accent}20`, background: "transparent", color: "#94A3B8", fontSize: 13, fontWeight: 600, cursor: "pointer", transition: "all 0.2s" }}
             onMouseEnter={e => e.currentTarget.style.background = `${accent}08`}
             onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
@@ -345,4 +368,4 @@ const THEME = {
   border:  "rgba(255,255,255,0.07)",
 };
 
-export { API, globalCss, THEME, Spinner, ExamGuidanceModal, ZenPrepLogo, SplashScreen, Bar, buildWav, CircularScore };
+export { API, globalCss, THEME, Spinner, ExamGuidanceModal, ZenPrepLogo, SplashScreen, Bar, buildWav, CircularScore, useWindowSize };
