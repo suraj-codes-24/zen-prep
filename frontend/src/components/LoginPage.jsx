@@ -195,8 +195,8 @@ function LoginPage({ onLogin, onBack }) {
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0B0F1E", display: "grid", gridTemplateColumns: "1.1fr 1fr", fontFamily: "Inter", overflow: "hidden" }}>
-      <div style={{ background: "linear-gradient(160deg, #0F1629 0%, #131B36 50%, #0F1629 100%)", padding: "40px 48px", display: "flex", flexDirection: "column", position: "relative", overflow: "hidden" }}>
+    <div className="mobile-stack-grid" style={{ minHeight: "100vh", background: "#0B0F1E", display: "grid", gridTemplateColumns: "1.1fr 1fr", fontFamily: "Inter", overflow: "hidden" }}>
+      <div className="mobile-reduce-padding" style={{ background: "linear-gradient(160deg, #0F1629 0%, #131B36 50%, #0F1629 100%)", padding: "40px 48px", display: "flex", flexDirection: "column", position: "relative", overflow: "hidden" }}>
         <div style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(rgba(201,168,76,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(201,168,76,0.03) 1px, transparent 1px)", backgroundSize: "60px 60px", pointerEvents: "none" }} />
 
         <div onClick={onBack} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 48, position: "relative", zIndex: 1, cursor: "pointer" }}>
@@ -234,7 +234,7 @@ function LoginPage({ onLogin, onBack }) {
               <div style={{ color: "#F1F5F9", fontWeight: 600, fontSize: 13 }}>Explain the Quicksort algorithm and its time complexity.</div>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 1, background: "rgba(255,255,255,0.03)" }}>
+            <div className="mobile-stack-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 1, background: "rgba(255,255,255,0.03)" }}>
               {[{ label: "Voice", val: 82, color: "#C9A84C", icon: "🎙" }, { label: "Vision", val: 75, color: "#22C55E", icon: "👁" }, { label: "NLP", val: 90, color: "#F59E0B", icon: "🧠" }].map(s => (
                 <div key={s.label} style={{ background: "rgba(15,22,41,0.6)", padding: "10px 12px" }}>
                   <div style={{ color: "#64748B", fontSize: 10, marginBottom: 3, display: "flex", alignItems: "center", gap: 4 }}>
@@ -249,7 +249,7 @@ function LoginPage({ onLogin, onBack }) {
             </div>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+          <div className="mobile-stack-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
             {features.map(f => (
               <div key={f.title} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", background: "rgba(15,22,41,0.5)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: 8 }}>
                 <div style={{ width: 32, height: 32, borderRadius: 8, background: `${f.color}15`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, flexShrink: 0 }}>{f.icon}</div>
@@ -272,7 +272,7 @@ function LoginPage({ onLogin, onBack }) {
         </div>
       </div>
 
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: 36 }}>
+      <div className="mobile-reduce-padding" style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: 36 }}>
         <div style={{ width: "100%", maxWidth: 430 }}>
           <div style={{ display: "flex", background: "rgba(15,22,41,0.8)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 8, padding: 4, marginBottom: 28 }}>
             {["login", "register"].map(tab => (
@@ -306,7 +306,7 @@ function LoginPage({ onLogin, onBack }) {
                   <label style={labelStyle}>Full Name</label>
                   <input value={form.name} onChange={e => set("name", e.target.value)} required placeholder="Your full name" style={inputStyle} />
                 </div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                <div className="mobile-stack-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                   <div>
                     <label style={labelStyle}>Branch</label>
                     <input value={form.branch} onChange={e => set("branch", e.target.value)} required placeholder="CSE" style={inputStyle} />

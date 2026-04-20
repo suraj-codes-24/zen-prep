@@ -6,11 +6,24 @@ const globalCss = `
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: radial-gradient(ellipse at 20% 0%, #0F1A35 0%, #0B0F1E 60%); background-attachment: fixed; color: #F1F5F9; font-family: 'Inter', sans-serif; min-height: 100vh; }
-  button { font-family: 'Inter', sans-serif; cursor: pointer; border: none; outline: none; }
-  input, select, textarea { font-family: 'Inter', sans-serif; outline: none; }
+  button { font-family: 'Inter', sans-serif; cursor: pointer; border: none; outline: none; min-height: 44px; min-width: 44px; }
+  input, select, textarea { font-family: 'Inter', sans-serif; outline: none; min-height: 44px; }
   ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: #0B0F1E; }
   ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+  
+  /* Mobile Responsive Breakpoints */
+  @media (max-width: 768px) {
+    body { font-size: 14px; }
+    .mobile-stack-grid { grid-template-columns: 1fr !important; }
+    .mobile-reduce-padding { padding: 16px !important; }
+    .mobile-stack-buttons { flex-direction: column !important; }
+  }
+  
+  @media (max-width: 480px) {
+    body { font-size: 13px; }
+    .mobile-reduce-padding { padding: 12px !important; }
+  }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes fadeInScale { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
@@ -110,20 +123,20 @@ function ExamGuidanceModal({ type, onAccept, onCancel }) {
 
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)", animation: "fadeIn 0.3s ease" }}>
-      <div style={{ background: isInterview ? "#0F1629" : "#181c22", border: `1px solid ${accent}20`, borderRadius: 20, width: 640, maxHeight: "85vh", overflow: "auto", position: "relative", animation: "fadeInUp 0.4s ease", boxShadow: `0 24px 80px rgba(0,0,0,0.5), 0 0 40px ${accent}08` }}>
+      <div style={{ background: isInterview ? "#0F1629" : "#181c22", border: `1px solid ${accent}20`, borderRadius: 20, width: "90%", maxWidth: 640, maxHeight: "85vh", overflow: "auto", position: "relative", animation: "fadeInUp 0.4s ease", boxShadow: `0 24px 80px rgba(0,0,0,0.5), 0 0 40px ${accent}08` }}>
         {/* Top accent line */}
         <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: `linear-gradient(90deg, transparent, ${accent}, transparent)`, borderRadius: "20px 20px 0 0" }} />
 
         {/* Header */}
-        <div style={{ padding: "28px 32px 20px", textAlign: "center", borderBottom: `1px solid ${accent}15` }}>
+        <div className="mobile-reduce-padding" style={{ padding: "28px 32px 20px", textAlign: "center", borderBottom: `1px solid ${accent}15` }}>
           <div style={{ fontSize: 32, marginBottom: 8 }}>{isInterview ? "📋" : "🎧"}</div>
           <h2 style={{ fontSize: 22, fontWeight: 800, marginBottom: 6, background: `linear-gradient(135deg, #F1F5F9 30%, ${accent} 100%)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{title}</h2>
           <p style={{ color: "#7C8BA8", fontSize: 13, margin: 0, lineHeight: 1.5 }}>{subtitle}</p>
         </div>
 
         {/* Rules */}
-        <div style={{ padding: "20px 32px" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        <div className="mobile-reduce-padding" style={{ padding: "20px 32px" }}>
+          <div className="mobile-stack-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
             {rules.map((r, i) => (
               <div key={r.id} style={{ background: `${accent}06`, border: `1px solid ${accent}12`, borderRadius: 12, padding: "14px 16px", animation: `fadeInUp 0.3s ease ${0.1 + i * 0.05}s both` }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
@@ -137,7 +150,7 @@ function ExamGuidanceModal({ type, onAccept, onCancel }) {
         </div>
 
         {/* Terms */}
-        <div style={{ padding: "0 32px 20px" }}>
+        <div className="mobile-reduce-padding" style={{ padding: "0 32px 20px" }}>
           <div style={{ background: `${accent}04`, border: `1px solid ${accent}10`, borderRadius: 12, padding: "16px 20px" }}>
             <div style={{ color: "#F1F5F9", fontWeight: 600, fontSize: 12, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12, display: "flex", alignItems: "center", gap: 6 }}>
               <span style={{ fontSize: 14 }}>✋</span> Terms & Acknowledgement
@@ -155,7 +168,7 @@ function ExamGuidanceModal({ type, onAccept, onCancel }) {
         </div>
 
         {/* Actions */}
-        <div style={{ padding: "0 32px 28px", display: "flex", gap: 12 }}>
+        <div className="mobile-reduce-padding mobile-stack-buttons" style={{ padding: "0 32px 28px", display: "flex", gap: 12 }}>
           <button onClick={onCancel} style={{ flex: 1, padding: "12px", borderRadius: 10, border: `1px solid ${accent}20`, background: "transparent", color: "#94A3B8", fontSize: 13, fontWeight: 600, cursor: "pointer", transition: "all 0.2s" }}
             onMouseEnter={e => e.currentTarget.style.background = `${accent}08`}
             onMouseLeave={e => e.currentTarget.style.background = "transparent"}>

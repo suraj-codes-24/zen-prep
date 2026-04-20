@@ -834,6 +834,7 @@ function LandingPage({ onLogin, onGetStarted }) {
           gridTemplateColumns: "1fr 1fr",
           gap: 60,
           alignItems: "center",
+          className: "mobile-stack-grid",
           overflow: "hidden",
         }}
       >
@@ -1308,6 +1309,7 @@ function LandingPage({ onLogin, onGetStarted }) {
 
             {/* Score row */}
             <div
+              className="mobile-stack-grid"
               style={{
                 display: "grid",
                 gridTemplateColumns: "repeat(4, 1fr)",
@@ -1392,6 +1394,7 @@ function LandingPage({ onLogin, onGetStarted }) {
         style={{ maxWidth: 1200, margin: "0 auto", padding: "0 40px 60px" }}
       >
         <div
+          className="mobile-stack-grid"
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(4, 1fr)",
@@ -1503,6 +1506,7 @@ function LandingPage({ onLogin, onGetStarted }) {
           </p>
         </div>
         <div
+          className="mobile-stack-grid"
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(3, 1fr)",
@@ -1573,6 +1577,7 @@ function LandingPage({ onLogin, onGetStarted }) {
         style={{ maxWidth: 1200, margin: "0 auto", padding: "0 40px 80px" }}
       >
         <div
+          className="mobile-stack-grid"
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(4, 1fr)",
@@ -1944,6 +1949,7 @@ function LandingPage({ onLogin, onGetStarted }) {
           </p>
         </div>
         <div
+          className="mobile-stack-grid"
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(3, 1fr)",
@@ -2100,6 +2106,7 @@ function LandingPage({ onLogin, onGetStarted }) {
             gridTemplateColumns: "1fr 1fr",
             gap: 48,
             alignItems: "center",
+            className: "mobile-stack-grid",
           }}
         >
           <div>
