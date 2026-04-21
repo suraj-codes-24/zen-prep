@@ -1,8 +1,10 @@
 import { useState, useRef } from "react";
-import { API, THEME } from "../shared";
+import { API, THEME, useWindowSize } from "../shared";
 import { SidebarLayout } from "./Sidebar";
 
 function CareerAIPage({ token, user, onNav, onLogout, initialTab }) {
+  const { width: windowWidth } = useWindowSize();
+  const isMobile = windowWidth < 768;
   const [activeTab, setActiveTab] = useState(initialTab || "resume");
 
   // Resume state
@@ -110,19 +112,19 @@ function CareerAIPage({ token, user, onNav, onLogout, initialTab }) {
 
   return (
     <SidebarLayout active="career" user={user} onNav={onNav} onLogout={onLogout}>
-      <div style={{ padding: "28px 36px", maxWidth: 1100, margin: "0 auto" }}>
+      <div style={{ padding: isMobile ? "20px 16px" : "28px 36px", maxWidth: 1100, margin: "0 auto" }}>
         {/* Header + Tab Toggle */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: isMobile ? "flex-start" : "flex-start", marginBottom: isMobile ? 20 : 24, flexDirection: isMobile ? "column" : "row", gap: isMobile ? 16 : 0 }}>
           <div>
-            <h1 style={{ fontSize: 24, fontWeight: 800, margin: "0 0 4px 0", background: "linear-gradient(135deg, #F1F5F9 30%, #E2C97E 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Career AI</h1>
-            <p style={{ color: "#5A6B85", fontSize: 13, margin: 0 }}>
+            <h1 style={{ fontSize: isMobile ? 22 : 24, fontWeight: 800, margin: "0 0 4px 0", background: "linear-gradient(135deg, #F1F5F9 30%, #E2C97E 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Career AI</h1>
+            <p style={{ color: "#5A6B85", fontSize: isMobile ? 12 : 13, margin: 0 }}>
               {activeTab === "resume" ? "Upload your resume — get ATS score, skill extraction, and role-specific feedback" : "Paste a job description — see skill gaps and get a prep plan"}
             </p>
           </div>
-          <div style={{ display: "flex", background: "rgba(15,22,41,0.8)", border: "1px solid rgba(201,168,76,0.1)", borderRadius: 10, padding: 3 }}>
+          <div style={{ display: "flex", background: "rgba(15,22,41,0.8)", border: "1px solid rgba(201,168,76,0.1)", borderRadius: 10, padding: 3, width: isMobile ? "100%" : "auto" }}>
             {[
-              { id: "resume", label: "Resume Analysis", icon: "📄" },
-              { id: "jd", label: "JD Gap Analyzer", icon: "🎯" },
+              { id: "resume", label: isMobile ? "Resume" : "Resume Analysis", icon: "📄" },
+              { id: "jd", label: isMobile ? "JD Gap" : "JD Gap Analyzer", icon: "🎯" },
             ].map(tab => (
               <button key={tab.id} onClick={() => setActiveTab(tab.id)}
                 style={{
@@ -130,10 +132,10 @@ function CareerAIPage({ token, user, onNav, onLogout, initialTab }) {
                   border: activeTab === tab.id ? "1px solid rgba(201,168,76,0.25)" : "1px solid transparent",
                   color: activeTab === tab.id ? "#E2C97E" : "#5A6B85",
                   fontWeight: activeTab === tab.id ? 600 : 400,
-                  padding: "8px 18px", borderRadius: 8, fontSize: 13, cursor: "pointer",
-                  transition: "all 0.2s", display: "flex", alignItems: "center", gap: 6,
+                  padding: isMobile ? "8px 12px" : "8px 18px", borderRadius: 8, fontSize: isMobile ? 12 : 13, cursor: "pointer",
+                  transition: "all 0.2s", display: "flex", alignItems: "center", gap: 6, flex: 1,
                 }}>
-                <span style={{ fontSize: 14 }}>{tab.icon}</span>{tab.label}
+                <span style={{ fontSize: isMobile ? 13 : 14 }}>{tab.icon}</span>{tab.label}
               </button>
             ))}
           </div>
@@ -141,7 +143,7 @@ function CareerAIPage({ token, user, onNav, onLogout, initialTab }) {
 
         {/* ════════════════ RESUME TAB ════════════════ */}
         {activeTab === "resume" && (
-          <div style={{ display: "grid", gridTemplateColumns: resumeResult ? "340px 1fr" : "1fr", gap: 20 }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : (resumeResult ? "340px 1fr" : "1fr"), gap: isMobile ? 16 : 20 }}>
             {/* Left: Config + Upload */}
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               {/* Role selector */}
@@ -163,7 +165,7 @@ function CareerAIPage({ token, user, onNav, onLogout, initialTab }) {
                 onDrop={onDrop}
                 onClick={() => !uploading && fileInputRef.current?.click()}
                 style={{
-                  ...card, padding: resumeResult ? 20 : 40, textAlign: "center", cursor: uploading ? "default" : "pointer",
+                  ...card, padding: resumeResult ? 20 : (isMobile ? 30 : 40), textAlign: "center", cursor: uploading ? "default" : "pointer",
                   border: `2px dashed ${dragging ? "#A855F7" : "rgba(255,255,255,0.1)"}`,
                   background: dragging ? "rgba(168,85,247,0.06)" : "#0F1629",
                   boxShadow: dragging ? "0 0 24px rgba(168,85,247,0.2)" : "none",
@@ -173,15 +175,15 @@ function CareerAIPage({ token, user, onNav, onLogout, initialTab }) {
                 <input ref={fileInputRef} type="file" accept=".pdf" style={{ display: "none" }} onChange={e => uploadFile(e.target.files[0])} />
                 {uploading ? (
                   <>
-                    <span className="spin" style={{ fontSize: 24, color: "#C9A84C", display: "inline-block" }}>⟳</span>
-                    <p style={{ color: "#C9A84C", marginTop: 8, fontSize: 13, fontWeight: 600 }}>Analyzing{targetRole ? ` for ${targetRole}` : ""}...</p>
-                    <p style={{ color: "#475569", fontSize: 11 }}>Extracting skills — 20–60s</p>
+                    <span className="spin" style={{ fontSize: isMobile ? 20 : 24, color: "#C9A84C", display: "inline-block" }}>⟳</span>
+                    <p style={{ color: "#C9A84C", marginTop: 8, fontSize: isMobile ? 12 : 13, fontWeight: 600 }}>Analyzing{targetRole ? ` for ${targetRole}` : ""}...</p>
+                    <p style={{ color: "#475569", fontSize: isMobile ? 10 : 11 }}>Extracting skills — 20–60s</p>
                   </>
                 ) : (
                   <>
-                    <div style={{ fontSize: 32, marginBottom: 8, opacity: 0.7 }}>📄</div>
-                    <p style={{ color: "#F1F5F9", fontWeight: 600, fontSize: 14, marginBottom: 4 }}>Drop your resume here</p>
-                    <p style={{ color: "#5A6B85", fontSize: 12 }}>PDF only · max 5 MB</p>
+                    <div style={{ fontSize: isMobile ? 28 : 32, marginBottom: 8, opacity: 0.7 }}>📄</div>
+                    <p style={{ color: "#F1F5F9", fontWeight: 600, fontSize: isMobile ? 13 : 14, marginBottom: 4 }}>Drop your resume here</p>
+                    <p style={{ color: "#5A6B85", fontSize: isMobile ? 11 : 12 }}>PDF only · max 5 MB</p>
                   </>
                 )}
               </div>
@@ -223,7 +225,7 @@ function CareerAIPage({ token, user, onNav, onLogout, initialTab }) {
                 </div>
 
                 {/* Two-column: Suggestions + Strengths */}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+                <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: isMobile ? 12 : 14 }}>
                   {/* Suggestions */}
                   <div style={{ ...card, padding: 20 }}>
                     <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: "linear-gradient(90deg, transparent, rgba(245,158,11,0.3), transparent)" }} />
@@ -264,7 +266,7 @@ function CareerAIPage({ token, user, onNav, onLogout, initialTab }) {
 
         {/* ════════════════ JD GAP TAB ════════════════ */}
         {activeTab === "jd" && (
-          <div style={{ display: "grid", gridTemplateColumns: jdResult ? "360px 1fr" : "1fr", gap: 20, alignItems: "start" }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : (jdResult ? "360px 1fr" : "1fr"), gap: isMobile ? 16 : 20, alignItems: isMobile ? "stretch" : "start" }}>
             {/* Left: Input */}
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               <div style={{ ...card, padding: 20 }}>
@@ -274,9 +276,9 @@ function CareerAIPage({ token, user, onNav, onLogout, initialTab }) {
                   value={jdText} onChange={e => setJdText(e.target.value)}
                   placeholder={"Paste the full job description here...\n\ne.g. We are looking for a Software Engineer with:\n- Data Structures & Algorithms\n- System Design\n- Python or Java"}
                   style={{
-                    width: "100%", height: 240, background: "rgba(255,255,255,0.03)",
+                    width: "100%", height: isMobile ? 200 : 240, background: "rgba(255,255,255,0.03)",
                     border: "1px solid rgba(255,255,255,0.06)", borderRadius: 8,
-                    color: "#F1F5F9", fontSize: 13, lineHeight: 1.6, padding: 14,
+                    color: "#F1F5F9", fontSize: isMobile ? 12 : 13, lineHeight: 1.6, padding: isMobile ? 12 : 14,
                     fontFamily: "Inter, sans-serif", resize: "vertical", outline: "none",
                   }}
                 />
@@ -310,7 +312,7 @@ function CareerAIPage({ token, user, onNav, onLogout, initialTab }) {
 
             {/* Right: Results */}
             {jdResult && (
-              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: isMobile ? 12 : 14 }}>
                 {/* Skill match bars */}
                 <div style={{ ...card, padding: 20 }}>
                   <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: "linear-gradient(90deg, transparent, rgba(34,197,94,0.3), transparent)" }} />

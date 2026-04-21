@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { RadarChart, Radar, PolarGrid, PolarAngleAxis, ResponsiveContainer } from "recharts";
-import { API, Bar, CircularScore, Spinner, ZenPrepLogo, THEME } from "../shared";
+import { API, Bar, CircularScore, Spinner, ZenPrepLogo, THEME, useWindowSize } from "../shared";
 
 function ResultsPage({ token, user, lastResult, onBack, onRetake }) {
+  const { width: windowWidth } = useWindowSize();
+  const isMobile = windowWidth < 768;
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [pdfLoading, setPdfLoading] = useState(false);
@@ -71,28 +73,28 @@ function ResultsPage({ token, user, lastResult, onBack, onRetake }) {
       <div style={{ position: "fixed", inset: 0, backgroundImage: "linear-gradient(rgba(201,168,76,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(201,168,76,0.02) 1px, transparent 1px)", backgroundSize: "60px 60px", pointerEvents: "none", zIndex: 0 }} />
       <div style={{ position: "fixed", width: 400, height: 400, borderRadius: "50%", background: "radial-gradient(circle, rgba(201,168,76,0.04) 0%, transparent 70%)", top: -100, right: -100, pointerEvents: "none", zIndex: 0 }} />
       {/* Navbar */}
-      <nav style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 40px", background: "linear-gradient(90deg, #0F1629, #111A30, #0F1629)", borderBottom: "1px solid rgba(201,168,76,0.08)", position: "relative", zIndex: 1 }}>
+      <nav style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: isMobile ? "12px 16px" : "14px 40px", background: "linear-gradient(90deg, #0F1629, #111A30, #0F1629)", borderBottom: "1px solid rgba(201,168,76,0.08)", position: "relative", zIndex: 1 }}>
         <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent, rgba(201,168,76,0.15), transparent)" }} />
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <ZenPrepLogo size={30} />
-          <span style={{ fontWeight: 700, fontSize: 15, background: "linear-gradient(135deg, #F1F5F9 40%, #E2C97E 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>ZenPrep</span>
+        <div style={{ display: "flex", alignItems: "center", gap: isMobile ? 6 : 8 }}>
+          <ZenPrepLogo size={isMobile ? 24 : 30} />
+          <span style={{ fontWeight: 700, fontSize: isMobile ? 13 : 15, background: "linear-gradient(135deg, #F1F5F9 40%, #E2C97E 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>ZenPrep</span>
         </div>
-        <div style={{ display: "flex", gap: 12 }}>
-          <div style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(201,168,76,0.06)", border: "1px solid rgba(201,168,76,0.12)", display: "flex", alignItems: "center", justifyContent: "center", color: "#C9A84C", fontSize: 14, cursor: "pointer" }}>🔔</div>
-          <div onClick={onBack} style={{ width: 32, height: 32, borderRadius: "50%", background: "linear-gradient(135deg, #C9A84C, #A68B3C)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer", boxShadow: "0 0 12px rgba(201,168,76,0.25)" }}>{(user?.name || "U")[0].toUpperCase()}</div>
+        <div style={{ display: "flex", gap: isMobile ? 8 : 12 }}>
+          <div style={{ width: isMobile ? 28 : 32, height: isMobile ? 28 : 32, borderRadius: "50%", background: "rgba(201,168,76,0.06)", border: "1px solid rgba(201,168,76,0.12)", display: "flex", alignItems: "center", justifyContent: "center", color: "#C9A84C", fontSize: isMobile ? 12 : 14, cursor: "pointer" }}>🔔</div>
+          <div onClick={onBack} style={{ width: isMobile ? 28 : 32, height: isMobile ? 28 : 32, borderRadius: "50%", background: "linear-gradient(135deg, #C9A84C, #A68B3C)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 700, fontSize: isMobile ? 12 : 13, cursor: "pointer", boxShadow: "0 0 12px rgba(201,168,76,0.25)" }}>{(user?.name || "U")[0].toUpperCase()}</div>
         </div>
       </nav>
 
-      <div style={{ maxWidth: 960, margin: "0 auto", padding: "40px 24px", position: "relative", zIndex: 1 }}>
-        <h1 style={{ textAlign: "center", fontSize: 32, fontWeight: 800, marginBottom: 32, background: "linear-gradient(135deg, #F1F5F9 30%, #E2C97E 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Performance Summary</h1>
+      <div style={{ maxWidth: 960, margin: "0 auto", padding: isMobile ? "24px 16px" : "40px 24px", position: "relative", zIndex: 1 }}>
+        <h1 style={{ textAlign: "center", fontSize: isMobile ? 24 : 32, fontWeight: 800, marginBottom: isMobile ? 24 : 32, background: "linear-gradient(135deg, #F1F5F9 30%, #E2C97E 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Performance Summary</h1>
 
         {loading ? (
           <div style={{ textAlign: "center", padding: 60 }}><Spinner /></div>
         ) : (
           <>
             {/* Score ring */}
-            <div className="fade-in" style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 32 }}>
-              <CircularScore score={Math.round(score)} size={160} />
+            <div className="fade-in" style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: isMobile ? 24 : 32 }}>
+              <CircularScore score={Math.round(score)} size={isMobile ? 140 : 160} />
               {/* Performance badge */}
               {(() => {
                 const s = Math.round(score);
@@ -114,7 +116,7 @@ function ResultsPage({ token, user, lastResult, onBack, onRetake }) {
             </div>
 
             {/* 3 score cards */}
-            <div className="fade-in" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginBottom: 24 }}>
+            <div className="fade-in" style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)", gap: isMobile ? 12 : 16, marginBottom: 24 }}>
               {[
                 { label: "Answer Quality", value: Math.round(answerQ), color: "#22C55E", icon: "✓" },
                 { label: "Voice Confidence", value: Math.round(voiceC), color: "#C9A84C", icon: "🎙" },
@@ -132,7 +134,7 @@ function ResultsPage({ token, user, lastResult, onBack, onRetake }) {
             </div>
 
             {/* Radar + AI Feedback */}
-            <div className="fade-in" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 24 }}>
+            <div className="fade-in" style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: isMobile ? 12 : 16, marginBottom: 24 }}>
               {/* Radar */}
               <div style={{ background: "#0F1629", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 14, padding: 24 }}>
                 <h3 style={{ color: "#F1F5F9", fontWeight: 700, fontSize: 13, marginBottom: 20, textTransform: "uppercase", letterSpacing: "0.08em" }}>Skills Radar</h3>
@@ -177,21 +179,21 @@ function ResultsPage({ token, user, lastResult, onBack, onRetake }) {
             </div>
 
             {/* Buttons */}
-            <div className="fade-in" style={{ display: "flex", justifyContent: "center", gap: 16 }}>
-              <button onClick={onBack} style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.12)", color: "#F1F5F9", padding: "12px 28px", borderRadius: 10, fontSize: 14, fontWeight: 500, display: "flex", alignItems: "center", gap: 8 }}>
+            <div className="fade-in" style={{ display: "flex", justifyContent: "center", gap: isMobile ? 12 : 16, flexDirection: isMobile ? "column" : "row" }}>
+              <button onClick={onBack} style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.12)", color: "#F1F5F9", padding: isMobile ? "10px 20px" : "12px 28px", borderRadius: 10, fontSize: isMobile ? 13 : 14, fontWeight: 500, display: "flex", alignItems: "center", gap: 8 }}>
                 ⊞ Back to Dashboard
               </button>
               <button onClick={onRetake}
                 onMouseEnter={e => e.currentTarget.style.boxShadow = "0 8px 32px rgba(99,102,241,0.5)"}
                 onMouseLeave={e => e.currentTarget.style.boxShadow = "0 4px 20px rgba(99,102,241,0.3)"}
-                style={{ background: `linear-gradient(135deg, ${THEME.indigo}, #818CF8)`, color: "#fff", fontWeight: 600, padding: "12px 28px", borderRadius: 10, fontSize: 14, display: "flex", alignItems: "center", gap: 8, boxShadow: "0 4px 20px rgba(99,102,241,0.3)", transition: "all 0.2s" }}>
+                style={{ background: `linear-gradient(135deg, ${THEME.indigo}, #818CF8)`, color: "#fff", fontWeight: 600, padding: isMobile ? "10px 20px" : "12px 28px", borderRadius: 10, fontSize: isMobile ? 13 : 14, display: "flex", alignItems: "center", gap: 8, boxShadow: "0 4px 20px rgba(99,102,241,0.3)", transition: "all 0.2s" }}>
                 ↺ Retake Interview
               </button>
               {lastResult?.session_id && (
                 <button onClick={() => downloadPDF(lastResult.session_id)} disabled={pdfLoading}
                   onMouseEnter={e => { if (!pdfLoading) e.currentTarget.style.boxShadow = "0 0 20px rgba(99,102,241,0.35)"; }}
                   onMouseLeave={e => e.currentTarget.style.boxShadow = "none"}
-                  style={{ background: pdfLoading ? "#334155" : "rgba(99,102,241,0.1)", border: `1px solid rgba(99,102,241,${pdfLoading ? "0.1" : "0.3"})`, color: pdfLoading ? "#64748B" : "#A5B4FC", fontWeight: 600, padding: "12px 28px", borderRadius: 10, fontSize: 14, display: "flex", alignItems: "center", gap: 8, cursor: pdfLoading ? "default" : "pointer", transition: "all 0.2s" }}>
+                  style={{ background: pdfLoading ? "#334155" : "rgba(99,102,241,0.1)", border: `1px solid rgba(99,102,241,${pdfLoading ? "0.1" : "0.3"})`, color: pdfLoading ? "#64748B" : "#A5B4FC", fontWeight: 600, padding: isMobile ? "10px 20px" : "12px 28px", borderRadius: 10, fontSize: isMobile ? 13 : 14, display: "flex", alignItems: "center", gap: 8, cursor: pdfLoading ? "default" : "pointer", transition: "all 0.2s" }}>
                   {pdfLoading ? <><span className="spin">⟳</span> Generating report...</> : "⬇ Download PDF Report"}
                 </button>
               )}

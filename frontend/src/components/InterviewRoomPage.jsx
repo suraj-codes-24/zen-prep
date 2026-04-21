@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef } from "react";
-import { API, Bar, Spinner, buildWav, THEME } from "../shared";
+import { API, Bar, Spinner, buildWav, THEME, useWindowSize } from "../shared";
 import VisionRecorder from "../VisionRecorder";
 
 function InterviewRoomPage({ token, user, sessionData, onResult, onBack }) {
+  const { width: windowWidth } = useWindowSize();
+  const isMobile = windowWidth < 768;
   const [question, setQuestion]     = useState(null);
   const [answer, setAnswer]         = useState("");
   const [result, setResult]         = useState(null);
@@ -265,30 +267,30 @@ function InterviewRoomPage({ token, user, sessionData, onResult, onBack }) {
     <div style={{ height: "100vh", overflow: "hidden", display: "flex", flexDirection: "column", background: "#0B0F1E" }}>
 
       {/* ── Header ──────────────────────────────────────────────────────── */}
-      <div style={{ flex: "0 0 56px", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 28px", background: "linear-gradient(90deg, #0F1629, #111A30, #0F1629)", borderBottom: "1px solid rgba(201,168,76,0.08)", position: "relative" }}>
+      <div style={{ flex: isMobile ? "0 0 auto" : "0 0 56px", display: "flex", alignItems: "center", justifyContent: "space-between", padding: isMobile ? "12px 16px" : "0 28px", background: "linear-gradient(90deg, #0F1629, #111A30, #0F1629)", borderBottom: "1px solid rgba(201,168,76,0.08)", position: "relative" }}>
         <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent, rgba(201,168,76,0.15), transparent)" }} />
-        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-          <div style={{ width: 36, height: 36, background: "linear-gradient(135deg, #C9A84C, #E2C97E)", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, boxShadow: "0 0 20px rgba(201,168,76,0.3)" }}>💬</div>
+        <div style={{ display: "flex", alignItems: "center", gap: isMobile ? 10 : 14 }}>
+          <div style={{ width: isMobile ? 32 : 36, height: isMobile ? 32 : 36, background: "linear-gradient(135deg, #C9A84C, #E2C97E)", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", fontSize: isMobile ? 16 : 18, boxShadow: "0 0 20px rgba(201,168,76,0.3)" }}>💬</div>
           <div>
-            <div style={{ color: "#F1F5F9", fontWeight: 700, fontSize: 16, letterSpacing: "-0.01em" }}>Interview Room</div>
-            <div style={{ color: "#64748B", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.12em", fontWeight: 500 }}>SESSION: {(subjectName || "INTERVIEW").toUpperCase()}</div>
+            <div style={{ color: "#F1F5F9", fontWeight: 700, fontSize: isMobile ? 14 : 16, letterSpacing: "-0.01em" }}>Interview Room</div>
+            <div style={{ color: "#64748B", fontSize: isMobile ? 10 : 11, textTransform: "uppercase", letterSpacing: "0.12em", fontWeight: 500 }}>SESSION: {(subjectName || "INTERVIEW").toUpperCase()}</div>
           </div>
         </div>
         <div style={{ display: "flex", gap: 10 }}>
-          <button onClick={async () => { await finishSession(); onBack(); }} style={{ background: "linear-gradient(135deg, rgba(239,68,68,0.2), rgba(239,68,68,0.1))", border: "1px solid rgba(239,68,68,0.35)", color: "#F87171", padding: "8px 20px", borderRadius: 10, fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", gap: 6, transition: "all 0.2s" }}>
+          <button onClick={async () => { await finishSession(); onBack(); }} style={{ background: "linear-gradient(135deg, rgba(239,68,68,0.2), rgba(239,68,68,0.1))", border: "1px solid rgba(239,68,68,0.35)", color: "#F87171", padding: isMobile ? "8px 14px" : "8px 20px", borderRadius: 10, fontSize: isMobile ? 12 : 13, fontWeight: 600, display: "flex", alignItems: "center", gap: 6, transition: "all 0.2s" }}>
             📞 End Interview
           </button>
         </div>
       </div>
 
       {/* ── Main Content ────────────────────────────────────────────────── */}
-      <div style={{ flex: 1, minHeight: 0, display: "flex", gap: 0 }}>
+      <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: isMobile ? "column" : "row", gap: 0 }}>
 
       {/* Left: Main interview area */}
-      <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", gap: 14, padding: "16px 28px", overflowY: "auto" }}>
+      <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", gap: isMobile ? 12 : 14, padding: isMobile ? "12px 16px" : "16px 28px", overflowY: "auto" }}>
 
         {/* ── Row 1: AI Interviewer + Camera (two columns) ──────────── */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, minHeight: 280 }}>
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: isMobile ? 12 : 16, minHeight: isMobile ? "auto" : 280 }}>
 
           {/* Left — AI Interviewer Panel */}
           <div style={{ background: "linear-gradient(180deg, #0F1629 0%, #111B35 100%)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: "20px 22px", display: "flex", flexDirection: "column", position: "relative", overflow: "hidden" }}>
@@ -384,7 +386,7 @@ function InterviewRoomPage({ token, user, sessionData, onResult, onBack }) {
             <div style={{ display: "flex", alignItems: "center", gap: 8, fontWeight: 700, color: "#F1F5F9", fontSize: 14, marginBottom: 16 }}>
               <span style={{ fontSize: 16 }}>📊</span> Voice Metrics
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 24 }}>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr 1fr", gap: isMobile ? 16 : 24 }}>
               {[
                 { label: "Pace",         value: pace ? `${pace.wpm} WPM` : "—",  bar: pace ? Math.min(100, (pace.wpm / 200) * 100) : 0, color: "#C9A84C", desc: pace?.label || "Steady and clear delivery speed." },
                 { label: "Confidence",   value: confidence ? (confidence.confidence_score >= 70 ? "High" : confidence.confidence_score >= 45 ? "Medium" : "Low") : "—", bar: confidence?.confidence_score || 0, color: "#22C55E", desc: "Low pitch variability and firm tone." },
@@ -402,10 +404,10 @@ function InterviewRoomPage({ token, user, sessionData, onResult, onBack }) {
             </div>
           </div>
         ) : (
-          <div className="fade-in" style={{ background: "linear-gradient(180deg, #0F1629 0%, #111B35 100%)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: "16px 22px", display: "flex", gap: 20 }}>
-            <div style={{ flex: "0 0 80px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+          <div className="fade-in" style={{ background: "linear-gradient(180deg, #0F1629 0%, #111B35 100%)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: isMobile ? "14px 16px" : "16px 22px", display: "flex", flexDirection: isMobile ? "column" : "row", gap: isMobile ? 16 : 20 }}>
+            <div style={{ flex: isMobile ? "0 0 auto" : "0 0 80px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
               <div style={{ fontSize: 10, color: "#64748B", marginBottom: 4, fontWeight: 600, letterSpacing: "0.08em" }}>TOTAL</div>
-              <div style={{ fontSize: 42, fontWeight: 800, background: THEME.gradientText, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", lineHeight: 1 }}>{Math.round(result.total_score)}</div>
+              <div style={{ fontSize: isMobile ? 36 : 42, fontWeight: 800, background: THEME.gradientText, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", lineHeight: 1 }}>{Math.round(result.total_score)}</div>
               <div style={{ fontSize: 11, color: "#475569", marginTop: 3 }}>/ 100</div>
             </div>
             <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", gap: 8 }}>
@@ -423,13 +425,13 @@ function InterviewRoomPage({ token, user, sessionData, onResult, onBack }) {
                 </div>
               ))}
             </div>
-            <div style={{ flex: 1.4, display: "flex", flexDirection: "column", justifyContent: "center", gap: 12 }}>
+            <div style={{ flex: isMobile ? 1 : 1.4, display: "flex", flexDirection: "column", justifyContent: "center", gap: 12 }}>
               <div style={{ background: "rgba(201,168,76,0.08)", borderRadius: 10, padding: "12px 14px", borderLeft: "3px solid #C9A84C" }}>
                 <p style={{ color: "#C7D2FE", fontSize: 12, lineHeight: 1.55, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", margin: 0 }}>
                   💡 {result.feedback}
                 </p>
               </div>
-              <div style={{ display: "flex", gap: 10 }}>
+              <div style={{ display: "flex", gap: 10, flexDirection: isMobile ? "column" : "row" }}>
                 <button onClick={() => { setQuestionNum(n => n + 1); fetchQuestion(); }} style={{ flex: 1, background: `linear-gradient(135deg, ${THEME.indigo}, #818CF8)`, color: "#fff", fontWeight: 600, padding: "10px", borderRadius: 10, fontSize: 13, boxShadow: "0 4px 14px rgba(99,102,241,0.35)" }}>
                   → Next Question
                 </button>
@@ -444,7 +446,7 @@ function InterviewRoomPage({ token, user, sessionData, onResult, onBack }) {
 
       {/* Right: Transcript Panel */}
       {transcript.length > 0 && (
-        <div style={{ flex: "0 0 280px", background: "#0F1629", borderLeft: "1px solid rgba(255,255,255,0.07)", padding: "16px 14px", overflowY: "auto", display: "flex", flexDirection: "column", gap: 10 }}>
+        <div style={{ flex: isMobile ? "0 0 auto" : "0 0 280px", background: "#0F1629", borderLeft: isMobile ? "none" : "1px solid rgba(255,255,255,0.07)", borderTop: isMobile ? "1px solid rgba(255,255,255,0.07)" : "none", padding: isMobile ? "12px 16px" : "16px 14px", overflowY: "auto", display: "flex", flexDirection: "column", gap: 10 }}>
           <div style={{ fontSize: 12, color: "#E2C97E", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 4 }}>Session Transcript</div>
           {transcript.map((t, i) => (
             <div key={i} className="fade-in" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 10, padding: "10px 12px" }}>

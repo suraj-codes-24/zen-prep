@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { RadarChart, Radar, PolarGrid, PolarAngleAxis, ResponsiveContainer } from "recharts";
-import { API, ExamGuidanceModal, buildWav, THEME } from "../shared";
+import { API, ExamGuidanceModal, buildWav, THEME, useWindowSize } from "../shared";
 import { SidebarLayout } from "./Sidebar";
 
 const COMM_SECTIONS = [
@@ -68,6 +68,8 @@ const ST = {
 };
 
 function CommunicationTestPage({ token, user, onNav, onLogout }) {
+  const { width: windowWidth } = useWindowSize();
+  const isMobile = windowWidth < 768;
   const [phase, setPhase] = useState("intro"); // intro | test | section_report | results
   const [session, setSession] = useState(null);
   const [question, setQuestion] = useState(null);
@@ -664,18 +666,18 @@ function CommunicationTestPage({ token, user, onNav, onLogout }) {
       { key: "custom", label: "Custom", icon: "🎚", q: "Variable", time: "Your choice", desc: "Configure questions per section manually" },
     ];
     return (
-      <div style={{ padding: "28px 36px", maxWidth: 1200, margin: "0 auto", animation: "fadeIn 0.5s ease" }}>
+      <div style={{ padding: isMobile ? "20px 16px" : "28px 36px", maxWidth: 1200, margin: "0 auto", animation: "fadeIn 0.5s ease" }}>
         {/* Header banner */}
-        <div style={{ background: ST.surfLow, border: `1px solid ${ST.outlineVar}1a`, borderRadius: 16, padding: "24px 32px", marginBottom: 24, display: "flex", justifyContent: "space-between", alignItems: "center", position: "relative", overflow: "hidden" }}>
+        <div style={{ background: ST.surfLow, border: `1px solid ${ST.outlineVar}1a`, borderRadius: 16, padding: isMobile ? "20px 16px" : "24px 32px", marginBottom: isMobile ? 20 : 24, display: "flex", flexDirection: isMobile ? "column" : "row", justifyContent: "space-between", alignItems: isMobile ? "flex-start" : "center", gap: isMobile ? 16 : 0, position: "relative", overflow: "hidden" }}>
           <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, transparent, ${ST.primary}50, transparent)` }} />
           <div>
-            <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 4, background: `linear-gradient(135deg, ${ST.onSurf} 30%, ${ST.primary} 100%)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Communication Test</h1>
-            <p style={{ color: ST.onSurfVar, fontSize: 13, margin: 0 }}>Versant-style spoken English assessment · AI voice prompts · 9-dimension voice analysis</p>
+            <h1 style={{ fontSize: isMobile ? 20 : 24, fontWeight: 800, marginBottom: 4, background: `linear-gradient(135deg, ${ST.onSurf} 30%, ${ST.primary} 100%)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Communication Test</h1>
+            <p style={{ color: ST.onSurfVar, fontSize: isMobile ? 12 : 13, margin: 0 }}>Versant-style spoken English assessment · AI voice prompts · 9-dimension voice analysis</p>
           </div>
-          <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
+          <div style={{ display: "flex", gap: isMobile ? 12 : 16, alignItems: "center" }}>
             {[{ v: "140", l: "Questions" }, { v: "8", l: "Sections" }, { v: "A1-C2", l: "Band" }].map(s => (
               <div key={s.l} style={{ textAlign: "center" }}>
-                <div style={{ color: ST.primary, fontWeight: 700, fontSize: 18 }}>{s.v}</div>
+                <div style={{ color: ST.primary, fontWeight: 700, fontSize: isMobile ? 16 : 18 }}>{s.v}</div>
                 <div style={{ color: ST.onSurfVar, fontSize: 10, textTransform: "uppercase", letterSpacing: "0.05em" }}>{s.l}</div>
               </div>
             ))}
@@ -684,17 +686,17 @@ function CommunicationTestPage({ token, user, onNav, onLogout }) {
 
         {/* Active session resume banner */}
         {activeSession && !checkingActive && (
-          <div style={{ background: `${ST.primary}0a`, border: `1px solid ${ST.primary}30`, borderRadius: 12, padding: "16px 24px", marginBottom: 20, display: "flex", justifyContent: "space-between", alignItems: "center", animation: "fadeIn 0.4s ease" }}>
+          <div style={{ background: `${ST.primary}0a`, border: `1px solid ${ST.primary}30`, borderRadius: 12, padding: isMobile ? "14px 16px" : "16px 24px", marginBottom: 20, display: "flex", flexDirection: isMobile ? "column" : "row", justifyContent: "space-between", alignItems: isMobile ? "flex-start" : "center", gap: isMobile ? 12 : 0, animation: "fadeIn 0.4s ease" }}>
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
                 <span style={{ width: 8, height: 8, borderRadius: 99, background: "#F59E0B", animation: "pulse 2s infinite" }} />
-                <span style={{ color: ST.onSurf, fontWeight: 700, fontSize: 14 }}>Active Session Found</span>
+                <span style={{ color: ST.onSurf, fontWeight: 700, fontSize: isMobile ? 13 : 14 }}>Active Session Found</span>
               </div>
-              <p style={{ color: ST.onSurfVar, fontSize: 12, margin: 0 }}>
+              <p style={{ color: ST.onSurfVar, fontSize: isMobile ? 11 : 12, margin: 0 }}>
                 Section {activeSession.current_section} · {activeSession.questions_answered}/{activeSession.total_questions} answered · started {activeSession.start_time ? new Date(activeSession.start_time).toLocaleString() : "recently"}
               </p>
             </div>
-            <div style={{ display: "flex", gap: 10 }}>
+            <div style={{ display: "flex", gap: isMobile ? 8 : 10, flexDirection: isMobile ? "column" : "row", width: isMobile ? "100%" : "auto" }}>
               <button onClick={resumeActiveSession} disabled={loading}
                 style={{ background: `linear-gradient(135deg, ${ST.primary}, ${ST.primaryCont})`, color: ST.onPrimary, border: "none", borderRadius: 8, padding: "10px 20px", fontWeight: 700, fontSize: 13, cursor: "pointer", transition: "all 0.2s" }}>
                 {loading ? "Loading..." : "Resume"}
@@ -707,13 +709,13 @@ function CommunicationTestPage({ token, user, onNav, onLogout }) {
           </div>
         )}
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 360px", gap: 24, alignItems: "start" }}>
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 360px", gap: isMobile ? 20 : 24, alignItems: isMobile ? "stretch" : "start" }}>
           {/* Left column */}
           <div>
             {/* Mode selection */}
             <div style={{ marginBottom: 20 }}>
               <h2 style={{ color: ST.onSurf, fontWeight: 600, fontSize: 14, marginBottom: 12 }}>Select Test Mode</h2>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr 1fr", gap: isMobile ? 10 : 12 }}>
                 {modeCards.map((m, i) => {
                   const sel = mode === m.key;
                   return (
@@ -746,7 +748,7 @@ function CommunicationTestPage({ token, user, onNav, onLogout }) {
             {/* 8 Sections overview */}
             <div>
               <h2 style={{ color: ST.onSurf, fontWeight: 600, fontSize: 14, marginBottom: 12 }}>8 Test Sections</h2>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, 1fr)", gap: isMobile ? 6 : 8 }}>
                 {SECTION_ORDER_COMM.map((s, i) => {
                   const meta = SECTION_META[s];
                   const cnt = selectedCounts[s];

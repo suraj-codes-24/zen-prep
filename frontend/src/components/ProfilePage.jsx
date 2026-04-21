@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef } from "react";
-import { API, Spinner, THEME } from "../shared";
+import { API, Spinner, THEME, useWindowSize } from "../shared";
 import { SidebarLayout } from "./Sidebar";
 
 function ProfilePage({ token, user, onNav, onLogout, onUpdateUser }) {
+  const { width: windowWidth } = useWindowSize();
+  const isMobile = windowWidth < 768;
   const [name, setName]       = useState(user?.name || "");
   const [branch, setBranch]   = useState(user?.branch || "");
   const [year, setYear]       = useState(user?.year || "");
@@ -225,19 +227,19 @@ function ProfilePage({ token, user, onNav, onLogout, onUpdateUser }) {
 
   return (
     <SidebarLayout active="profile" user={user} onNav={onNav} onLogout={onLogout} showUser>
-      <div style={{ padding: "32px 40px", maxWidth: 1200, margin: "0 auto" }}>
+      <div style={{ padding: isMobile ? "20px 16px" : "32px 40px", maxWidth: 1200, margin: "0 auto" }}>
 
         {/* ── Profile Header Banner ─────────────────────────────────────────── */}
-        <div style={{ background: "linear-gradient(135deg, #0F1629 0%, #131B33 50%, #0F1629 100%)", border: "1px solid rgba(99,102,241,0.12)", borderRadius: 20, padding: "28px 32px", marginBottom: 24, position: "relative", overflow: "hidden" }}>
+        <div style={{ background: "linear-gradient(135deg, #0F1629 0%, #131B33 50%, #0F1629 100%)", border: "1px solid rgba(99,102,241,0.12)", borderRadius: 20, padding: isMobile ? "20px 20px" : "28px 32px", marginBottom: 24, position: "relative", overflow: "hidden" }}>
           <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: "linear-gradient(90deg, transparent, rgba(99,102,241,0.5), rgba(6,182,212,0.3), transparent)" }} />
           <div style={{ position: "absolute", top: -80, right: -60, width: 250, height: 250, borderRadius: "50%", background: "radial-gradient(circle, rgba(99,102,241,0.06) 0%, transparent 70%)", pointerEvents: "none" }} />
           <input ref={fileRef} type="file" accept="image/*" onChange={handlePicChange} style={{ display: "none" }} />
 
-          <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
+          <div style={{ display: "flex", alignItems: isMobile ? "flex-start" : "center", gap: isMobile ? 16 : 24, flexDirection: isMobile ? "column" : "row" }}>
             {/* Avatar */}
             <div style={{ position: "relative", flexShrink: 0 }}>
               <div onClick={() => fileRef.current?.click()}
-                style={{ width: 96, height: 96, borderRadius: 22, overflow: "hidden", cursor: "pointer",
+                style={{ width: isMobile ? 80 : 96, height: isMobile ? 80 : 96, borderRadius: 22, overflow: "hidden", cursor: "pointer",
                   background: profilePic ? "transparent" : "linear-gradient(135deg, #6366F1, #818CF8)",
                   display: "flex", alignItems: "center", justifyContent: "center",
                   boxShadow: "0 4px 24px rgba(99,102,241,0.3)", border: "2px solid rgba(99,102,241,0.4)",
@@ -295,7 +297,7 @@ function ProfilePage({ token, user, onNav, onLogout, onUpdateUser }) {
         </div>
 
         {/* ── Stats Strip ───────────────────────────────────────────────────── */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12, marginBottom: 24 }}>
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(5, 1fr)", gap: isMobile ? 10 : 12, marginBottom: 24 }}>
           {[
             { label: "Interviews",    value: totalInterviews, sub: "total sessions",    color: "#6366F1" },
             { label: "Avg Score",     value: avgScore ? `${avgScore}%` : "—", sub: "interview avg", color: "#818CF8" },
@@ -312,7 +314,7 @@ function ProfilePage({ token, user, onNav, onLogout, onUpdateUser }) {
         </div>
 
         {/* ── Main Content — 3 columns ────────────────────────────────────── */}
-        <div style={{ display: "grid", gridTemplateColumns: "1.1fr 1fr 0.85fr", gap: 20, alignItems: "start" }}>
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1.1fr 1fr 0.85fr", gap: isMobile ? 16 : 20, alignItems: isMobile ? "stretch" : "start" }}>
 
           {/* ── COL 1: Personal Info + Password ─────────────────────────────── */}
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
@@ -324,7 +326,7 @@ function ProfilePage({ token, user, onNav, onLogout, onUpdateUser }) {
                 <div style={{ width: 32, height: 32, borderRadius: 8, background: "rgba(99,102,241,0.1)", border: "1px solid rgba(99,102,241,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15 }}>👤</div>
                 <h3 style={{ color: "#F1F5F9", fontWeight: 700, fontSize: 15, margin: 0 }}>Personal Information</h3>
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: isMobile ? 12 : 16 }}>
                 <div>
                   <label style={labelStyle}>Full Name</label>
                   <input value={name} onChange={e => setName(e.target.value)} placeholder="Your full name"

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { API, THEME } from "../shared";
+import { API, THEME, useWindowSize } from "../shared";
 import { SidebarLayout } from "./Sidebar";
 
 const VOICE_AVATARS = {
@@ -16,6 +16,8 @@ const VOICE_AVATARS = {
 };
 
 function SettingsPage({ user, token, onNav, onLogout }) {
+  const { width: windowWidth } = useWindowSize();
+  const isMobile = windowWidth < 768;
   // Load saved values from localStorage on mount
   const [cameras,   setCameras]   = useState([]);
   const [mics,      setMics]      = useState([]);
@@ -115,17 +117,17 @@ function SettingsPage({ user, token, onNav, onLogout }) {
 
   return (
     <SidebarLayout active="settings" user={user} onNav={onNav} onLogout={onLogout} showUser>
-      <div style={{ padding: "32px 40px", maxWidth: 960, margin: "0 auto" }}>
+      <div style={{ padding: isMobile ? "20px 16px" : "32px 40px", maxWidth: 960, margin: "0 auto" }}>
         {/* Header */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 28 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: isMobile ? "flex-start" : "center", marginBottom: isMobile ? 20 : 28, flexDirection: isMobile ? "column" : "row", gap: isMobile ? 16 : 0 }}>
           <div>
-            <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 4, background: "linear-gradient(135deg, #F1F5F9 30%, #E2C97E 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Settings</h1>
-            <p style={{ color: "#7C8BA8", fontSize: 13 }}>Configure hardware, AI preferences, and privacy controls.</p>
+            <h1 style={{ fontSize: isMobile ? 22 : 24, fontWeight: 800, marginBottom: 4, background: "linear-gradient(135deg, #F1F5F9 30%, #E2C97E 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Settings</h1>
+            <p style={{ color: "#7C8BA8", fontSize: isMobile ? 12 : 13 }}>Configure hardware, AI preferences, and privacy controls.</p>
           </div>
           <button onClick={saveSettings}
             onMouseEnter={e => e.currentTarget.style.boxShadow = "0 0 28px rgba(99,102,241,0.5)"}
             onMouseLeave={e => e.currentTarget.style.boxShadow = "0 4px 16px rgba(99,102,241,0.3)"}
-            style={{ background: `linear-gradient(135deg, ${THEME.indigo}, #818CF8)`, color: "#fff", fontWeight: 600, padding: "10px 28px", borderRadius: 10, fontSize: 13, boxShadow: "0 4px 16px rgba(99,102,241,0.3)", transition: "all 0.2s", border: "none", cursor: "pointer" }}>
+            style={{ background: `linear-gradient(135deg, ${THEME.indigo}, #818CF8)`, color: "#fff", fontWeight: 600, padding: isMobile ? "10px 20px" : "10px 28px", borderRadius: 10, fontSize: isMobile ? 12 : 13, boxShadow: "0 4px 16px rgba(99,102,241,0.3)", transition: "all 0.2s", border: "none", cursor: "pointer", width: isMobile ? "100%" : "auto" }}>
             Save Settings
           </button>
         </div>
@@ -137,7 +139,7 @@ function SettingsPage({ user, token, onNav, onLogout }) {
         )}
 
         {/* 2-column grid: Hardware + Privacy left, AI right */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginBottom: 20 }}>
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: isMobile ? 16 : 20, marginBottom: 20 }}>
           {/* Hardware */}
           <div style={cardS}>
             <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: "linear-gradient(90deg, transparent, rgba(59,130,246,0.3), transparent)" }} />
@@ -211,7 +213,7 @@ function SettingsPage({ user, token, onNav, onLogout }) {
                 <p style={{ color: "#64748B", fontSize: 11, margin: 0 }}>Choose the voice for communication test questions. Click play to preview.</p>
               </div>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", gap: 10, maxHeight: 480, overflowY: "auto", paddingRight: 4 }}>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(auto-fill, minmax(120px, 1fr))" : "repeat(auto-fill, minmax(150px, 1fr))", gap: isMobile ? 8 : 10, maxHeight: 480, overflowY: "auto", paddingRight: 4 }}>
               {ttsVoices.map(v => {
                 const isSelected = selectedVoice === v.id;
                 const isPlaying = demoPlaying === v.id;
@@ -264,7 +266,7 @@ function SettingsPage({ user, token, onNav, onLogout }) {
             <div style={{ width: 32, height: 32, borderRadius: 8, background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15 }}>🛡</div>
             <h3 style={{ color: "#F1F5F9", fontWeight: 700, fontSize: 15, margin: 0 }}>Privacy Controls</h3>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0 }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 0 }}>
             {[
               { label: "Voice Analysis", sub: "Record and analyse speech during interviews", on: voiceOn, toggle: () => setVoiceOn(v => !v) },
               { label: "Camera Analysis", sub: "Track eye contact and facial expressions", on: cameraOn, toggle: () => setCameraOn(v => !v) },

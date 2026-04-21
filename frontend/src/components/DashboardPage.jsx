@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
-import { API, Bar, Spinner, THEME } from "../shared";
+import { API, Bar, Spinner, THEME, useWindowSize } from "../shared";
 import { SidebarLayout } from "./Sidebar";
 
 function DashboardPage({ token, user, onNav, onLogout }) {
+  const { width: windowWidth } = useWindowSize();
+  const isMobile = windowWidth < 768;
   const [analytics, setAnalytics] = useState(null);
   const [commHistory, setCommHistory] = useState([]);
   const [loadingA, setLoadingA] = useState(true);
@@ -65,15 +67,15 @@ function DashboardPage({ token, user, onNav, onLogout }) {
 
   return (
     <SidebarLayout active="dashboard" user={user} onNav={onNav} onLogout={onLogout}>
-      <div style={{ padding: "32px 40px", minHeight: "100vh" }}>
+      <div style={{ padding: isMobile ? "20px 16px" : "32px 40px", minHeight: "100vh" }}>
         {/* Header */}
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 28, animation: "fadeIn 0.5s ease" }}>
+        <div style={{ display: "flex", alignItems: isMobile ? "center" : "flex-start", justifyContent: "space-between", marginBottom: isMobile ? 20 : 28, flexDirection: isMobile ? "column" : "row", gap: isMobile ? 16 : 0, animation: "fadeIn 0.5s ease" }}>
           <div>
-            <h1 style={{ fontSize: 28, fontWeight: 800, marginBottom: 6, background: "linear-gradient(135deg, #F1F5F9 30%, #E2C97E 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Welcome back, {user?.name?.split(" ")[0] || "there"}</h1>
-            <p style={{ color: "#7C8BA8", fontSize: 14 }}>Here's your overview. Pick a feature to get started.</p>
+            <h1 style={{ fontSize: isMobile ? 22 : 28, fontWeight: 800, marginBottom: 6, background: "linear-gradient(135deg, #F1F5F9 30%, #E2C97E 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Welcome back, {user?.name?.split(" ")[0] || "there"}</h1>
+            <p style={{ color: "#7C8BA8", fontSize: isMobile ? 13 : 14 }}>Here's your overview. Pick a feature to get started.</p>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <div onClick={() => onNav("profile")} style={{ width: 38, height: 38, borderRadius: "50%", background: "linear-gradient(135deg, #C9A84C, #A68B3C)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer", boxShadow: "0 0 16px rgba(201,168,76,0.25)", transition: "all 0.2s" }}
+            <div onClick={() => onNav("profile")} style={{ width: isMobile ? 36 : 38, height: isMobile ? 36 : 38, borderRadius: "50%", background: "linear-gradient(135deg, #C9A84C, #A68B3C)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 700, fontSize: isMobile ? 13 : 14, cursor: "pointer", boxShadow: "0 0 16px rgba(201,168,76,0.25)", transition: "all 0.2s" }}
               onMouseEnter={e => e.currentTarget.style.boxShadow = "0 0 24px rgba(201,168,76,0.4)"} onMouseLeave={e => e.currentTarget.style.boxShadow = "0 0 16px rgba(201,168,76,0.25)"}>
               {(user?.name || "U")[0].toUpperCase()}
             </div>
@@ -81,7 +83,7 @@ function DashboardPage({ token, user, onNav, onLogout }) {
         </div>
 
         {/* 4 Stat Cards */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 24, animation: "fadeInUp 0.5s ease 0.1s both" }}>
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, 1fr)", gap: isMobile ? 12 : 16, marginBottom: isMobile ? 20 : 24, animation: "fadeInUp 0.5s ease 0.1s both" }}>
           {[
             { label: "Total Sessions", value: loadingA ? "…" : totalAll, sub: `${analytics?.total_sessions ?? 0} interview · ${codingS.total_sessions ?? 0} coding · ${commS.tests_taken ?? 0} comm · ${gdS.total_sessions ?? 0} GD`, icon: "✓", color: "#C9A84C" },
             { label: "Avg Score", value: loadingA ? "…" : `${analytics?.avg_total_score ?? 0}%`, sub: `Coding: ${codingS.avg_score ?? 0}% · Comm: ${commS.latest_score ?? 0}%`, icon: "↗", color: "#22C55E" },
@@ -101,7 +103,7 @@ function DashboardPage({ token, user, onNav, onLogout }) {
         </div>
 
         {/* Feature Cards Grid */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginBottom: 24, animation: "fadeInUp 0.5s ease 0.15s both" }}>
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)", gap: isMobile ? 12 : 16, marginBottom: isMobile ? 20 : 24, animation: "fadeInUp 0.5s ease 0.15s both" }}>
           {features.map((f, idx) => (
             <div key={f.id} onClick={() => onNav(f.id)} style={{
               background: `linear-gradient(135deg, #0F1629 0%, #111A30 100%)`, border: `1px solid ${f.color}18`, borderRadius: 14, padding: "22px 20px",
@@ -123,7 +125,7 @@ function DashboardPage({ token, user, onNav, onLogout }) {
         </div>
 
         {/* Two-column bottom: Recent Activity + Quick Tips */}
-        <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: 16, animation: "fadeInUp 0.5s ease 0.25s both" }}>
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1.5fr 1fr", gap: isMobile ? 12 : 16, animation: "fadeInUp 0.5s ease 0.25s both" }}>
           {/* Recent Activity */}
           <div style={{ background: "linear-gradient(135deg, #0F1629 0%, #111A30 100%)", border: "1px solid rgba(201,168,76,0.08)", borderRadius: 14, padding: "20px 22px", position: "relative", overflow: "hidden" }}>
             <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: "linear-gradient(90deg, transparent, rgba(201,168,76,0.3), transparent)" }} />

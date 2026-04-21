@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import Editor from "@monaco-editor/react";
-import { API, Bar, Spinner, THEME } from "../shared";
+import { API, Bar, Spinner, THEME, useWindowSize } from "../shared";
 import { SidebarLayout } from "./Sidebar";
 
 const LANGUAGE_MAP = { Python: "python", "C++": "cpp", Java: "java" };
@@ -15,6 +15,9 @@ const COMPANY_LOGOS = {
 };
 
 function CompanyIcon({ company, size = 48 }) {
+  const { width: windowWidth } = useWindowSize();
+  const isMobile = windowWidth < 768;
+  const actualSize = isMobile ? 40 : size;
   const c = COMPANY_LOGOS[company] || { icon: company?.[0] || "?", bg: "linear-gradient(135deg, #C9A84C, #E2C97E)" };
   if (company === "Google") {
     return (
@@ -59,6 +62,8 @@ function CompanyIcon({ company, size = 48 }) {
 }
 
 function CodingInterviewPage({ token, user, onNav, onLogout, onResult }) {
+  const { width: windowWidth } = useWindowSize();
+  const isMobile = windowWidth < 768;
   // ── Step: "landing" → "companies" → "levels" → "coding" ────────
   const [step, setStep]                       = useState("companies");
   const [companies, setCompanies]             = useState([]);
@@ -305,18 +310,18 @@ function CodingInterviewPage({ token, user, onNav, onLogout, onResult }) {
     const companyDescs = { Google: "Algorithm-heavy problems testing data structures, graph theory, and optimization", Amazon: "Leadership-focused coding with emphasis on scalability and system thinking", Microsoft: "Well-rounded problems covering arrays, trees, dynamic programming", Meta: "Graph and string manipulation challenges with real-world applications" };
     return (
       <SidebarLayout active="coding" user={user} onNav={onNav} onLogout={onLogout}>
-        <div style={{ maxWidth: 1000, margin: "0 auto", padding: "28px 36px" }}>
+        <div style={{ maxWidth: 1000, margin: "0 auto", padding: isMobile ? "20px 16px" : "28px 36px" }}>
           {/* Header */}
-          <div style={{ background: "linear-gradient(135deg, rgba(34,197,94,0.06), rgba(34,197,94,0.02))", border: "1px solid rgba(34,197,94,0.1)", borderRadius: 16, padding: "24px 32px", marginBottom: 28, display: "flex", justifyContent: "space-between", alignItems: "center", position: "relative", overflow: "hidden", animation: "fadeIn 0.5s ease" }}>
+          <div style={{ background: "linear-gradient(135deg, rgba(34,197,94,0.06), rgba(34,197,94,0.02))", border: "1px solid rgba(34,197,94,0.1)", borderRadius: 16, padding: isMobile ? "20px 16px" : "24px 32px", marginBottom: isMobile ? 20 : 28, display: "flex", flexDirection: isMobile ? "column" : "row", justifyContent: "space-between", alignItems: isMobile ? "flex-start" : "center", gap: isMobile ? 16 : 0, position: "relative", overflow: "hidden", animation: "fadeIn 0.5s ease" }}>
             <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: "linear-gradient(90deg, transparent, #22C55E40, transparent)" }} />
             <div>
-              <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 4, background: "linear-gradient(135deg, #F1F5F9 30%, #22C55E 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Coding Challenges</h1>
-              <p style={{ color: "#7C8BA8", fontSize: 13, margin: 0 }}>Company-specific problems · 100 levels · 3 problems per level · 90 min timer</p>
+              <h1 style={{ fontSize: isMobile ? 20 : 24, fontWeight: 800, marginBottom: 4, background: "linear-gradient(135deg, #F1F5F9 30%, #22C55E 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Coding Challenges</h1>
+              <p style={{ color: "#7C8BA8", fontSize: isMobile ? 12 : 13, margin: 0 }}>Company-specific problems · 100 levels · 3 problems per level · 90 min timer</p>
             </div>
-            <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
+            <div style={{ display: "flex", gap: isMobile ? 12 : 16, alignItems: "center" }}>
               {[{ v: companies.length || 4, l: "Companies" }, { v: "100", l: "Levels" }, { v: "300", l: "Problems" }].map(s => (
                 <div key={s.l} style={{ textAlign: "center" }}>
-                  <div style={{ color: "#22C55E", fontWeight: 700, fontSize: 18 }}>{s.v}</div>
+                  <div style={{ color: "#22C55E", fontWeight: 700, fontSize: isMobile ? 16 : 18 }}>{s.v}</div>
                   <div style={{ color: "#5A6B85", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.05em" }}>{s.l}</div>
                 </div>
               ))}
@@ -325,25 +330,25 @@ function CodingInterviewPage({ token, user, onNav, onLogout, onResult }) {
 
           {/* Active coding session banner */}
           {activeCoding && (
-            <div style={{ background: "rgba(34,197,94,0.06)", border: "1px solid rgba(34,197,94,0.2)", borderRadius: 12, padding: "16px 24px", marginBottom: 20, display: "flex", justifyContent: "space-between", alignItems: "center", animation: "fadeIn 0.4s ease" }}>
+            <div style={{ background: "rgba(34,197,94,0.06)", border: "1px solid rgba(34,197,94,0.2)", borderRadius: 12, padding: isMobile ? "14px 16px" : "16px 24px", marginBottom: 20, display: "flex", flexDirection: isMobile ? "column" : "row", justifyContent: "space-between", alignItems: isMobile ? "flex-start" : "center", gap: isMobile ? 12 : 0, animation: "fadeIn 0.4s ease" }}>
               <div>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
                   <span style={{ width: 8, height: 8, borderRadius: 99, background: "#22C55E", animation: "pulse 2s infinite" }} />
-                  <span style={{ color: "#F1F5F9", fontWeight: 700, fontSize: 14 }}>Active Coding Session</span>
+                  <span style={{ color: "#F1F5F9", fontWeight: 700, fontSize: isMobile ? 13 : 14 }}>Active Coding Session</span>
                 </div>
-                <p style={{ color: "#7C8BA8", fontSize: 12, margin: 0 }}>
+                <p style={{ color: "#7C8BA8", fontSize: isMobile ? 11 : 12, margin: 0 }}>
                   {activeCoding.company} · Level {activeCoding.level_number} · {activeCoding.topic || activeCoding.round_name} · started {activeCoding.start_time ? new Date(activeCoding.start_time).toLocaleString() : "recently"}
                 </p>
               </div>
               <button onClick={resumeActiveCoding}
-                style={{ background: "linear-gradient(135deg, #22C55E, #16A34A)", color: "#fff", border: "none", borderRadius: 8, padding: "10px 20px", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
+                style={{ background: "linear-gradient(135deg, #22C55E, #16A34A)", color: "#fff", border: "none", borderRadius: 8, padding: isMobile ? "10px 16px" : "10px 20px", fontWeight: 700, fontSize: isMobile ? 12 : 13, cursor: "pointer" }}>
                 Resume
               </button>
             </div>
           )}
 
           {/* Company Cards */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16 }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(2, 1fr)", gap: isMobile ? 12 : 16 }}>
             {(companies.length > 0 ? companies : ["Google", "Amazon", "Microsoft", "Meta"]).map((c, i) => {
               const accent = companyAccents[c] || "#C9A84C";
               return (
@@ -356,18 +361,18 @@ function CodingInterviewPage({ token, user, onNav, onLogout, onResult }) {
                   onMouseEnter={e => { e.currentTarget.style.borderColor = `${accent}50`; e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.boxShadow = `0 8px 32px ${accent}12`; }}
                   onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)"; e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}>
                   <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: `linear-gradient(90deg, ${accent}, ${accent}40)` }} />
-                  <div style={{ padding: "24px 24px 20px", display: "flex", gap: 18, alignItems: "flex-start" }}>
-                    <CompanyIcon company={c} size={52} />
+                  <div style={{ padding: isMobile ? "20px" : "24px 24px 20px", display: "flex", gap: isMobile ? 14 : 18, alignItems: isMobile ? "center" : "flex-start", flexDirection: isMobile ? "column" : "row" }}>
+                    <CompanyIcon company={c} size={isMobile ? 48 : 52} />
                     <div style={{ flex: 1 }}>
-                      <div style={{ color: "#F1F5F9", fontWeight: 700, fontSize: 20, marginBottom: 6 }}>{c}</div>
-                      <div style={{ color: "#5A6B85", fontSize: 12, lineHeight: 1.5, marginBottom: 12 }}>{companyDescs[c] || "100 progressive coding levels"}</div>
-                      <div style={{ display: "flex", gap: 16 }}>
+                      <div style={{ color: "#F1F5F9", fontWeight: 700, fontSize: isMobile ? 18 : 20, marginBottom: 6 }}>{c}</div>
+                      <div style={{ color: "#5A6B85", fontSize: isMobile ? 11 : 12, lineHeight: 1.5, marginBottom: 12 }}>{companyDescs[c] || "100 progressive coding levels"}</div>
+                      <div style={{ display: "flex", gap: isMobile ? 12 : 16 }}>
                         <span style={{ color: "#4A5568", fontSize: 11 }}>100 Levels</span>
                         <span style={{ color: "#4A5568", fontSize: 11 }}>3 Problems / Level</span>
                         <span style={{ color: "#4A5568", fontSize: 11 }}>90 min</span>
                       </div>
                     </div>
-                    <div style={{ color: accent, fontSize: 18, fontWeight: 300, alignSelf: "center" }}>→</div>
+                    {!isMobile && <div style={{ color: accent, fontSize: 18, fontWeight: 300, alignSelf: "center" }}>→</div>}
                   </div>
                 </button>
               );
@@ -375,8 +380,8 @@ function CodingInterviewPage({ token, user, onNav, onLogout, onResult }) {
           </div>
 
           {/* How it works — compact */}
-          <div style={{ marginTop: 24, background: "linear-gradient(135deg, #0F1629, #111A30)", border: "1px solid rgba(34,197,94,0.04)", borderRadius: 12, padding: "16px 20px" }}>
-            <div style={{ display: "flex", gap: 24, justifyContent: "center" }}>
+          <div style={{ marginTop: 24, background: "linear-gradient(135deg, #0F1629, #111A30)", border: "1px solid rgba(34,197,94,0.04)", borderRadius: 12, padding: isMobile ? "14px 16px" : "16px 20px" }}>
+            <div style={{ display: "flex", gap: isMobile ? 16 : 24, justifyContent: "center", flexWrap: isMobile ? "wrap" : "nowrap" }}>
               {[
                 { n: "1", t: "Pick Company", icon: "🏢" },
                 { n: "2", t: "Select Level", icon: "📶" },
@@ -384,7 +389,7 @@ function CodingInterviewPage({ token, user, onNav, onLogout, onResult }) {
                 { n: "4", t: "Submit & Score", icon: "✅" },
               ].map((s, i) => (
                 <div key={s.n} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  {i > 0 && <span style={{ color: "#334155", marginRight: 8 }}>→</span>}
+                  {i > 0 && !isMobile && <span style={{ color: "#334155", marginRight: 8 }}>→</span>}
                   <div style={{ width: 28, height: 28, borderRadius: 8, background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12 }}>{s.icon}</div>
                   <span style={{ color: "#5A6B85", fontSize: 12 }}>{s.t}</span>
                 </div>
@@ -406,33 +411,33 @@ function CodingInterviewPage({ token, user, onNav, onLogout, onResult }) {
 
     return (
       <SidebarLayout active="coding" user={user} onNav={onNav} onLogout={onLogout}>
-        <div style={{ maxWidth: 1050, margin: "0 auto", padding: "28px 36px" }}>
+        <div style={{ maxWidth: 1050, margin: "0 auto", padding: isMobile ? "20px 16px" : "28px 36px" }}>
           {/* Header */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24, animation: "fadeIn 0.4s ease" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <div style={{ display: "flex", alignItems: isMobile ? "flex-start" : "center", justifyContent: "space-between", marginBottom: isMobile ? 20 : 24, flexDirection: isMobile ? "column" : "row", gap: isMobile ? 16 : 0, animation: "fadeIn 0.4s ease" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: isMobile ? 12 : 16 }}>
               <button onClick={() => setStep("companies")}
                 style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "#94A3B8", borderRadius: 8, padding: "7px 14px", fontSize: 12, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, transition: "all 0.2s" }}
                 onMouseEnter={e => e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)"}
                 onMouseLeave={e => e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"}>
                 ← Companies
               </button>
-              <CompanyIcon company={selectedCompany} size={40} />
+              <CompanyIcon company={selectedCompany} size={isMobile ? 36 : 40} />
               <div>
-                <h1 style={{ fontSize: 22, fontWeight: 800, color: "#fff", margin: 0 }}>{selectedCompany}</h1>
-                <p style={{ color: "#5A6B85", fontSize: 12, margin: 0 }}>{completed} of 100 levels completed</p>
+                <h1 style={{ fontSize: isMobile ? 18 : 22, fontWeight: 800, color: "#fff", margin: 0 }}>{selectedCompany}</h1>
+                <p style={{ color: "#5A6B85", fontSize: isMobile ? 11 : 12, margin: 0 }}>{completed} of 100 levels completed</p>
               </div>
             </div>
             {currentLevel && (
-              <div style={{ background: `${companyAccent}12`, border: `1px solid ${companyAccent}30`, borderRadius: 10, padding: "8px 16px", display: "flex", alignItems: "center", gap: 8 }}>
+              <div style={{ background: `${companyAccent}12`, border: `1px solid ${companyAccent}30`, borderRadius: 10, padding: isMobile ? "6px 12px" : "8px 16px", display: "flex", alignItems: "center", gap: 8 }}>
                 <div style={{ width: 8, height: 8, borderRadius: 99, background: companyAccent, animation: "pulse 2s infinite" }} />
-                <span style={{ color: "#F1F5F9", fontWeight: 600, fontSize: 13 }}>Level {currentLevel.level}</span>
-                <span style={{ color: "#5A6B85", fontSize: 11 }}>· {currentLevel.topic}</span>
+                <span style={{ color: "#F1F5F9", fontWeight: 600, fontSize: isMobile ? 12 : 13 }}>Level {currentLevel.level}</span>
+                <span style={{ color: "#5A6B85", fontSize: isMobile ? 10 : 11 }}>· {currentLevel.topic}</span>
               </div>
             )}
           </div>
 
           {/* Progress bar */}
-          <div style={{ ...card, padding: "14px 20px", marginBottom: 20, animation: "fadeIn 0.4s ease 0.1s both" }}>
+          <div style={{ ...card, padding: isMobile ? "12px 16px" : "14px 20px", marginBottom: 20, animation: "fadeIn 0.4s ease 0.1s both" }}>
             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
               <span style={{ color: "#5A6B85", fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }}>Progress</span>
               <span style={{ color: companyAccent, fontSize: 12, fontWeight: 700 }}>{completed}%</span>
@@ -440,7 +445,7 @@ function CodingInterviewPage({ token, user, onNav, onLogout, onResult }) {
             <div style={{ background: "rgba(255,255,255,0.06)", borderRadius: 99, height: 6, overflow: "hidden" }}>
               <div style={{ width: `${completed}%`, height: "100%", background: `linear-gradient(90deg, ${companyAccent}, ${companyAccent}99)`, borderRadius: 99, transition: "width 0.6s ease" }} />
             </div>
-            <div style={{ display: "flex", gap: 16, marginTop: 8 }}>
+            <div style={{ display: "flex", gap: isMobile ? 12 : 16, marginTop: 8, flexWrap: isMobile ? "wrap" : "nowrap" }}>
               <span style={{ fontSize: 10, color: "#4A5568", display: "flex", alignItems: "center", gap: 4 }}><span style={{ width: 8, height: 8, borderRadius: 2, background: "rgba(34,197,94,0.3)", border: "1px solid rgba(34,197,94,0.5)", display: "inline-block" }} /> Passed</span>
               <span style={{ fontSize: 10, color: "#4A5568", display: "flex", alignItems: "center", gap: 4 }}><span style={{ width: 8, height: 8, borderRadius: 2, background: "rgba(201,168,76,0.3)", border: "1px solid rgba(201,168,76,0.5)", display: "inline-block" }} /> Current</span>
               <span style={{ fontSize: 10, color: "#4A5568", display: "flex", alignItems: "center", gap: 4 }}><span style={{ width: 8, height: 8, borderRadius: 2, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", display: "inline-block" }} /> Locked</span>
@@ -450,7 +455,7 @@ function CodingInterviewPage({ token, user, onNav, onLogout, onResult }) {
           {loadingLevels ? (
             <div style={{ textAlign: "center", padding: 60, color: "#5A6B85" }}><Spinner /> Loading levels...</div>
           ) : (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(10, 1fr)", gap: 6, animation: "fadeInUp 0.4s ease 0.15s both" }}>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(5, 1fr)" : "repeat(10, 1fr)", gap: isMobile ? 4 : 6, animation: "fadeInUp 0.4s ease 0.15s both" }}>
               {levels.map((lv) => {
                 const isLocked = !lv.unlocked;
                 const isPassed = lv.passed;
@@ -504,76 +509,90 @@ function CodingInterviewPage({ token, user, onNav, onLogout, onResult }) {
   return (
     <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "#0B0F1E", overflow: "hidden" }}>
       {/* Top Bar */}
-      <div style={{ flex: "0 0 50px", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 20px", background: "#0F1629", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+      <div style={{ flex: isMobile ? "0 0 auto" : "0 0 50px", display: "flex", alignItems: "center", justifyContent: "space-between", padding: isMobile ? "12px 16px" : "0 20px", background: "#0F1629", borderBottom: "1px solid rgba(255,255,255,0.07)", flexDirection: isMobile ? "column" : "row", gap: isMobile ? 12 : 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: isMobile ? 10 : 14 }}>
           <button onClick={() => { setStep("levels"); setSession(null); }} style={{ background: "none", border: "none", color: "#94A3B8", fontSize: 13, cursor: "pointer", padding: "4px 8px" }}>← Levels</button>
-          <CompanyIcon company={session?.company} size={28} />
-          <span style={{ color: "#F1F5F9", fontWeight: 700, fontSize: 15 }}>Level {session?.level_number}</span>
-          <span style={{ color: "#475569", fontSize: 13 }}>— {session?.topic}</span>
+          <CompanyIcon company={session?.company} size={isMobile ? 24 : 28} />
+          <span style={{ color: "#F1F5F9", fontWeight: 700, fontSize: isMobile ? 13 : 15 }}>Level {session?.level_number}</span>
+          <span style={{ color: "#475569", fontSize: isMobile ? 12 : 13 }}>— {session?.topic}</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{ ...card, padding: "6px 14px", display: "flex", alignItems: "center", gap: 6 }}>
+          <div style={{ ...card, padding: isMobile ? "6px 12px" : "6px 14px", display: "flex", alignItems: "center", gap: 6 }}>
             <span style={{ fontSize: 14 }}>⏱</span>
-            <span style={{ fontWeight: 700, fontSize: 16, color: timer < 300 ? "#EF4444" : "#F1F5F9", fontVariantNumeric: "tabular-nums" }}>{fmtTime(timer)}</span>
+            <span style={{ fontWeight: 700, fontSize: isMobile ? 14 : 16, color: timer < 300 ? "#EF4444" : "#F1F5F9", fontVariantNumeric: "tabular-nums" }}>{fmtTime(timer)}</span>
           </div>
           <button onClick={finishSession} disabled={submitting}
-            style={{ ...btn("rgba(239,68,68,0.12)", "#EF4444"), border: "1px solid rgba(239,68,68,0.25)", padding: "6px 16px", fontSize: 13, borderRadius: 8 }}>
+            style={{ ...btn("rgba(239,68,68,0.12)", "#EF4444"), border: "1px solid rgba(239,68,68,0.25)", padding: isMobile ? "6px 12px" : "6px 16px", fontSize: isMobile ? 12 : 13, borderRadius: 8 }}>
             {submitting ? "..." : "End Session"}
           </button>
         </div>
       </div>
 
       {/* Problem Tabs */}
-      <div style={{ flex: "0 0 42px", display: "flex", alignItems: "center", gap: 4, padding: "0 20px", background: "#0B0F1E", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+      <div style={{ flex: "0 0 auto", display: "flex", alignItems: "center", gap: isMobile ? 2 : 4, padding: isMobile ? "0 8px" : "0 20px", background: "#0B0F1E", borderBottom: "1px solid rgba(255,255,255,0.05)", overflowX: "auto" }}>
         {(session?.problems || []).map((p, i) => {
           const solved = p.best_passed > 0 && p.best_passed >= p.best_total;
           const partial = p.best_passed > 0 && p.best_passed < p.best_total;
           return (
-            <button key={p.id} onClick={() => { setActiveProblemIdx(i); setRunResults(null); setRunError(""); setRevealedHints(0); setActiveTab("description"); }}
+            <button key={p.id} onClick={() => { setActiveProblemIdx(i); setRunResults(null); setRunError(""); setRevealedHints(0); setActiveTab(isMobile ? "description" : "description"); }}
               style={{
                 background: i === activeProblemIdx ? "rgba(34,197,94,0.1)" : "transparent",
                 border: "none", borderBottom: i === activeProblemIdx ? "2px solid #22C55E" : "2px solid transparent",
-                padding: "8px 16px", cursor: "pointer", display: "flex", alignItems: "center", gap: 8, transition: "all 0.2s",
+                padding: isMobile ? "6px 8px" : "8px 16px", cursor: "pointer", display: "flex", alignItems: "center", gap: isMobile ? 4 : 8, transition: "all 0.2s", flexShrink: 0,
               }}>
-              <span style={{ width: 8, height: 8, borderRadius: "50%", background: solved ? "#22C55E" : partial ? "#F59E0B" : "#334155" }} />
-              <span style={{ color: i === activeProblemIdx ? "#F1F5F9" : "#64748B", fontSize: 13, fontWeight: 600 }}>{i + 1}. {p.title}</span>
-              <span style={{ fontSize: 10, color: DIFF_COLOR[p.difficulty] || "#94A3B8", fontWeight: 600, textTransform: "capitalize" }}>{p.difficulty}</span>
+              <span style={{ width: isMobile ? 6 : 8, height: isMobile ? 6 : 8, borderRadius: "50%", background: solved ? "#22C55E" : partial ? "#F59E0B" : "#334155" }} />
+              <span style={{ color: i === activeProblemIdx ? "#F1F5F9" : "#64748B", fontSize: isMobile ? 11 : 13, fontWeight: 600 }}>{isMobile ? `Q${i + 1}` : `${i + 1}. ${p.title}`}</span>
+              {!isMobile && <span style={{ fontSize: 10, color: DIFF_COLOR[p.difficulty] || "#94A3B8", fontWeight: 600, textTransform: "capitalize" }}>{p.difficulty}</span>}
             </button>
           );
         })}
       </div>
 
       {/* Main Content: Left (Description) | Right (Editor + Results) */}
-      <div style={{ flex: 1, display: "grid", gridTemplateColumns: "1fr 1fr", minHeight: 0, overflow: "hidden" }}>
-        {/* ── LEFT: Problem Description ─────────────────────────────── */}
-        <div style={{ borderRight: "1px solid rgba(255,255,255,0.07)", display: "flex", flexDirection: "column", overflow: "hidden" }}>
-          {/* Tabs */}
+      <div style={{ flex: 1, display: isMobile ? "flex" : "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", flexDirection: isMobile ? "column" : "row", minHeight: 0, overflow: "hidden" }}>
+        {/* ── Mobile Content Tabs ─────────────────────────────────────── */}
+        {isMobile && (
           <div style={{ flex: "0 0 36px", display: "flex", gap: 0, borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
-            {["description", "hints"].map(tab => (
+            {["description", "editor", "hints"].map(tab => (
               <button key={tab} onClick={() => setActiveTab(tab)}
-                style={{ background: "none", border: "none", borderBottom: activeTab === tab ? "2px solid #22C55E" : "2px solid transparent", padding: "6px 20px", color: activeTab === tab ? "#F1F5F9" : "#64748B", fontSize: 12, fontWeight: 600, cursor: "pointer", textTransform: "capitalize" }}>
-                {tab === "hints" ? `Hints (${activeProblem?.hints?.length || 0})` : "Description"}
+                style={{ background: "none", border: "none", borderBottom: activeTab === tab ? "2px solid #22C55E" : "2px solid transparent", padding: "6px 0", color: activeTab === tab ? "#F1F5F9" : "#64748B", fontSize: 11, fontWeight: 600, cursor: "pointer", textTransform: "capitalize", flex: 1 }}>
+                {tab === "hints" ? `Hints (${activeProblem?.hints?.length || 0})` : tab === "editor" ? "Editor" : "Description"}
               </button>
             ))}
           </div>
+        )}
+
+        {/* ── LEFT: Problem Description ─────────────────────────────── */}
+        <div style={{ borderRight: isMobile ? "none" : "1px solid rgba(255,255,255,0.07)", borderBottom: isMobile ? "1px solid rgba(255,255,255,0.07)" : "none", display: isMobile && activeTab === "editor" ? "none" : "flex", flexDirection: "column", overflow: "hidden", maxHeight: isMobile ? "50vh" : "none" }}>
+          {/* Desktop Tabs */}
+          {!isMobile && (
+            <div style={{ flex: "0 0 36px", display: "flex", gap: 0, borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+              {["description", "hints"].map(tab => (
+                <button key={tab} onClick={() => setActiveTab(tab)}
+                  style={{ background: "none", border: "none", borderBottom: activeTab === tab ? "2px solid #22C55E" : "2px solid transparent", padding: "6px 20px", color: activeTab === tab ? "#F1F5F9" : "#64748B", fontSize: 12, fontWeight: 600, cursor: "pointer", textTransform: "capitalize" }}>
+                  {tab === "hints" ? `Hints (${activeProblem?.hints?.length || 0})` : "Description"}
+                </button>
+              ))}
+            </div>
+          )}
 
           {/* Content */}
-          <div style={{ flex: 1, overflowY: "auto", padding: "20px 24px" }}>
+          <div style={{ flex: 1, overflowY: "auto", padding: isMobile ? "16px" : "20px 24px" }}>
             {activeProblem && activeTab === "description" && (
               <div className="fade-in">
-                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 18 }}>
-                  <h2 style={{ fontSize: 18, fontWeight: 700, color: "#fff", margin: 0 }}>{activeProblem.title}</h2>
+                <div style={{ display: "flex", alignItems: isMobile ? "flex-start" : "center", gap: 10, marginBottom: 18, flexDirection: isMobile ? "column" : "row" }}>
+                  <h2 style={{ fontSize: isMobile ? 16 : 18, fontWeight: 700, color: "#fff", margin: 0 }}>{activeProblem.title}</h2>
                   <span style={{ background: `${DIFF_COLOR[activeProblem.difficulty] || "#94A3B8"}18`, color: DIFF_COLOR[activeProblem.difficulty], fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 99, textTransform: "capitalize" }}>
                     {activeProblem.difficulty}
                   </span>
                 </div>
-                <div style={{ color: "#CBD5E1", fontSize: 14, lineHeight: 1.85, whiteSpace: "pre-line", marginBottom: 24 }}>{activeProblem.description}</div>
+                <div style={{ color: "#CBD5E1", fontSize: isMobile ? 13 : 14, lineHeight: 1.85, whiteSpace: "pre-line", marginBottom: 24 }}>{activeProblem.description}</div>
 
                 {/* Examples */}
                 {(activeProblem.examples || []).map((ex, i) => (
-                  <div key={i} style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 10, padding: "14px 18px", marginBottom: 12 }}>
+                  <div key={i} style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 10, padding: isMobile ? "12px 14px" : "14px 18px", marginBottom: 12 }}>
                     <div style={{ fontSize: 12, fontWeight: 700, color: "#94A3B8", marginBottom: 8 }}>Example {i + 1}</div>
-                    <div style={{ fontFamily: "'Fira Code', monospace", fontSize: 13 }}>
+                    <div style={{ fontFamily: "'Fira Code', monospace", fontSize: isMobile ? 12 : 13 }}>
                       <div style={{ color: "#64748B", marginBottom: 4 }}>Input: <span style={{ color: "#CBD5E1" }}>{ex.input}</span></div>
                       <div style={{ color: "#64748B", marginBottom: 4 }}>Output: <span style={{ color: "#22C55E" }}>{ex.output}</span></div>
                       {ex.explanation && <div style={{ color: "#475569", fontSize: 12, marginTop: 6 }}>Explanation: {ex.explanation}</div>}
@@ -586,7 +605,7 @@ function CodingInterviewPage({ token, user, onNav, onLogout, onResult }) {
                   <div style={{ marginTop: 16 }}>
                     <div style={{ fontSize: 12, fontWeight: 700, color: "#94A3B8", marginBottom: 8 }}>Constraints</div>
                     {activeProblem.constraints.map((c, i) => (
-                      <div key={i} style={{ color: "#64748B", fontSize: 13, fontFamily: "'Fira Code', monospace", marginBottom: 4, paddingLeft: 12, borderLeft: "2px solid rgba(201,168,76,0.3)" }}>
+                      <div key={i} style={{ color: "#64748B", fontSize: isMobile ? 12 : 13, fontFamily: "'Fira Code', monospace", marginBottom: 4, paddingLeft: 12, borderLeft: "2px solid rgba(201,168,76,0.3)" }}>
                         {c}
                       </div>
                     ))}
@@ -631,9 +650,9 @@ function CodingInterviewPage({ token, user, onNav, onLogout, onResult }) {
         </div>
 
         {/* ── RIGHT: Editor + Test Results ──────────────────────────── */}
-        <div style={{ display: "flex", flexDirection: "column", overflow: "hidden" }}>
+        <div style={{ display: isMobile && activeTab !== "editor" ? "none" : "flex", flexDirection: "column", overflow: "hidden", flex: isMobile && activeTab === "editor" ? 1 : "auto" }}>
           {/* Editor Header */}
-          <div style={{ flex: "0 0 36px", padding: "0 16px", borderBottom: "1px solid rgba(255,255,255,0.07)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ flex: "0 0 36px", padding: isMobile ? "0 12px" : "0 16px", borderBottom: "1px solid rgba(255,255,255,0.07)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <span style={{ width: 10, height: 10, borderRadius: "50%", background: "#EF4444" }} />
               <span style={{ width: 10, height: 10, borderRadius: "50%", background: "#F59E0B" }} />
@@ -662,12 +681,12 @@ function CodingInterviewPage({ token, user, onNav, onLogout, onResult }) {
               theme="vs-dark"
               value={activeProblem ? (codeMap[activeProblem.id] || "") : ""}
               onChange={value => { if (activeProblem) setCodeMap(prev => ({ ...prev, [activeProblem.id]: value || "" })); }}
-              options={{ fontSize: 14, fontFamily: "'Fira Code', 'Consolas', monospace", minimap: { enabled: false }, automaticLayout: true, scrollBeyondLastLine: false, lineNumbers: "on", tabSize: 4, wordWrap: "on", padding: { top: 12 } }}
+              options={{ fontSize: isMobile ? 12 : 14, fontFamily: "'Fira Code', 'Consolas', monospace", minimap: { enabled: false }, automaticLayout: true, scrollBeyondLastLine: false, lineNumbers: isMobile ? "off" : "on", tabSize: 4, wordWrap: "on", padding: { top: isMobile ? 8 : 12 }, fontSize: isMobile ? 12 : 14 }}
             />
           </div>
 
           {/* Test Results Panel */}
-          <div style={{ flex: "0 0 auto", maxHeight: 200, overflowY: "auto", borderTop: "1px solid rgba(255,255,255,0.07)", background: "#0B0F1E" }}>
+          <div style={{ flex: "0 0 auto", maxHeight: isMobile ? 150 : 200, overflowY: "auto", borderTop: "1px solid rgba(255,255,255,0.07)", background: "#0B0F1E" }}>
             {runError && (
               <div style={{ padding: "10px 16px", background: "rgba(239,68,68,0.06)", borderBottom: "1px solid rgba(239,68,68,0.2)" }}>
                 <span style={{ color: "#EF4444", fontSize: 12 }}>{runError}</span>
@@ -700,17 +719,17 @@ function CodingInterviewPage({ token, user, onNav, onLogout, onResult }) {
           </div>
 
           {/* Action Buttons */}
-          <div style={{ flex: "0 0 52px", display: "flex", gap: 10, padding: "8px 16px", borderTop: "1px solid rgba(255,255,255,0.07)", background: "#0F1629" }}>
+          <div style={{ flex: "0 0 auto", display: "flex", gap: isMobile ? 8 : 10, padding: isMobile ? "8px 12px" : "8px 16px", borderTop: "1px solid rgba(255,255,255,0.07)", background: "#0F1629" }}>
             <button onClick={runCode} disabled={running || !activeProblem}
-              style={{ flex: 1, background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.25)", color: "#22C55E", borderRadius: 8, padding: "10px", fontWeight: 600, fontSize: 13, cursor: "pointer", opacity: running ? 0.6 : 1, transition: "all 0.2s" }}>
+              style={{ flex: 1, background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.25)", color: "#22C55E", borderRadius: 8, padding: isMobile ? "8px" : "10px", fontWeight: 600, fontSize: isMobile ? 12 : 13, cursor: "pointer", opacity: running ? 0.6 : 1, transition: "all 0.2s" }}>
               {running ? <Spinner /> : "▶ Run"}
             </button>
             <button onClick={submitCode} disabled={submitting || !activeProblem}
-              style={{ flex: 1, background: "linear-gradient(135deg, #22C55E, #16A34A)", border: "none", color: "#fff", borderRadius: 8, padding: "10px", fontWeight: 700, fontSize: 13, cursor: "pointer", boxShadow: "0 4px 20px rgba(34,197,94,0.4)", opacity: submitting ? 0.6 : 1, transition: "all 0.2s" }}>
+              style={{ flex: 1, background: "linear-gradient(135deg, #22C55E, #16A34A)", border: "none", color: "#fff", borderRadius: 8, padding: isMobile ? "8px" : "10px", fontWeight: 700, fontSize: isMobile ? 12 : 13, cursor: "pointer", boxShadow: "0 4px 20px rgba(34,197,94,0.4)", opacity: submitting ? 0.6 : 1, transition: "all 0.2s" }}>
               {submitting ? <Spinner /> : "Submit"}
             </button>
             <button onClick={finishSession} disabled={submitting}
-              style={{ background: "rgba(201,168,76,0.1)", border: "1px solid rgba(201,168,76,0.3)", color: "#E2C97E", borderRadius: 8, padding: "10px 18px", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
+              style={{ background: "rgba(201,168,76,0.1)", border: "1px solid rgba(201,168,76,0.3)", color: "#E2C97E", borderRadius: 8, padding: isMobile ? "8px 12px" : "10px 18px", fontWeight: 600, fontSize: isMobile ? 12 : 13, cursor: "pointer" }}>
               Finish
             </button>
           </div>

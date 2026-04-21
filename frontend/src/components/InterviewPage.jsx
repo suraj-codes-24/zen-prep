@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
-import { API, ExamGuidanceModal, Spinner, THEME } from "../shared";
+import { API, ExamGuidanceModal, Spinner, THEME, useWindowSize } from "../shared";
 import { SidebarLayout } from "./Sidebar";
 
 function InterviewPage({ token, user, onNav, onLogout, onStart }) {
+  const { width: windowWidth } = useWindowSize();
+  const isMobile = windowWidth < 768;
   const [subjects, setSubjects] = useState([]);
   const [selectedSubject, setSelectedSubject] = useState(null);
   const [topics, setTopics] = useState([]);
@@ -92,15 +94,15 @@ function InterviewPage({ token, user, onNav, onLogout, onStart }) {
   return (
     <>
     <SidebarLayout active="interview_setup" user={user} onNav={onNav} onLogout={onLogout}>
-      <div style={{ padding: "28px 36px", maxWidth: 1200, margin: "0 auto" }}>
+      <div style={{ padding: isMobile ? "20px 16px" : "28px 36px", maxWidth: 1200, margin: "0 auto" }}>
         {/* Header banner */}
-        <div style={{ background: "linear-gradient(135deg, rgba(201,168,76,0.06), rgba(201,168,76,0.02))", border: "1px solid rgba(201,168,76,0.1)", borderRadius: 16, padding: "24px 32px", marginBottom: 24, display: "flex", justifyContent: "space-between", alignItems: "center", position: "relative", overflow: "hidden", animation: "fadeIn 0.5s ease" }}>
+        <div style={{ background: "linear-gradient(135deg, rgba(201,168,76,0.06), rgba(201,168,76,0.02))", border: "1px solid rgba(201,168,76,0.1)", borderRadius: 16, padding: isMobile ? "20px 16px" : "24px 32px", marginBottom: isMobile ? 20 : 24, display: "flex", flexDirection: isMobile ? "column" : "row", justifyContent: "space-between", alignItems: isMobile ? "flex-start" : "center", gap: isMobile ? 16 : 0, position: "relative", overflow: "hidden", animation: "fadeIn 0.5s ease" }}>
           <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: "linear-gradient(90deg, transparent, #C9A84C40, transparent)" }} />
           <div>
-            <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 4, background: "linear-gradient(135deg, #F1F5F9 30%, #E2C97E 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>AI Mock Interview</h1>
-            <p style={{ color: "#7C8BA8", fontSize: 13, margin: 0 }}>Multimodal AI interviewer — voice, face & content analysis in real-time</p>
+            <h1 style={{ fontSize: isMobile ? 20 : 24, fontWeight: 800, marginBottom: 4, background: "linear-gradient(135deg, #F1F5F9 30%, #E2C97E 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>AI Mock Interview</h1>
+            <p style={{ color: "#7C8BA8", fontSize: isMobile ? 12 : 13, margin: 0 }}>Multimodal AI interviewer — voice, face & content analysis in real-time</p>
           </div>
-          <div style={{ display: "flex", gap: 20, alignItems: "center" }}>
+          <div style={{ display: "flex", gap: isMobile ? 16 : 20, alignItems: "center" }}>
             {[{ v: totalQs, l: "Questions" }, { v: subjects.length, l: "Subjects" }, { v: totalTopics, l: "Topics" }, { v: "4", l: "Levels" }].map(s => (
               <div key={s.l} style={{ textAlign: "center" }}>
                 <div style={{ color: "#E2C97E", fontWeight: 700, fontSize: 18 }}>{s.v}</div>
@@ -112,30 +114,30 @@ function InterviewPage({ token, user, onNav, onLogout, onStart }) {
 
         {/* Active interview resume banner */}
         {activeInterview && (
-          <div style={{ background: "rgba(201,168,76,0.06)", border: "1px solid rgba(201,168,76,0.2)", borderRadius: 12, padding: "16px 24px", marginBottom: 20, display: "flex", justifyContent: "space-between", alignItems: "center", animation: "fadeIn 0.4s ease" }}>
+          <div style={{ background: "rgba(201,168,76,0.06)", border: "1px solid rgba(201,168,76,0.2)", borderRadius: 12, padding: isMobile ? "14px 16px" : "16px 24px", marginBottom: 20, display: "flex", flexDirection: isMobile ? "column" : "row", justifyContent: "space-between", alignItems: isMobile ? "flex-start" : "center", gap: isMobile ? 12 : 0, animation: "fadeIn 0.4s ease" }}>
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
                 <span style={{ width: 8, height: 8, borderRadius: 99, background: "#F59E0B", animation: "pulse 2s infinite" }} />
-                <span style={{ color: "#F1F5F9", fontWeight: 700, fontSize: 14 }}>Active Interview Found</span>
+                <span style={{ color: "#F1F5F9", fontWeight: 700, fontSize: isMobile ? 13 : 14 }}>Active Interview Found</span>
               </div>
-              <p style={{ color: "#7C8BA8", fontSize: 12, margin: 0 }}>
+              <p style={{ color: "#7C8BA8", fontSize: isMobile ? 11 : 12, margin: 0 }}>
                 {activeInterview.subject_name} · {activeInterview.difficulty} · {activeInterview.questions_answered} questions answered · started {activeInterview.start_time ? new Date(activeInterview.start_time).toLocaleString() : "recently"}
               </p>
             </div>
-            <div style={{ display: "flex", gap: 10 }}>
+            <div style={{ display: "flex", gap: isMobile ? 8 : 10, flexDirection: isMobile ? "column" : "row", width: isMobile ? "100%" : "auto" }}>
               <button onClick={resumeActiveInterview}
-                style={{ background: "linear-gradient(135deg, #C9A84C, #E2C97E)", color: "#0B0F1E", border: "none", borderRadius: 8, padding: "10px 20px", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
+                style={{ background: "linear-gradient(135deg, #C9A84C, #E2C97E)", color: "#0B0F1E", border: "none", borderRadius: 8, padding: isMobile ? "10px 16px" : "10px 20px", fontWeight: 700, fontSize: isMobile ? 12 : 13, cursor: "pointer" }}>
                 Resume
               </button>
               <button onClick={startFreshInterview}
-                style={{ background: "rgba(255,255,255,0.05)", color: "#7C8BA8", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, padding: "10px 20px", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
+                style={{ background: "rgba(255,255,255,0.05)", color: "#7C8BA8", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, padding: isMobile ? "10px 16px" : "10px 20px", fontWeight: 600, fontSize: isMobile ? 12 : 13, cursor: "pointer" }}>
                 End & Start Fresh
               </button>
             </div>
           </div>
         )}
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 24 }}>
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 340px", gap: isMobile ? 20 : 24 }}>
           {/* Left: Subjects + Topics */}
           <div>
             {/* Subject Cards */}
@@ -149,7 +151,7 @@ function InterviewPage({ token, user, onNav, onLogout, onStart }) {
                   </button>
                 )}
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10, animation: "fadeInUp 0.4s ease" }}>
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, 1fr)", gap: isMobile ? 8 : 10, animation: "fadeInUp 0.4s ease" }}>
                 {subjects.map((sub, idx) => {
                   const icon = subjectIcons[sub.name] || "📝";
                   const clr = subjectColors[sub.name] || "#C9A84C";
@@ -243,7 +245,7 @@ function InterviewPage({ token, user, onNav, onLogout, onStart }) {
               </button>
               {showScoring && (
                 <div style={{ background: "linear-gradient(135deg, #0F1629, #111A30)", border: "1px solid rgba(201,168,76,0.06)", borderTop: "none", borderRadius: "0 0 12px 12px", padding: "16px 18px", animation: "fadeIn 0.2s ease" }}>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+                  <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr 1fr", gap: isMobile ? 10 : 12 }}>
                     {[
                       { label: "NLP Analysis", pct: "70%", desc: "Semantic similarity, keywords, depth, structure", color: "#C9A84C" },
                       { label: "Voice Quality", pct: "20%", desc: "Pace, pronunciation, intonation + 6 more", color: "#22C55E" },
@@ -262,13 +264,13 @@ function InterviewPage({ token, user, onNav, onLogout, onStart }) {
           </div>
 
           {/* Right: Session Preview */}
-          <div style={{ position: "sticky", top: 24, alignSelf: "start" }}>
+          <div style={{ position: isMobile ? "relative" : "sticky", top: isMobile ? 0 : 24, alignSelf: "start" }}>
             <div style={{ background: "linear-gradient(135deg, #0F1629, #111A30)", border: "1px solid rgba(201,168,76,0.08)", borderRadius: 14, overflow: "hidden" }}>
-              <div style={{ padding: "18px 20px", borderBottom: "1px solid rgba(255,255,255,0.04)", background: "linear-gradient(135deg, rgba(201,168,76,0.04), transparent)" }}>
-                <h2 style={{ color: "#F1F5F9", fontWeight: 600, fontSize: 14, margin: 0 }}>Session Preview</h2>
+              <div style={{ padding: isMobile ? "14px 16px" : "18px 20px", borderBottom: "1px solid rgba(255,255,255,0.04)", background: "linear-gradient(135deg, rgba(201,168,76,0.04), transparent)" }}>
+                <h2 style={{ color: "#F1F5F9", fontWeight: 600, fontSize: isMobile ? 13 : 14, margin: 0 }}>Session Preview</h2>
               </div>
 
-              <div style={{ padding: "16px 20px" }}>
+              <div style={{ padding: isMobile ? "14px 16px" : "16px 20px" }}>
                 {/* Selection receipt */}
                 <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 16 }}>
                   {/* Subject */}

@@ -3,7 +3,7 @@ import {
   RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
   ResponsiveContainer, Tooltip,
 } from "recharts";
-import { API, Spinner, THEME } from "../shared";
+import { API, Spinner, THEME, useWindowSize } from "../shared";
 import { SidebarLayout } from "./Sidebar";
 
 // ── Constants ─────────────────────────────────────────────────────────────────
@@ -172,6 +172,8 @@ function buildReadyScript(topic, lastBot, gdPhase) {
 }
 
 export default function GDPage({ token, user, onNav, onLogout }) {
+  const { width: windowWidth } = useWindowSize();
+  const isMobile = windowWidth < 768;
   const [view,          setView]          = useState("setup");
   const [topics,        setTopics]        = useState([]);
   const [topicLoading,  setTopicLoading]  = useState(true);
@@ -736,24 +738,24 @@ export default function GDPage({ token, user, onNav, onLogout }) {
   if (view === "setup") return (
     <SidebarLayout active="gd" {...sidebarProps}>
       <style>{gdCss}</style>
-      <div style={{ padding: "32px 40px", minHeight: "100vh", background: "#0B0F1E" }}>
+      <div style={{ padding: isMobile ? "20px 16px" : "32px 40px", minHeight: "100vh", background: "#0B0F1E" }}>
 
         {/* Editorial Header */}
-        <section style={{ marginBottom: 48 }}>
-          <h1 style={{ fontSize: 42, fontWeight: 800, color: "#F1F5F9", letterSpacing: "-0.03em", margin: 0, lineHeight: 1.1 }}>
+        <section style={{ marginBottom: isMobile ? 32 : 48 }}>
+          <h1 style={{ fontSize: isMobile ? 28 : 42, fontWeight: 800, color: "#F1F5F9", letterSpacing: "-0.03em", margin: 0, lineHeight: 1.1 }}>
             Select Your Strategic <span style={{ color: "#6366F1", fontStyle: "italic" }}>Arena.</span>
           </h1>
-          <p style={{ fontSize: 15, color: "#94A3B8", maxWidth: 560, lineHeight: 1.7, marginTop: 12, opacity: 0.8 }}>
+          <p style={{ fontSize: isMobile ? 14 : 15, color: "#94A3B8", maxWidth: 560, lineHeight: 1.7, marginTop: 12, opacity: 0.8 }}>
             Engage in high-fidelity simulations with AI counterparts designed to challenge your logic and communication.
           </p>
         </section>
 
         {/* Category Pills */}
-        <div style={{ display: "flex", gap: 10, marginBottom: 32, flexWrap: "wrap", alignItems: "center" }}>
+        <div style={{ display: "flex", gap: isMobile ? 8 : 10, marginBottom: isMobile ? 24 : 32, flexWrap: "wrap", alignItems: "center" }}>
           <span style={{ fontSize: 10, letterSpacing: "0.2em", color: "#64748B", marginRight: 8, fontWeight: 600 }}>CATEGORIES</span>
           {categories.map(c => (
             <button key={c} onClick={() => { setCatFilter(c); setTopicPage(0); }} style={{
-              padding: "8px 20px", borderRadius: 9999, fontSize: 12, fontWeight: 700, cursor: "pointer",
+              padding: isMobile ? "6px 14px" : "8px 20px", borderRadius: 9999, fontSize: isMobile ? 11 : 12, fontWeight: 700, cursor: "pointer",
               border: "none",
               background: catFilter === c ? (CATEGORY_COLORS[c] || "#6366F1") : "rgba(255,255,255,0.04)",
               color: catFilter === c ? "#fff" : "#94A3B8",
@@ -762,14 +764,14 @@ export default function GDPage({ token, user, onNav, onLogout }) {
           ))}
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 32, alignItems: "start" }}>
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 340px", gap: isMobile ? 24 : 32, alignItems: isMobile ? "stretch" : "start" }}>
 
           {/* Left: Topic Grid */}
           <div>
             {topicLoading ? (
               <div style={{ display: "flex", justifyContent: "center", padding: 60 }}><Spinner /></div>
             ) : (
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(260px,1fr))", gap: 16 }}>
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fill,minmax(260px,1fr))", gap: isMobile ? 12 : 16 }}>
                 {pagedTopics.map(topic => {
                   const isSelected = selectedTopic?.id === topic.id;
                   return (
@@ -789,12 +791,12 @@ export default function GDPage({ token, user, onNav, onLogout }) {
                       style={{
                         background: isSelected ? "rgba(6,182,212,0.1)" : "rgba(6,182,212,0.03)",
                         border: isSelected ? "1px solid rgba(6,182,212,0.3)" : "1px solid rgba(6,182,212,0.08)",
-                        borderRadius: 16, padding: 24, textAlign: "left", cursor: "pointer",
+                        borderRadius: 16, padding: isMobile ? "16px 20px" : 24, textAlign: "left", cursor: "pointer",
                         transition: "all 0.3s", animation: "gdFadeIn 0.3s ease",
                         boxShadow: isSelected ? "0 0 0 1px #06B6D4, 0 0 24px rgba(6,182,212,0.2)" : "none",
-                        display: "flex", flexDirection: "column", minHeight: 160,
+                        display: "flex", flexDirection: "column", minHeight: isMobile ? 140 : 160,
                       }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: isMobile ? 12 : 16 }}>
                         <span style={{ fontSize: 10, letterSpacing: "0.2em", textTransform: "uppercase", color: "#6366F1", fontWeight: 700 }}>
                           {topic.category}
                         </span>
@@ -803,16 +805,17 @@ export default function GDPage({ token, user, onNav, onLogout }) {
                           color: DIFFICULTY_COLORS[topic.difficulty] || "#F59E0B",
                         }}>{topic.difficulty}</span>
                       </div>
-                      <h3 style={{ color: "#F1F5F9", fontSize: 16, fontWeight: 700, lineHeight: 1.4, marginBottom: 8, margin: 0 }}>
+                      <h3 style={{ color: "#F1F5F9", fontSize: isMobile ? 15 : 16, fontWeight: 700, lineHeight: 1.4, marginBottom: 8, margin: 0 }}>
                         {topic.title}
                       </h3>
-                      <p style={{ color: "#94A3B8", fontSize: 13, lineHeight: 1.6, marginTop: 8, flex: 1 }}>
+                      <p style={{ color: "#94A3B8", fontSize: isMobile ? 12 : 13, lineHeight: 1.6, margin: 0, opacity: 0.85 }}>
                         {topic.description?.slice(0, 100)}...
                       </p>
                       <div style={{ marginTop: 16, display: "flex", justifyContent: "flex-end" }}>
                         <span style={{ color: "#6366F1", fontSize: 18, opacity: isSelected ? 1 : 0.3, transition: "opacity 0.2s" }}>→</span>
                       </div>
                     </button>
+// ... (rest of the code remains the same)
                   );
                 })}
               </div>

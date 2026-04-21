@@ -1,7 +1,9 @@
 import { useState } from "react";
-import { ZenPrepLogo } from "../shared";
+import { ZenPrepLogo, useWindowSize } from "../shared";
 
-function Sidebar({ active, user, onNav, onLogout, showUser }) {
+function Sidebar({ active, user, onNav, onLogout, showUser, isOpen, onClose }) {
+  const { width: windowWidth } = useWindowSize();
+  const isMobile = windowWidth < 768;
   const [hoveredItem, setHoveredItem] = useState(null);
   const items = [
     { id: "dashboard", label: "Dashboard", icon: "⊞" },
@@ -15,13 +17,33 @@ function Sidebar({ active, user, onNav, onLogout, showUser }) {
     { id: "settings",  label: "Settings",  icon: "⚙" },
   ];
   return (
-    <div style={{
-      width: 220, minHeight: "100vh", background: "linear-gradient(180deg, #0F1629 0%, #0B1022 50%, #0F1629 100%)",
-      borderRight: "1px solid rgba(201,168,76,0.08)",
-      display: "flex", flexDirection: "column",
-      position: "fixed", left: 0, top: 0, zIndex: 100,
-      overflow: "hidden",
-    }}>
+    <>
+      {/* Mobile overlay */}
+      {isMobile && isOpen && (
+        <div
+          onClick={onClose}
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.5)",
+            zIndex: 99,
+          }}
+        />
+      )}
+      <div style={{
+        width: isMobile ? 280 : 220,
+        minHeight: "100vh",
+        background: "linear-gradient(180deg, #0F1629 0%, #0B1022 50%, #0F1629 100%)",
+        borderRight: "1px solid rgba(201,168,76,0.08)",
+        display: "flex",
+        flexDirection: "column",
+        position: isMobile ? "fixed" : "fixed",
+        left: isMobile ? (isOpen ? 0 : -280) : 0,
+        top: 0,
+        zIndex: 100,
+        overflow: "hidden",
+        transition: isMobile ? "left 0.3s ease" : "none",
+      }}>
       {/* Gold accent line on right edge */}
       <div style={{ position: "absolute", right: 0, top: 0, bottom: 0, width: 1, background: "linear-gradient(180deg, transparent 0%, rgba(201,168,76,0.2) 30%, rgba(201,168,76,0.4) 50%, rgba(201,168,76,0.2) 70%, transparent 100%)" }} />
       {/* Ambient glow behind logo */}
@@ -99,30 +121,56 @@ function Sidebar({ active, user, onNav, onLogout, showUser }) {
         </button>
       </div>
     </div>
+    </>
   );
 }
 
 // ─── Page wrapper with sidebar ─────────────────────────────────────────────────
 function SidebarLayout({ active, user, onNav, onLogout, children, showUser }) {
+  const { width: windowWidth } = useWindowSize();
+  const isMobile = windowWidth < 768;
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   return (
     <div style={{ display: "flex", minHeight: "100vh", background: "#0B0F1E" }}>
-      <Sidebar active={active} user={user} onNav={onNav} onLogout={onLogout} showUser={showUser} />
-      <div style={{ marginLeft: 220, flex: 1, minHeight: "100vh", display: "flex", flexDirection: "column", position: "relative", overflow: "hidden" }}>
+      <Sidebar active={active} user={user} onNav={onNav} onLogout={onLogout} showUser={showUser} isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <div style={{ marginLeft: isMobile ? 0 : 220, flex: 1, minHeight: "100vh", display: "flex", flexDirection: "column", position: "relative", overflow: "hidden" }}>
         {/* Background grid overlay */}
-        <div style={{ position: "fixed", top: 0, left: 220, right: 0, bottom: 0, backgroundImage: "linear-gradient(rgba(201,168,76,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(201,168,76,0.02) 1px, transparent 1px)", backgroundSize: "60px 60px", pointerEvents: "none", zIndex: 0 }} />
+        <div style={{ position: "fixed", top: 0, left: isMobile ? 0 : 220, right: 0, bottom: 0, backgroundImage: "linear-gradient(rgba(201,168,76,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(201,168,76,0.02) 1px, transparent 1px)", backgroundSize: "60px 60px", pointerEvents: "none", zIndex: 0 }} />
         {/* Ambient glow orbs */}
         <div style={{ position: "fixed", width: 500, height: 500, borderRadius: "50%", background: "radial-gradient(circle, rgba(201,168,76,0.04) 0%, transparent 70%)", top: -100, right: -100, animation: "orbFloat1 20s ease-in-out infinite", pointerEvents: "none", zIndex: 0 }} />
         <div style={{ position: "fixed", width: 400, height: 400, borderRadius: "50%", background: "radial-gradient(circle, rgba(226,201,126,0.03) 0%, transparent 70%)", bottom: -50, left: 300, animation: "orbFloat2 25s ease-in-out infinite", pointerEvents: "none", zIndex: 0 }} />
         {/* Global branding header */}
-        <div style={{ flexShrink: 0, borderBottom: "1px solid rgba(201,168,76,0.08)", background: "linear-gradient(90deg, #080C1A, #0A1020, #080C1A)", padding: "8px 32px", display: "flex", alignItems: "center", gap: 10, position: "relative", zIndex: 1 }}>
+        <div style={{ flexShrink: 0, borderBottom: "1px solid rgba(201,168,76,0.08)", background: "linear-gradient(90deg, #080C1A, #0A1020, #080C1A)", padding: isMobile ? "12px 16px" : "8px 32px", display: "flex", alignItems: "center", gap: 10, position: "relative", zIndex: 1 }}>
           <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent, rgba(201,168,76,0.15), transparent)" }} />
+          {isMobile && (
+            <button
+              onClick={() => setSidebarOpen(true)}
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: 8,
+                background: "rgba(201,168,76,0.1)",
+                border: "1px solid rgba(201,168,76,0.2)",
+                color: "#E2C97E",
+                fontSize: 18,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                marginRight: 8,
+              }}
+            >
+              ☰
+            </button>
+          )}
           <div onClick={() => onNav("landing")} style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer", transition: "opacity 0.2s" }}
             onMouseEnter={e => e.currentTarget.style.opacity = "0.8"} onMouseLeave={e => e.currentTarget.style.opacity = "1"}>
             <ZenPrepLogo size={20} />
-            <span style={{ fontWeight: 700, fontSize: 13, background: "linear-gradient(135deg, #E2E8F0 40%, #E2C97E 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>ZenPrep</span>
+            <span style={{ fontWeight: 700, fontSize: isMobile ? 12 : 13, background: "linear-gradient(135deg, #E2E8F0 40%, #E2C97E 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>ZenPrep</span>
           </div>
-          <span style={{ color: "#1E293B", fontSize: 13 }}>|</span>
-          <span style={{ color: "#4A5568", fontSize: 12, letterSpacing: "0.04em" }}>Focus Flows Here</span>
+          <span style={{ color: "#1E293B", fontSize: isMobile ? 12 : 13 }}>|</span>
+          <span style={{ color: "#4A5568", fontSize: isMobile ? 11 : 12, letterSpacing: "0.04em" }}>Focus Flows Here</span>
         </div>
         <div style={{ flex: 1, position: "relative", zIndex: 1 }}>
           {children}

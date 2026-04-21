@@ -4,10 +4,12 @@ import {
   AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid,
   BarChart, Bar as RechartsBar,
 } from "recharts";
-import { API, Bar, Spinner, THEME } from "../shared";
+import { API, Bar, Spinner, THEME, useWindowSize } from "../shared";
 import { SidebarLayout } from "./Sidebar";
 
 function AnalyticsPage({ token, user, onNav, onLogout }) {
+  const { width: windowWidth } = useWindowSize();
+  const isMobile = windowWidth < 768;
   const [analytics, setAnalytics] = useState(null);
   const [commHistory, setCommHistory] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -170,12 +172,12 @@ function AnalyticsPage({ token, user, onNav, onLogout }) {
 
   return (
     <SidebarLayout active="analytics" user={user} onNav={onNav} onLogout={onLogout} showUser>
-      <div style={{ padding: "32px 40px" }}>
+      <div style={{ padding: isMobile ? "20px 16px" : "32px 40px" }}>
         {/* Header */}
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 28, animation: "fadeIn 0.5s ease" }}>
+        <div style={{ display: "flex", alignItems: isMobile ? "flex-start" : "center", justifyContent: "space-between", marginBottom: isMobile ? 20 : 28, flexDirection: isMobile ? "column" : "row", gap: isMobile ? 16 : 0, animation: "fadeIn 0.5s ease" }}>
           <div>
-            <h1 style={{ fontSize: 28, fontWeight: 800, marginBottom: 6, background: "linear-gradient(135deg, #F1F5F9 30%, #E2C97E 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Performance Analytics</h1>
-            <p style={{ color: "#7C8BA8", fontSize: 14 }}>Deep dive into your interview readiness and growth metrics.</p>
+            <h1 style={{ fontSize: isMobile ? 22 : 28, fontWeight: 800, marginBottom: 6, background: "linear-gradient(135deg, #F1F5F9 30%, #E2C97E 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Performance Analytics</h1>
+            <p style={{ color: "#7C8BA8", fontSize: isMobile ? 13 : 14 }}>Deep dive into your interview readiness and growth metrics.</p>
           </div>
         </div>
 
@@ -195,7 +197,7 @@ function AnalyticsPage({ token, user, onNav, onLogout }) {
         ) : (
           <>
             {/* ── Tab Bar ── */}
-            <div style={{ display: "flex", gap: 4, marginBottom: 20, background: "linear-gradient(135deg, #0F1629, #111A30)", borderRadius: 12, padding: 4, border: "1px solid rgba(201,168,76,0.06)" }}>
+            <div style={{ display: "flex", gap: isMobile ? 2 : 4, marginBottom: isMobile ? 16 : 20, background: "linear-gradient(135deg, #0F1629, #111A30)", borderRadius: 12, padding: 4, border: "1px solid rgba(201,168,76,0.06)", overflowX: "auto" }}>
               {[
                 { id: "interview", label: "Interview", icon: "◉", color: "#C9A84C", count: analytics?.total_sessions ?? 0 },
                 { id: "coding", label: "Coding", icon: "💻", color: "#22C55E", count: coding.total_sessions ?? 0 },
@@ -204,14 +206,14 @@ function AnalyticsPage({ token, user, onNav, onLogout }) {
               ].map(tab => (
                 <button key={tab.id} onClick={() => { setActiveTab(tab.id); setReplaySession(null); setReplayAnswers([]); setReplayCoaching(null); setExpandedQ(null); setShowAll(false); }}
                   style={{
-                    flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "12px 16px", borderRadius: 8, fontSize: 13, fontWeight: activeTab === tab.id ? 700 : 400, cursor: "pointer",
+                    flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: isMobile ? 6 : 8, padding: isMobile ? "10px 12px" : "12px 16px", borderRadius: 8, fontSize: isMobile ? 11 : 13, fontWeight: activeTab === tab.id ? 700 : 400, cursor: "pointer", whiteSpace: "nowrap",
                     background: activeTab === tab.id ? `linear-gradient(135deg, ${tab.color}15, ${tab.color}08)` : "transparent",
                     color: activeTab === tab.id ? tab.color : "#5A6B85",
                     border: activeTab === tab.id ? `1px solid ${tab.color}25` : "1px solid transparent",
                     boxShadow: activeTab === tab.id ? `0 0 16px ${tab.color}20` : "none",
                     transition: "all 0.2s",
                   }}>
-                  <span>{tab.icon}</span> {tab.label}
+                  <span>{tab.icon}</span> {isMobile ? tab.label.slice(0, 4) : tab.label}
                   <span style={{ background: `${tab.color}15`, color: tab.color, fontSize: 10, fontWeight: 600, padding: "2px 6px", borderRadius: 4 }}>{tab.count}</span>
                 </button>
               ))}
@@ -219,11 +221,11 @@ function AnalyticsPage({ token, user, onNav, onLogout }) {
 
             {/* ═══════════════════ INTERVIEW TAB ═══════════════════ */}
             {activeTab === "interview" && (
-              <div style={{ display: "flex", flexDirection: "column", gap: 16, animation: "fadeIn 0.3s ease" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: isMobile ? 12 : 16, animation: "fadeIn 0.3s ease" }}>
                 {analytics?.total_sessions > 0 ? (
                   <>
                     {/* Stat Cards */}
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }}>
+                    <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, 1fr)", gap: isMobile ? 10 : 14 }}>
                       {[
                         { label: "Total Sessions", value: analytics?.total_sessions ?? 0, icon: "📋", color: "#C9A84C", sub: `${analytics?.completed_sessions ?? 0} completed` },
                         { label: "Avg Score", value: `${analytics?.avg_total_score ?? 0}%`, icon: "🎯", color: "#22C55E", sub: `NLP: ${analytics?.avg_nlp_score ?? 0}%` },
@@ -245,13 +247,13 @@ function AnalyticsPage({ token, user, onNav, onLogout }) {
                     </div>
 
                     {/* Score Trend + Subject Performance */}
-                    <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: 16 }}>
+                    <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1.5fr 1fr", gap: isMobile ? 12 : 16 }}>
                       <div style={cardStyle("#C9A84C")}>
                         <div style={glowLine("#C9A84C")} />
-                        <h3 style={{ color: "#F1F5F9", fontWeight: 700, fontSize: 15, marginBottom: 4 }}>Score Trend</h3>
-                        <p style={{ color: "#5A6B85", fontSize: 12, marginBottom: 16 }}>Performance over sessions</p>
+                        <h3 style={{ color: "#F1F5F9", fontWeight: 700, fontSize: isMobile ? 13 : 15, marginBottom: 4 }}>Score Trend</h3>
+                        <p style={{ color: "#5A6B85", fontSize: isMobile ? 11 : 12, marginBottom: 16 }}>Performance over sessions</p>
                         {chartData ? (
-                          <ResponsiveContainer width="100%" height={240}>
+                          <ResponsiveContainer width="100%" height={isMobile ? 200 : 240}>
                             <AreaChart data={chartData}>
                               <defs>
                                 <linearGradient id="intGrad" x1="0" y1="0" x2="0" y2="1">
@@ -268,16 +270,16 @@ function AnalyticsPage({ token, user, onNav, onLogout }) {
                             </AreaChart>
                           </ResponsiveContainer>
                         ) : (
-                          <div style={{ height: 240, display: "flex", alignItems: "center", justifyContent: "center", color: "#64748B", fontSize: 13 }}>📈 Complete interviews to see trend</div>
+                          <div style={{ height: isMobile ? 200 : 240, display: "flex", alignItems: "center", justifyContent: "center", color: "#64748B", fontSize: 13 }}>📈 Complete interviews to see trend</div>
                         )}
                       </div>
 
                       <div style={cardStyle("#C9A84C")}>
                         <div style={glowLine("#C9A84C")} />
-                        <h3 style={{ color: "#F1F5F9", fontWeight: 700, fontSize: 15, marginBottom: 4 }}>Subject Performance</h3>
-                        <p style={{ color: "#5A6B85", fontSize: 12, marginBottom: 16 }}>Average score by subject</p>
+                        <h3 style={{ color: "#F1F5F9", fontWeight: 700, fontSize: isMobile ? 13 : 15, marginBottom: 4 }}>Subject Performance</h3>
+                        <p style={{ color: "#5A6B85", fontSize: isMobile ? 11 : 12, marginBottom: 16 }}>Average score by subject</p>
                         {barData.length >= 2 ? (
-                          <ResponsiveContainer width="100%" height={240}>
+                          <ResponsiveContainer width="100%" height={isMobile ? 200 : 240}>
                             <BarChart data={barData}>
                               <CartesianGrid stroke="rgba(255,255,255,0.04)" />
                               <XAxis dataKey="name" tick={{ fill: "#64748B", fontSize: 9 }} axisLine={false} tickLine={false} />
@@ -287,13 +289,13 @@ function AnalyticsPage({ token, user, onNav, onLogout }) {
                             </BarChart>
                           </ResponsiveContainer>
                         ) : (
-                          <div style={{ height: 240, display: "flex", alignItems: "center", justifyContent: "center", color: "#64748B", fontSize: 13 }}>📊 Practice more subjects to compare</div>
+                          <div style={{ height: isMobile ? 200 : 240, display: "flex", alignItems: "center", justifyContent: "center", color: "#64748B", fontSize: 13 }}>📊 Practice more subjects to compare</div>
                         )}
                       </div>
                     </div>
 
                     {/* Topic Mastery + Skills Radar */}
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                    <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: isMobile ? 12 : 16 }}>
                       <div style={cardStyle("#C9A84C")}>
                         <div style={glowLine("#C9A84C")} />
                         <h3 style={{ color: "#F1F5F9", fontWeight: 700, fontSize: 15, marginBottom: 16 }}>Topic Mastery</h3>
@@ -511,11 +513,11 @@ function AnalyticsPage({ token, user, onNav, onLogout }) {
 
             {/* ═══════════════════ CODING TAB ═══════════════════ */}
             {activeTab === "coding" && (
-              <div style={{ display: "flex", flexDirection: "column", gap: 16, animation: "fadeIn 0.3s ease" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: isMobile ? 12 : 16, animation: "fadeIn 0.3s ease" }}>
                 {coding.total_sessions > 0 ? (
                   <>
                     {/* Stat Cards */}
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }}>
+                    <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, 1fr)", gap: isMobile ? 10 : 14 }}>
                       {[
                         { label: "Total Sessions", value: coding.total_sessions ?? 0, icon: "💻", color: "#22C55E", sub: `${coding.completed_sessions ?? 0} completed` },
                         { label: "Avg Score", value: `${coding.avg_score ?? 0}%`, icon: "🎯", color: "#22C55E", sub: `${coding.completed_sessions ?? 0} scored` },
@@ -537,13 +539,13 @@ function AnalyticsPage({ token, user, onNav, onLogout }) {
                     </div>
 
                     {/* Score Trend + Company Performance */}
-                    <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: 16 }}>
+                    <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1.5fr 1fr", gap: isMobile ? 12 : 16 }}>
                       <div style={cardStyle("#22C55E")}>
                         <div style={glowLine("#22C55E")} />
-                        <h3 style={{ color: "#F1F5F9", fontWeight: 700, fontSize: 15, marginBottom: 4 }}>Score Trend</h3>
-                        <p style={{ color: "#5A6B85", fontSize: 12, marginBottom: 16 }}>Performance over coding sessions</p>
+                        <h3 style={{ color: "#F1F5F9", fontWeight: 700, fontSize: isMobile ? 13 : 15, marginBottom: 4 }}>Score Trend</h3>
+                        <p style={{ color: "#5A6B85", fontSize: isMobile ? 11 : 12, marginBottom: 16 }}>Performance over coding sessions</p>
                         {codingChartData ? (
-                          <ResponsiveContainer width="100%" height={240}>
+                          <ResponsiveContainer width="100%" height={isMobile ? 200 : 240}>
                             <AreaChart data={codingChartData}>
                               <defs>
                                 <linearGradient id="codGrad" x1="0" y1="0" x2="0" y2="1">
@@ -560,16 +562,16 @@ function AnalyticsPage({ token, user, onNav, onLogout }) {
                             </AreaChart>
                           </ResponsiveContainer>
                         ) : (
-                          <div style={{ height: 240, display: "flex", alignItems: "center", justifyContent: "center", color: "#64748B", fontSize: 13 }}>📈 Complete sessions to see trend</div>
+                          <div style={{ height: isMobile ? 200 : 240, display: "flex", alignItems: "center", justifyContent: "center", color: "#64748B", fontSize: 13 }}>📈 Complete sessions to see trend</div>
                         )}
                       </div>
 
                       <div style={cardStyle("#22C55E")}>
                         <div style={glowLine("#22C55E")} />
-                        <h3 style={{ color: "#F1F5F9", fontWeight: 700, fontSize: 15, marginBottom: 4 }}>Company Performance</h3>
-                        <p style={{ color: "#5A6B85", fontSize: 12, marginBottom: 16 }}>Average score by company</p>
+                        <h3 style={{ color: "#F1F5F9", fontWeight: 700, fontSize: isMobile ? 13 : 15, marginBottom: 4 }}>Company Performance</h3>
+                        <p style={{ color: "#5A6B85", fontSize: isMobile ? 11 : 12, marginBottom: 16 }}>Average score by company</p>
                         {companyBarData.length >= 2 ? (
-                          <ResponsiveContainer width="100%" height={240}>
+                          <ResponsiveContainer width="100%" height={isMobile ? 200 : 240}>
                             <BarChart data={companyBarData}>
                               <CartesianGrid stroke="rgba(255,255,255,0.04)" />
                               <XAxis dataKey="name" tick={{ fill: "#64748B", fontSize: 9 }} axisLine={false} tickLine={false} />
@@ -579,7 +581,7 @@ function AnalyticsPage({ token, user, onNav, onLogout }) {
                             </BarChart>
                           </ResponsiveContainer>
                         ) : (
-                          <div style={{ height: 240, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: "#64748B", gap: 8 }}>
+                          <div style={{ height: isMobile ? 200 : 240, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: "#64748B", gap: 8 }}>
                             <span style={{ fontSize: 28 }}>🏢</span>
                             <span style={{ fontSize: 13 }}>Complete more companies to compare</span>
                           </div>
@@ -588,7 +590,7 @@ function AnalyticsPage({ token, user, onNav, onLogout }) {
                     </div>
 
                     {/* Score Distribution + Level Performance */}
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                    <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: isMobile ? 12 : 16 }}>
                       <div style={cardStyle("#22C55E")}>
                         <div style={glowLine("#22C55E")} />
                         <h3 style={{ color: "#F1F5F9", fontWeight: 700, fontSize: 15, marginBottom: 16 }}>Score Distribution</h3>
@@ -669,11 +671,11 @@ function AnalyticsPage({ token, user, onNav, onLogout }) {
 
             {/* ═══════════════════ COMMUNICATION TAB ═══════════════════ */}
             {activeTab === "comm" && (
-              <div style={{ display: "flex", flexDirection: "column", gap: 16, animation: "fadeIn 0.3s ease" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: isMobile ? 12 : 16, animation: "fadeIn 0.3s ease" }}>
                 {comm.tests_taken > 0 ? (
                   <>
                     {/* Stat Cards */}
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }}>
+                    <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, 1fr)", gap: isMobile ? 10 : 14 }}>
                       {[
                         { label: "Tests Taken", value: comm.tests_taken ?? 0, icon: "🎤", color: "#F59E0B", sub: `${commCompleted.length} completed` },
                         { label: "Avg Score", value: `${commAvgScore}%`, icon: "🎯", color: "#22C55E", sub: `Latest: ${comm.latest_score ?? 0}%` },
@@ -695,13 +697,13 @@ function AnalyticsPage({ token, user, onNav, onLogout }) {
                     </div>
 
                     {/* Score Trend + Section Performance */}
-                    <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: 16 }}>
+                    <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1.5fr 1fr", gap: isMobile ? 12 : 16 }}>
                       <div style={cardStyle("#F59E0B")}>
                         <div style={glowLine("#F59E0B")} />
-                        <h3 style={{ color: "#F1F5F9", fontWeight: 700, fontSize: 15, marginBottom: 4 }}>Score Trend</h3>
-                        <p style={{ color: "#5A6B85", fontSize: 12, marginBottom: 16 }}>Performance over communication tests</p>
+                        <h3 style={{ color: "#F1F5F9", fontWeight: 700, fontSize: isMobile ? 13 : 15, marginBottom: 4 }}>Score Trend</h3>
+                        <p style={{ color: "#5A6B85", fontSize: isMobile ? 11 : 12, marginBottom: 16 }}>Performance over communication tests</p>
                         {commChartData ? (
-                          <ResponsiveContainer width="100%" height={240}>
+                          <ResponsiveContainer width="100%" height={isMobile ? 200 : 240}>
                             <AreaChart data={commChartData}>
                               <defs>
                                 <linearGradient id="commGrad" x1="0" y1="0" x2="0" y2="1">
@@ -718,16 +720,16 @@ function AnalyticsPage({ token, user, onNav, onLogout }) {
                             </AreaChart>
                           </ResponsiveContainer>
                         ) : (
-                          <div style={{ height: 240, display: "flex", alignItems: "center", justifyContent: "center", color: "#64748B", fontSize: 13 }}>📈 Complete tests to see trend</div>
+                          <div style={{ height: isMobile ? 200 : 240, display: "flex", alignItems: "center", justifyContent: "center", color: "#64748B", fontSize: 13 }}>📈 Complete tests to see trend</div>
                         )}
                       </div>
 
                       <div style={cardStyle("#F59E0B")}>
                         <div style={glowLine("#F59E0B")} />
-                        <h3 style={{ color: "#F1F5F9", fontWeight: 700, fontSize: 15, marginBottom: 4 }}>Section Performance</h3>
-                        <p style={{ color: "#5A6B85", fontSize: 12, marginBottom: 16 }}>Average score by section (A-H)</p>
+                        <h3 style={{ color: "#F1F5F9", fontWeight: 700, fontSize: isMobile ? 13 : 15, marginBottom: 4 }}>Section Performance</h3>
+                        <p style={{ color: "#5A6B85", fontSize: isMobile ? 11 : 12, marginBottom: 16 }}>Average score by section (A-H)</p>
                         {sectionBarData.length >= 2 ? (
-                          <ResponsiveContainer width="100%" height={240}>
+                          <ResponsiveContainer width="100%" height={isMobile ? 200 : 240}>
                             <BarChart data={sectionBarData}>
                               <CartesianGrid stroke="rgba(255,255,255,0.04)" />
                               <XAxis dataKey="name" tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
@@ -737,13 +739,13 @@ function AnalyticsPage({ token, user, onNav, onLogout }) {
                             </BarChart>
                           </ResponsiveContainer>
                         ) : (
-                          <div style={{ height: 240, display: "flex", alignItems: "center", justifyContent: "center", color: "#64748B", fontSize: 13 }}>📊 Complete tests to see section breakdown</div>
+                          <div style={{ height: isMobile ? 200 : 240, display: "flex", alignItems: "center", justifyContent: "center", color: "#64748B", fontSize: 13 }}>📊 Complete tests to see section breakdown</div>
                         )}
                       </div>
                     </div>
 
                     {/* Section Mastery + Score Distribution */}
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                    <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: isMobile ? 12 : 16 }}>
                       <div style={cardStyle("#F59E0B")}>
                         <div style={glowLine("#F59E0B")} />
                         <h3 style={{ color: "#F1F5F9", fontWeight: 700, fontSize: 15, marginBottom: 16 }}>Section Mastery</h3>
@@ -877,11 +879,11 @@ function AnalyticsPage({ token, user, onNav, onLogout }) {
 
             {/* ═══════════════════ GD TAB ═══════════════════ */}
             {activeTab === "gd" && (
-              <div style={{ display: "flex", flexDirection: "column", gap: 16, animation: "fadeIn 0.3s ease" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: isMobile ? 12 : 16, animation: "fadeIn 0.3s ease" }}>
                 {(gd.total_sessions ?? 0) > 0 ? (
                   <>
                     {/* Stat Cards */}
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }}>
+                    <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, 1fr)", gap: isMobile ? 10 : 14 }}>
                       {[
                         { label: "Total Sessions", value: gd.total_sessions ?? 0, icon: "💬", color: "#06B6D4", sub: "completed GDs" },
                         { label: "Avg Score", value: `${gd.avg_score ?? 0}%`, icon: "🎯", color: "#22C55E", sub: `Best: ${gd.best_score ?? 0}%` },
@@ -903,13 +905,13 @@ function AnalyticsPage({ token, user, onNav, onLogout }) {
                     </div>
 
                     {/* Score Trend + Dimension Radar */}
-                    <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: 16 }}>
+                    <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1.5fr 1fr", gap: isMobile ? 12 : 16 }}>
                       <div style={cardStyle("#06B6D4")}>
                         <div style={glowLine("#06B6D4")} />
-                        <h3 style={{ color: "#F1F5F9", fontWeight: 700, fontSize: 15, marginBottom: 4 }}>Score Trend</h3>
-                        <p style={{ color: "#5A6B85", fontSize: 12, marginBottom: 16 }}>Performance over GD sessions</p>
+                        <h3 style={{ color: "#F1F5F9", fontWeight: 700, fontSize: isMobile ? 13 : 15, marginBottom: 4 }}>Score Trend</h3>
+                        <p style={{ color: "#5A6B85", fontSize: isMobile ? 11 : 12, marginBottom: 16 }}>Performance over GD sessions</p>
                         {gdChartData ? (
-                          <ResponsiveContainer width="100%" height={240}>
+                          <ResponsiveContainer width="100%" height={isMobile ? 200 : 240}>
                             <AreaChart data={gdChartData}>
                               <defs>
                                 <linearGradient id="gdGrad" x1="0" y1="0" x2="0" y2="1">
@@ -926,14 +928,14 @@ function AnalyticsPage({ token, user, onNav, onLogout }) {
                             </AreaChart>
                           </ResponsiveContainer>
                         ) : (
-                          <div style={{ height: 240, display: "flex", alignItems: "center", justifyContent: "center", color: "#5A6B85", fontSize: 13 }}>Not enough data</div>
+                          <div style={{ height: isMobile ? 200 : 240, display: "flex", alignItems: "center", justifyContent: "center", color: "#5A6B85", fontSize: 13 }}>Not enough data</div>
                         )}
                       </div>
 
                       <div style={cardStyle("#6366F1")}>
                         <div style={glowLine("#6366F1")} />
-                        <h3 style={{ color: "#F1F5F9", fontWeight: 700, fontSize: 15, marginBottom: 4 }}>Dimension Averages</h3>
-                        <p style={{ color: "#5A6B85", fontSize: 12, marginBottom: 16 }}>Across all GD sessions</p>
+                        <h3 style={{ color: "#F1F5F9", fontWeight: 700, fontSize: isMobile ? 13 : 15, marginBottom: 4 }}>Dimension Averages</h3>
+                        <p style={{ color: "#5A6B85", fontSize: isMobile ? 11 : 12, marginBottom: 16 }}>Across all GD sessions</p>
                         {gdDimData.length > 0 ? (
                           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                             {gdDimData.map(({ name, score }) => {
