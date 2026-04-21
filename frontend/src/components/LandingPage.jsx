@@ -3,6 +3,8 @@ import { API, Bar, ZenPrepLogo, THEME, useWindowSize } from "../shared";
 
 function ModalOverlay({ title, onClose, children }) {
   const [mounted, setMounted] = useState(false);
+  const { width: windowWidth } = useWindowSize();
+  const isMobile = windowWidth < 768;
   useEffect(() => setMounted(true), []);
 
   return (
@@ -24,12 +26,12 @@ function ModalOverlay({ title, onClose, children }) {
         style={{
           background: "#0F1629",
           border: "1px solid rgba(255,255,255,0.1)",
-          borderRadius: 20,
+          borderRadius: isMobile ? 16 : 20,
           maxWidth: 640,
-          width: "90%",
-          maxHeight: "80vh",
+          width: isMobile ? "95%" : "90%",
+          maxHeight: "85vh",
           overflow: "auto",
-          padding: "36px 40px",
+          padding: isMobile ? "24px 20px" : "36px 40px",
           position: "relative",
           animation: mounted ? "scaleIn 0.25s ease" : "none",
         }}
@@ -40,21 +42,21 @@ function ModalOverlay({ title, onClose, children }) {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            marginBottom: 24,
+            marginBottom: isMobile ? 20 : 24,
           }}
         >
-          <h2 style={{ fontSize: 24, fontWeight: 700 }}>{title}</h2>
+          <h2 style={{ fontSize: isMobile ? 20 : 24, fontWeight: 700 }}>{title}</h2>
           <button
             type="button"
             onClick={onClose}
             style={{
-              width: 36,
-              height: 36,
+              width: isMobile ? 32 : 36,
+              height: isMobile ? 32 : 36,
               borderRadius: "50%",
               background: "rgba(255,255,255,0.05)",
               border: "1px solid rgba(255,255,255,0.1)",
               color: "#94A3B8",
-              fontSize: 18,
+              fontSize: isMobile ? 16 : 18,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -76,6 +78,8 @@ function ContactModal({ onClose }) {
     message: "",
   });
   const [contactSent, setContactSent] = useState(false);
+  const { width: windowWidth } = useWindowSize();
+  const isMobile = windowWidth < 768;
 
   const handleSubmit = async () => {
     if (contactForm.name && contactForm.email && contactForm.message) {
@@ -95,20 +99,20 @@ function ContactModal({ onClose }) {
   return (
     <ModalOverlay title="Contact Us" onClose={onClose}>
       {contactSent ? (
-        <div style={{ textAlign: "center", padding: "40px 0" }}>
+        <div style={{ textAlign: "center", padding: isMobile ? "32px 0" : "40px 0" }}>
           <div
             style={{
-              fontSize: 48,
-              marginBottom: 16,
+              fontSize: isMobile ? 40 : 48,
+              marginBottom: isMobile ? 12 : 16,
               animation: "scaleIn 0.3s ease",
             }}
           >
             ✅
           </div>
-          <h3 style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>
+          <h3 style={{ fontSize: isMobile ? 18 : 20, fontWeight: 700, marginBottom: 8 }}>
             Message Sent!
           </h3>
-          <p style={{ color: "#94A3B8", fontSize: 14, marginBottom: 24 }}>
+          <p style={{ color: "#94A3B8", fontSize: isMobile ? 13 : 14, marginBottom: 24 }}>
             Thank you for reaching out. We'll get back to you within 24
             hours.
           </p>
@@ -122,10 +126,10 @@ function ContactModal({ onClose }) {
             style={{
               background: "linear-gradient(135deg, #6366F1, #818CF8)",
               color: "#fff",
-              padding: "10px 24px",
+              padding: isMobile ? "10px 20px" : "10px 24px",
               borderRadius: 8,
               fontWeight: 600,
-              fontSize: 14,
+              fontSize: isMobile ? 13 : 14,
             }}
           >
             Close
@@ -136,8 +140,8 @@ function ContactModal({ onClose }) {
           <p
             style={{
               color: "#94A3B8",
-              fontSize: 14,
-              marginBottom: 24,
+              fontSize: isMobile ? 13 : 14,
+              marginBottom: isMobile ? 20 : 24,
               lineHeight: 1.6,
             }}
           >
@@ -145,12 +149,12 @@ function ContactModal({ onClose }) {
             We'd love to hear from you.
           </p>
           <div
-            style={{ display: "flex", flexDirection: "column", gap: 16 }}
+            style={{ display: "flex", flexDirection: "column", gap: isMobile ? 14 : 16 }}
           >
             <div>
               <label
                 style={{
-                  fontSize: 12,
+                  fontSize: isMobile ? 11 : 12,
                   color: "#94A3B8",
                   fontWeight: 600,
                   marginBottom: 6,
@@ -167,7 +171,7 @@ function ContactModal({ onClose }) {
                 placeholder="Your name"
                 style={{
                   width: "100%",
-                  padding: "10px 14px",
+                  padding: isMobile ? "10px 12px" : "10px 14px",
                   borderRadius: 10,
                   background: "rgba(255,255,255,0.04)",
                   border: "1px solid rgba(255,255,255,0.1)",
@@ -179,7 +183,7 @@ function ContactModal({ onClose }) {
             <div>
               <label
                 style={{
-                  fontSize: 12,
+                  fontSize: isMobile ? 11 : 12,
                   color: "#94A3B8",
                   fontWeight: 600,
                   marginBottom: 6,
@@ -197,19 +201,19 @@ function ContactModal({ onClose }) {
                 type="email"
                 style={{
                   width: "100%",
-                  padding: "10px 14px",
+                  padding: isMobile ? "10px 12px" : "10px 14px",
                   borderRadius: 10,
                   background: "rgba(255,255,255,0.04)",
                   border: "1px solid rgba(255,255,255,0.1)",
                   color: "#F1F5F9",
-                  fontSize: 14,
+                  fontSize: isMobile ? 13 : 14,
                 }}
               />
             </div>
             <div>
               <label
                 style={{
-                  fontSize: 12,
+                  fontSize: isMobile ? 11 : 12,
                   color: "#94A3B8",
                   fontWeight: 600,
                   marginBottom: 6,
@@ -227,15 +231,15 @@ function ContactModal({ onClose }) {
                   })
                 }
                 placeholder="Tell us how we can help..."
-                rows={4}
+                rows={isMobile ? 3 : 4}
                 style={{
                   width: "100%",
-                  padding: "10px 14px",
+                  padding: isMobile ? "10px 12px" : "10px 14px",
                   borderRadius: 10,
                   background: "rgba(255,255,255,0.04)",
                   border: "1px solid rgba(255,255,255,0.1)",
                   color: "#F1F5F9",
-                  fontSize: 14,
+                  fontSize: isMobile ? 13 : 14,
                   resize: "vertical",
                 }}
               />
@@ -243,7 +247,7 @@ function ContactModal({ onClose }) {
             <div
               style={{
                 display: "flex",
-                gap: 12,
+                gap: isMobile ? 10 : 12,
                 justifyContent: "flex-end",
                 marginTop: 4,
               }}
@@ -252,12 +256,12 @@ function ContactModal({ onClose }) {
                 type="button"
                 onClick={onClose}
                 style={{
-                  padding: "10px 20px",
+                  padding: isMobile ? "10px 16px" : "10px 20px",
                   borderRadius: 8,
                   background: "rgba(255,255,255,0.04)",
                   border: "1px solid rgba(255,255,255,0.1)",
                   color: "#94A3B8",
-                  fontSize: 14,
+                  fontSize: isMobile ? 13 : 14,
                 }}
               >
                 Cancel
@@ -274,7 +278,8 @@ function ContactModal({ onClose }) {
                   background: "linear-gradient(135deg, #6366F1, #818CF8)",
                   color: "#fff",
                   fontWeight: 600,
-                  fontSize: 14,
+                  fontSize: isMobile ? 13 : 14,
+                  padding: isMobile ? "10px 18px" : "10px 20px",
                   opacity:
                     contactForm.name &&
                     contactForm.email &&
@@ -398,6 +403,7 @@ function LandingPage({ onLogin, onGetStarted }) {
   const setModalWithDebug = (value) => {
     setModal(value);
   };
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [hoveredFeature, setHoveredFeature] = useState(null);
   const [hoveredPricing, setHoveredPricing] = useState(1);
   const [openFaq, setOpenFaq] = useState(null);
@@ -714,7 +720,7 @@ function LandingPage({ onLogin, onGetStarted }) {
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          padding: "14px 60px",
+          padding: isMobile ? "12px 16px" : "14px 60px",
           borderBottom: navScrolled
             ? "1px solid rgba(255,255,255,0.07)"
             : "1px solid transparent",
@@ -722,8 +728,8 @@ function LandingPage({ onLogin, onGetStarted }) {
           top: 0,
           left: 0,
           right: 0,
-          background: navScrolled ? "rgba(11,15,30,0.95)" : "transparent",
-          backdropFilter: navScrolled ? "blur(20px)" : "none",
+          background: navScrolled || mobileMenuOpen ? "rgba(11,15,30,0.97)" : "transparent",
+          backdropFilter: navScrolled || mobileMenuOpen ? "blur(20px)" : "none",
           zIndex: 100,
           transition: "all 0.3s ease",
         }}
@@ -740,11 +746,11 @@ function LandingPage({ onLogin, onGetStarted }) {
           onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.8")}
           onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
         >
-          <ZenPrepLogo size={32} />
+          <ZenPrepLogo size={isMobile ? 28 : 32} />
           <span
             style={{
               fontWeight: 700,
-              fontSize: 18,
+              fontSize: isMobile ? 16 : 18,
               background: "linear-gradient(135deg, #F1F5F9, #E2C97E)",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
@@ -753,7 +759,159 @@ function LandingPage({ onLogin, onGetStarted }) {
             ZenPrep
           </span>
         </div>
-        <div style={{ display: "flex", gap: 28, fontSize: 14 }}>
+
+        {/* Desktop Nav Links */}
+        {!isMobile && (
+          <div style={{ display: "flex", gap: 28, fontSize: 14 }}>
+            {[
+              { label: "Features", id: "features" },
+              { label: "How It Works", id: "how-it-works" },
+              { label: "Pricing", id: "pricing" },
+              { label: "Resources", id: "resources" },
+              { label: "Contact", id: "contact" },
+            ].map((link) => (
+              <span
+                key={link.id}
+                onClick={() =>
+                  link.id === "contact" ? setModalWithDebug("contact") : scrollTo(link.id)
+                }
+                style={{
+                  cursor: "pointer",
+                  color: "#94A3B8",
+                  transition: "color 0.2s",
+                }}
+                onMouseEnter={(e) => (e.target.style.color = "#F1F5F9")}
+                onMouseLeave={(e) => (e.target.style.color = "#94A3B8")}
+              >
+                {link.label}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {/* Desktop CTA buttons */}
+        {!isMobile && (
+          <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+            <button
+              onClick={onLogin}
+              style={{
+                background: "transparent",
+                color: "#94A3B8",
+                fontSize: 14,
+                padding: "8px 18px",
+                borderRadius: 8,
+                border: "1px solid rgba(255,255,255,0.1)",
+                transition: "all 0.2s",
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.borderColor = "rgba(99,102,241,0.5)";
+                e.target.style.color = "#F1F5F9";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.borderColor = "rgba(255,255,255,0.1)";
+                e.target.style.color = "#94A3B8";
+              }}
+            >
+              Sign In
+            </button>
+            <button
+              onClick={onGetStarted}
+              style={{
+                background: "linear-gradient(135deg, #6366F1, #818CF8)",
+                color: "#fff",
+                fontSize: 14,
+                fontWeight: 600,
+                padding: "8px 22px",
+                borderRadius: 8,
+                boxShadow: "0 0 20px rgba(99,102,241,0.3)",
+                transition: "all 0.2s",
+              }}
+              onMouseEnter={(e) =>
+                (e.target.style.boxShadow = "0 0 30px rgba(99,102,241,0.5)")
+              }
+              onMouseLeave={(e) =>
+                (e.target.style.boxShadow = "0 0 20px rgba(99,102,241,0.3)")
+              }
+            >
+              Get Started Free
+            </button>
+          </div>
+        )}
+
+        {/* Mobile: Sign In + Hamburger */}
+        {isMobile && (
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <button
+              onClick={onLogin}
+              style={{
+                background: "transparent",
+                color: "#94A3B8",
+                fontSize: 13,
+                padding: "7px 14px",
+                borderRadius: 8,
+                border: "1px solid rgba(255,255,255,0.1)",
+              }}
+            >
+              Sign In
+            </button>
+            <button
+              onClick={() => setMobileMenuOpen((v) => !v)}
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: 8,
+                background: "rgba(255,255,255,0.05)",
+                border: "1px solid rgba(255,255,255,0.1)",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 5,
+                cursor: "pointer",
+              }}
+              aria-label="Toggle menu"
+            >
+              {[0, 1, 2].map((i) => (
+                <span
+                  key={i}
+                  style={{
+                    display: "block",
+                    height: 2,
+                    borderRadius: 2,
+                    background: "#94A3B8",
+                    width: i === 1 ? (mobileMenuOpen ? 20 : 16) : 20,
+                    transition: "all 0.3s ease",
+                    transform: mobileMenuOpen
+                      ? i === 0
+                        ? "rotate(45deg) translate(4px, 5px)"
+                        : i === 2
+                          ? "rotate(-45deg) translate(4px, -5px)"
+                          : "scaleX(0)"
+                      : "none",
+                  }}
+                />
+              ))}
+            </button>
+          </div>
+        )}
+      </nav>
+
+      {/* ── Mobile Dropdown Menu ── */}
+      {isMobile && mobileMenuOpen && (
+        <div
+          style={{
+            position: "fixed",
+            top: 64,
+            left: 0,
+            right: 0,
+            zIndex: 99,
+            background: "rgba(11,15,30,0.98)",
+            backdropFilter: "blur(20px)",
+            borderBottom: "1px solid rgba(255,255,255,0.07)",
+            padding: "8px 0 20px",
+            animation: "fadeIn 0.2s ease",
+          }}
+        >
           {[
             { label: "Features", id: "features" },
             { label: "How It Works", id: "how-it-works" },
@@ -761,69 +919,51 @@ function LandingPage({ onLogin, onGetStarted }) {
             { label: "Resources", id: "resources" },
             { label: "Contact", id: "contact" },
           ].map((link) => (
-            <span
+            <div
               key={link.id}
-              onClick={() =>
-                link.id === "contact" ? setModalWithDebug("contact") : scrollTo(link.id)
-              }
-              style={{
-                cursor: "pointer",
-                color: "#94A3B8",
-                transition: "color 0.2s",
+              onClick={() => {
+                link.id === "contact"
+                  ? (setModalWithDebug("contact"), setMobileMenuOpen(false))
+                  : scrollTo(link.id);
+                setMobileMenuOpen(false);
               }}
-              onMouseEnter={(e) => (e.target.style.color = "#F1F5F9")}
-              onMouseLeave={(e) => (e.target.style.color = "#94A3B8")}
+              style={{
+                padding: "14px 24px",
+                fontSize: 16,
+                color: "#E2E8F0",
+                cursor: "pointer",
+                borderBottom: "1px solid rgba(255,255,255,0.04)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
             >
               {link.label}
-            </span>
+              <span style={{ color: "#475569", fontSize: 14 }}>›</span>
+            </div>
           ))}
+          <div style={{ padding: "16px 16px 0" }}>
+            <button
+              onClick={() => {
+                onGetStarted();
+                setMobileMenuOpen(false);
+              }}
+              style={{
+                width: "100%",
+                background: "linear-gradient(135deg, #6366F1, #818CF8)",
+                color: "#fff",
+                fontWeight: 600,
+                fontSize: 15,
+                padding: "14px",
+                borderRadius: 10,
+                boxShadow: "0 4px 20px rgba(99,102,241,0.35)",
+              }}
+            >
+              Get Started Free →
+            </button>
+          </div>
         </div>
-        <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-          <button
-            onClick={onLogin}
-            style={{
-              background: "transparent",
-              color: "#94A3B8",
-              fontSize: 14,
-              padding: "8px 18px",
-              borderRadius: 8,
-              border: "1px solid rgba(255,255,255,0.1)",
-              transition: "all 0.2s",
-            }}
-            onMouseEnter={(e) => {
-              e.target.style.borderColor = "rgba(99,102,241,0.5)";
-              e.target.style.color = "#F1F5F9";
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.borderColor = "rgba(255,255,255,0.1)";
-              e.target.style.color = "#94A3B8";
-            }}
-          >
-            Sign In
-          </button>
-          <button
-            onClick={onGetStarted}
-            style={{
-              background: "linear-gradient(135deg, #6366F1, #818CF8)",
-              color: "#fff",
-              fontSize: 14,
-              fontWeight: 600,
-              padding: "8px 22px",
-              borderRadius: 8,
-              boxShadow: "0 0 20px rgba(99,102,241,0.3)",
-              transition: "all 0.2s",
-            }}
-            onMouseEnter={(e) =>
-              (e.target.style.boxShadow = "0 0 30px rgba(99,102,241,0.5)")
-            }
-            onMouseLeave={(e) =>
-              (e.target.style.boxShadow = "0 0 20px rgba(99,102,241,0.3)")
-            }
-          >
-            Get Started Free
-          </button>
-        </div>
-      </nav>
+      )}
 
       {/* ── Hero Section ── */}
       <section
@@ -1000,7 +1140,7 @@ function LandingPage({ onLogin, onGetStarted }) {
             and NLP-powered feedback. 482+ questions across 7 subjects, adaptive
             difficulty, and detailed performance analytics.
           </p>
-          <div style={{ display: "flex", gap: 14, marginBottom: 36 }}>
+          <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: isMobile ? 12 : 14, marginBottom: 36 }}>
             <button
               onClick={onGetStarted}
               style={{
@@ -1008,13 +1148,14 @@ function LandingPage({ onLogin, onGetStarted }) {
                 color: "#fff",
                 fontWeight: 600,
                 fontSize: 15,
-                padding: "14px 32px",
+                padding: isMobile ? "13px 24px" : "14px 32px",
                 borderRadius: 10,
                 boxShadow: "0 4px 24px rgba(99,102,241,0.35)",
                 transition: "all 0.2s",
                 display: "flex",
                 alignItems: "center",
                 gap: 8,
+                justifyContent: "center",
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = "translateY(-2px)";
@@ -1036,12 +1177,13 @@ function LandingPage({ onLogin, onGetStarted }) {
                 border: "1px solid rgba(255,255,255,0.12)",
                 color: "#F1F5F9",
                 fontSize: 15,
-                padding: "14px 24px",
+                padding: isMobile ? "13px 20px" : "14px 24px",
                 borderRadius: 10,
                 transition: "all 0.2s",
                 display: "flex",
                 alignItems: "center",
                 gap: 8,
+                justifyContent: "center",
               }}
               onMouseEnter={(e) => {
                 e.target.style.background = "rgba(255,255,255,0.08)";
@@ -1055,7 +1197,7 @@ function LandingPage({ onLogin, onGetStarted }) {
               See How It Works
             </button>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: isMobile ? 12 : 16 }}>
             <div style={{ display: "flex" }}>
               {["#C9A84C", "#22C55E", "#F59E0B", "#EC4899", "#3B82F6"].map(
                 (c, i) => (
@@ -1391,13 +1533,13 @@ function LandingPage({ onLogin, onGetStarted }) {
 
       {/* ── Trust Bar ── */}
       <section
-        style={{ maxWidth: 1200, margin: "0 auto", padding: "0 40px 60px" }}
+        style={{ maxWidth: 1200, margin: "0 auto", padding: isMobile ? "0 20px 40px" : "0 40px 60px" }}
       >
         <div
           style={{
             display: "grid",
             gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, 1fr)",
-            gap: 16,
+            gap: isMobile ? 12 : 16,
             animation: "slideUp 0.6s ease 0.4s both",
           }}
         >
@@ -1458,9 +1600,9 @@ function LandingPage({ onLogin, onGetStarted }) {
       <section
         id="features"
         className="scroll-reveal"
-        style={{ maxWidth: 1200, margin: "0 auto", padding: "80px 40px" }}
+        style={{ maxWidth: 1200, margin: "0 auto", padding: isMobile ? "40px 20px 60px" : "60px 40px 80px" }}
       >
-        <div style={{ textAlign: "center", marginBottom: 56 }}>
+        <div style={{ textAlign: "center", marginBottom: isMobile ? 40 : 56 }}>
           <div
             style={{
               display: "inline-flex",
@@ -1479,7 +1621,7 @@ function LandingPage({ onLogin, onGetStarted }) {
           >
             CORE CAPABILITIES
           </div>
-          <h2 style={{ fontSize: 40, fontWeight: 800, marginBottom: 14 }}>
+          <h2 style={{ fontSize: isMobile ? 28 : 40, fontWeight: 800, marginBottom: 14 }}>
             Everything You Need to{" "}
             <span
               style={{
@@ -1494,7 +1636,7 @@ function LandingPage({ onLogin, onGetStarted }) {
           <p
             style={{
               color: "#94A3B8",
-              fontSize: 16,
+              fontSize: isMobile ? 14 : 16,
               maxWidth: 580,
               margin: "0 auto",
               lineHeight: 1.7,
@@ -1572,13 +1714,13 @@ function LandingPage({ onLogin, onGetStarted }) {
       {/* ── Module Showcase Strip ── */}
       <section
         className="scroll-reveal"
-        style={{ maxWidth: 1200, margin: "0 auto", padding: "0 40px 80px" }}
+        style={{ maxWidth: 1200, margin: "0 auto", padding: isMobile ? "0 20px 60px" : "0 40px 80px" }}
       >
         <div
           style={{
             display: "grid",
             gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, 1fr)",
-            gap: 14,
+            gap: isMobile ? 12 : 14,
           }}
         >
           {/* Mock Interview */}
@@ -1901,9 +2043,9 @@ function LandingPage({ onLogin, onGetStarted }) {
       <section
         id="how-it-works"
         className="scroll-reveal"
-        style={{ maxWidth: 1200, margin: "0 auto", padding: "80px 40px" }}
+        style={{ maxWidth: 1200, margin: "0 auto", padding: isMobile ? "40px 20px 60px" : "80px 40px" }}
       >
-        <div style={{ textAlign: "center", marginBottom: 56 }}>
+        <div style={{ textAlign: "center", marginBottom: isMobile ? 40 : 56 }}>
           <div
             style={{
               display: "inline-flex",
@@ -1922,7 +2064,7 @@ function LandingPage({ onLogin, onGetStarted }) {
           >
             SIMPLE PROCESS
           </div>
-          <h2 style={{ fontSize: 40, fontWeight: 800, marginBottom: 14 }}>
+          <h2 style={{ fontSize: isMobile ? 28 : 40, fontWeight: 800, marginBottom: 14 }}>
             How ZenPrep{" "}
             <span
               style={{
@@ -1937,7 +2079,7 @@ function LandingPage({ onLogin, onGetStarted }) {
           <p
             style={{
               color: "#94A3B8",
-              fontSize: 16,
+              fontSize: isMobile ? 14 : 16,
               maxWidth: 500,
               margin: "0 auto",
             }}
@@ -1953,19 +2095,20 @@ function LandingPage({ onLogin, onGetStarted }) {
             position: "relative",
           }}
         >
-          {/* Animated connecting arrows */}
-          <svg
-            style={{
-              position: "absolute",
-              top: 38,
-              left: "20%",
-              width: "60%",
-              height: 24,
-              zIndex: 0,
-              overflow: "visible",
-            }}
-            viewBox="0 0 600 24"
-          >
+          {/* Animated connecting arrows - hide on mobile */}
+          {!isMobile && (
+            <svg
+              style={{
+                position: "absolute",
+                top: 38,
+                left: "20%",
+                width: "60%",
+                height: 24,
+                zIndex: 0,
+                overflow: "visible",
+              }}
+              viewBox="0 0 600 24"
+            >
             <defs>
               <linearGradient id="arrowGrad">
                 <stop offset="0%" stopColor="#6366F1" stopOpacity="0.1" />
@@ -2002,6 +2145,7 @@ function LandingPage({ onLogin, onGetStarted }) {
               opacity="0.5"
             />
           </svg>
+          )}
           {howItWorks.map((s, i) => (
             <div
               key={i}
@@ -2320,9 +2464,9 @@ function LandingPage({ onLogin, onGetStarted }) {
       <section
         id="pricing"
         className="scroll-reveal"
-        style={{ maxWidth: 1200, margin: "0 auto", padding: "80px 40px" }}
+        style={{ maxWidth: 1200, margin: "0 auto", padding: isMobile ? "40px 20px 60px" : "80px 40px" }}
       >
-        <div style={{ textAlign: "center", marginBottom: 56 }}>
+        <div style={{ textAlign: "center", marginBottom: isMobile ? 40 : 56 }}>
           <div
             style={{
               display: "inline-flex",
@@ -2341,7 +2485,7 @@ function LandingPage({ onLogin, onGetStarted }) {
           >
             PRICING
           </div>
-          <h2 style={{ fontSize: 40, fontWeight: 800, marginBottom: 14 }}>
+          <h2 style={{ fontSize: isMobile ? 28 : 40, fontWeight: 800, marginBottom: 14 }}>
             Simple, Transparent{" "}
             <span
               style={{
@@ -2356,7 +2500,7 @@ function LandingPage({ onLogin, onGetStarted }) {
           <p
             style={{
               color: "#94A3B8",
-              fontSize: 16,
+              fontSize: isMobile ? 14 : 16,
               maxWidth: 480,
               margin: "0 auto",
             }}
@@ -2367,8 +2511,8 @@ function LandingPage({ onLogin, onGetStarted }) {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
-            gap: 20,
+            gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)",
+            gap: isMobile ? 16 : 20,
             alignItems: "start",
           }}
         >
@@ -2507,9 +2651,9 @@ function LandingPage({ onLogin, onGetStarted }) {
       {/* ── Testimonials ── */}
       <section
         className="scroll-reveal"
-        style={{ maxWidth: 1200, margin: "0 auto", padding: "80px 40px" }}
+        style={{ maxWidth: 1200, margin: "0 auto", padding: isMobile ? "40px 20px 60px" : "80px 40px" }}
       >
-        <div style={{ textAlign: "center", marginBottom: 56 }}>
+        <div style={{ textAlign: "center", marginBottom: isMobile ? 40 : 56 }}>
           <div
             style={{
               display: "inline-flex",
@@ -2528,7 +2672,7 @@ function LandingPage({ onLogin, onGetStarted }) {
           >
             TESTIMONIALS
           </div>
-          <h2 style={{ fontSize: 40, fontWeight: 800, marginBottom: 14 }}>
+          <h2 style={{ fontSize: isMobile ? 28 : 40, fontWeight: 800, marginBottom: 14 }}>
             Loved by{" "}
             <span
               style={{
@@ -2544,8 +2688,8 @@ function LandingPage({ onLogin, onGetStarted }) {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
-            gap: 20,
+            gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)",
+            gap: isMobile ? 16 : 20,
           }}
         >
           {testimonials.map((t, i) => (
@@ -2621,9 +2765,9 @@ function LandingPage({ onLogin, onGetStarted }) {
       <section
         id="resources"
         className="scroll-reveal"
-        style={{ maxWidth: 1200, margin: "0 auto", padding: "80px 40px" }}
+        style={{ maxWidth: 1200, margin: "0 auto", padding: isMobile ? "40px 20px 60px" : "80px 40px" }}
       >
-        <div style={{ textAlign: "center", marginBottom: 56 }}>
+        <div style={{ textAlign: "center", marginBottom: isMobile ? 40 : 56 }}>
           <div
             style={{
               display: "inline-flex",
@@ -2642,7 +2786,7 @@ function LandingPage({ onLogin, onGetStarted }) {
           >
             CAREER TOOLS
           </div>
-          <h2 style={{ fontSize: 40, fontWeight: 800, marginBottom: 14 }}>
+          <h2 style={{ fontSize: isMobile ? 28 : 40, fontWeight: 800, marginBottom: 14 }}>
             Beyond the{" "}
             <span
               style={{
@@ -2657,7 +2801,7 @@ function LandingPage({ onLogin, onGetStarted }) {
           <p
             style={{
               color: "#94A3B8",
-              fontSize: 16,
+              fontSize: isMobile ? 14 : 16,
               maxWidth: 520,
               margin: "0 auto",
             }}
@@ -2669,8 +2813,8 @@ function LandingPage({ onLogin, onGetStarted }) {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(4, 1fr)",
-            gap: 16,
+            gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, 1fr)",
+            gap: isMobile ? 12 : 16,
           }}
         >
           {resources.map((r, i) => (
@@ -2725,10 +2869,10 @@ function LandingPage({ onLogin, onGetStarted }) {
 
       {/* ── FAQ Section ── */}
       <section
-        style={{ maxWidth: 800, margin: "0 auto", padding: "60px 40px 80px" }}
+        style={{ maxWidth: 800, margin: "0 auto", padding: isMobile ? "40px 20px 60px" : "60px 40px 80px" }}
       >
-        <div style={{ textAlign: "center", marginBottom: 48 }}>
-          <h2 style={{ fontSize: 36, fontWeight: 800, marginBottom: 14 }}>
+        <div style={{ textAlign: "center", marginBottom: isMobile ? 32 : 48 }}>
+          <h2 style={{ fontSize: isMobile ? 28 : 36, fontWeight: 800, marginBottom: 14 }}>
             Frequently Asked{" "}
             <span
               style={{
@@ -2741,7 +2885,7 @@ function LandingPage({ onLogin, onGetStarted }) {
             </span>
           </h2>
         </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: isMobile ? 10 : 12 }}>
           {faqs.map((faq, i) => (
             <div
               key={i}
@@ -2757,13 +2901,13 @@ function LandingPage({ onLogin, onGetStarted }) {
                 onClick={() => setOpenFaq(openFaq === i ? null : i)}
                 style={{
                   width: "100%",
-                  padding: "18px 24px",
+                  padding: isMobile ? "16px 20px" : "18px 24px",
                   display: "flex",
                   justifyContent: "space-between",
                   alignItems: "center",
                   background: "transparent",
                   color: "#F1F5F9",
-                  fontSize: 14,
+                  fontSize: isMobile ? 13 : 14,
                   fontWeight: 600,
                   textAlign: "left",
                 }}
@@ -2772,7 +2916,7 @@ function LandingPage({ onLogin, onGetStarted }) {
                 <span
                   style={{
                     color: "#818CF8",
-                    fontSize: 18,
+                    fontSize: isMobile ? 16 : 18,
                     transition: "transform 0.3s",
                     transform: openFaq === i ? "rotate(45deg)" : "rotate(0deg)",
                     flexShrink: 0,
@@ -2785,9 +2929,9 @@ function LandingPage({ onLogin, onGetStarted }) {
               {openFaq === i && (
                 <div
                   style={{
-                    padding: "0 24px 18px",
+                    padding: isMobile ? "0 20px 16px" : "0 24px 18px",
                     color: "#94A3B8",
-                    fontSize: 13,
+                    fontSize: isMobile ? 12 : 13,
                     lineHeight: 1.7,
                     animation: "fadeIn 0.25s ease",
                   }}
@@ -2802,14 +2946,14 @@ function LandingPage({ onLogin, onGetStarted }) {
 
       {/* ── CTA Section ── */}
       <section
-        style={{ maxWidth: 1200, margin: "0 auto", padding: "0 40px 80px" }}
+        style={{ maxWidth: 1200, margin: "0 auto", padding: isMobile ? "0 20px 60px" : "0 40px 80px" }}
       >
         <div
           style={{
             background: "linear-gradient(145deg, #131B35, #1a1245)",
             border: "1px solid rgba(99,102,241,0.2)",
             borderRadius: 24,
-            padding: "64px 48px",
+            padding: isMobile ? "40px 24px" : "64px 48px",
             textAlign: "center",
             position: "relative",
             overflow: "hidden",
@@ -2819,33 +2963,33 @@ function LandingPage({ onLogin, onGetStarted }) {
           <div
             style={{
               position: "absolute",
-              width: 300,
-              height: 300,
+              width: isMobile ? 200 : 300,
+              height: isMobile ? 200 : 300,
               borderRadius: "50%",
               background:
                 "radial-gradient(circle, rgba(99,102,241,0.1) 0%, transparent 70%)",
-              top: -100,
-              right: -50,
+              top: isMobile ? -50 : -100,
+              right: isMobile ? -30 : -50,
               pointerEvents: "none",
             }}
           />
           <div
             style={{
               position: "absolute",
-              width: 200,
-              height: 200,
+              width: isMobile ? 150 : 200,
+              height: isMobile ? 150 : 200,
               borderRadius: "50%",
               background:
                 "radial-gradient(circle, rgba(6,182,212,0.07) 0%, transparent 70%)",
-              bottom: -50,
-              left: -30,
+              bottom: isMobile ? -30 : -50,
+              left: isMobile ? -20 : -30,
               pointerEvents: "none",
             }}
           />
           <div style={{ position: "relative", zIndex: 1 }}>
             <h2
               style={{
-                fontSize: 42,
+                fontSize: isMobile ? 28 : 42,
                 fontWeight: 800,
                 marginBottom: 16,
                 lineHeight: 1.2,
@@ -2866,7 +3010,7 @@ function LandingPage({ onLogin, onGetStarted }) {
             <p
               style={{
                 color: "#94A3B8",
-                fontSize: 16,
+                fontSize: isMobile ? 14 : 16,
                 maxWidth: 520,
                 margin: "0 auto 32px",
                 lineHeight: 1.7,
@@ -2876,15 +3020,15 @@ function LandingPage({ onLogin, onGetStarted }) {
               performance with ZenPrep's AI-powered multimodal analysis
               platform.
             </p>
-            <div style={{ display: "flex", gap: 14, justifyContent: "center" }}>
+            <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: isMobile ? 12 : 14, justifyContent: "center" }}>
               <button
                 onClick={onGetStarted}
                 style={{
                   background: "linear-gradient(135deg, #6366F1, #818CF8)",
                   color: "#fff",
                   fontWeight: 600,
-                  fontSize: 16,
-                  padding: "14px 36px",
+                  fontSize: isMobile ? 15 : 16,
+                  padding: isMobile ? "13px 28px" : "14px 36px",
                   borderRadius: 12,
                   boxShadow: "0 4px 24px rgba(99,102,241,0.4)",
                   transition: "all 0.2s",
@@ -2938,15 +3082,15 @@ function LandingPage({ onLogin, onGetStarted }) {
           style={{
             maxWidth: 1200,
             margin: "0 auto",
-            padding: "48px 40px 24px",
+            padding: isMobile ? "32px 20px 20px" : "48px 40px 24px",
           }}
         >
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "1.5fr 1fr 1fr 1fr",
-              gap: 40,
-              marginBottom: 40,
+              gridTemplateColumns: isMobile ? "1fr" : "1.5fr 1fr 1fr 1fr",
+              gap: isMobile ? 32 : 40,
+              marginBottom: isMobile ? 32 : 40,
             }}
           >
             {/* Brand */}
@@ -2980,7 +3124,7 @@ function LandingPage({ onLogin, onGetStarted }) {
               <p
                 style={{
                   color: "#64748B",
-                  fontSize: 13,
+                  fontSize: isMobile ? 12 : 13,
                   lineHeight: 1.7,
                   maxWidth: 260,
                 }}
@@ -3073,10 +3217,10 @@ function LandingPage({ onLogin, onGetStarted }) {
             <div>
               <h4
                 style={{
-                  fontSize: 13,
+                  fontSize: isMobile ? 12 : 13,
                   fontWeight: 700,
                   color: "#E2E8F0",
-                  marginBottom: 16,
+                  marginBottom: isMobile ? 12 : 16,
                   textTransform: "uppercase",
                   letterSpacing: "0.05em",
                 }}
@@ -3084,7 +3228,7 @@ function LandingPage({ onLogin, onGetStarted }) {
                 Product
               </h4>
               <div
-                style={{ display: "flex", flexDirection: "column", gap: 10 }}
+                style={{ display: "flex", flexDirection: "column", gap: isMobile ? 8 : 10 }}
               >
                 {["Features", "Pricing", "Resources", "FAQ"].map((link) => (
                   <span
@@ -3097,13 +3241,13 @@ function LandingPage({ onLogin, onGetStarted }) {
                       )
                     }
                     style={{
-                      color: "#64748B",
-                      fontSize: 13,
+                      fontSize: isMobile ? 12 : 13,
+                      color: "#94A3B8",
                       cursor: "pointer",
                       transition: "color 0.2s",
                     }}
-                    onMouseEnter={(e) => (e.target.style.color = "#A5B4FC")}
-                    onMouseLeave={(e) => (e.target.style.color = "#64748B")}
+                    onMouseEnter={(e) => (e.target.style.color = "#F1F5F9")}
+                    onMouseLeave={(e) => (e.target.style.color = "#94A3B8")}
                   >
                     {link}
                   </span>
@@ -3114,10 +3258,10 @@ function LandingPage({ onLogin, onGetStarted }) {
             <div>
               <h4
                 style={{
-                  fontSize: 13,
+                  fontSize: isMobile ? 12 : 13,
                   fontWeight: 700,
                   color: "#E2E8F0",
-                  marginBottom: 16,
+                  marginBottom: isMobile ? 12 : 16,
                   textTransform: "uppercase",
                   letterSpacing: "0.05em",
                 }}
@@ -3125,7 +3269,7 @@ function LandingPage({ onLogin, onGetStarted }) {
                 Company
               </h4>
               <div
-                style={{ display: "flex", flexDirection: "column", gap: 10 }}
+                style={{ display: "flex", flexDirection: "column", gap: isMobile ? 8 : 10 }}
               >
                 {[
                   { label: "About Us", action: () => scrollTo("how-it-works") },
@@ -3137,7 +3281,7 @@ function LandingPage({ onLogin, onGetStarted }) {
                     onClick={link.action}
                     style={{
                       color: "#64748B",
-                      fontSize: 13,
+                      fontSize: isMobile ? 12 : 13,
                       cursor: "pointer",
                       transition: "color 0.2s",
                     }}
@@ -3153,10 +3297,10 @@ function LandingPage({ onLogin, onGetStarted }) {
             <div>
               <h4
                 style={{
-                  fontSize: 13,
+                  fontSize: isMobile ? 12 : 13,
                   fontWeight: 700,
                   color: "#E2E8F0",
-                  marginBottom: 16,
+                  marginBottom: isMobile ? 12 : 16,
                   textTransform: "uppercase",
                   letterSpacing: "0.05em",
                 }}
@@ -3164,7 +3308,7 @@ function LandingPage({ onLogin, onGetStarted }) {
                 Legal
               </h4>
               <div
-                style={{ display: "flex", flexDirection: "column", gap: 10 }}
+                style={{ display: "flex", flexDirection: "column", gap: isMobile ? 8 : 10 }}
               >
                 {[
                   {
@@ -3182,7 +3326,7 @@ function LandingPage({ onLogin, onGetStarted }) {
                     onClick={link.action}
                     style={{
                       color: "#64748B",
-                      fontSize: 13,
+                      fontSize: isMobile ? 12 : 13,
                       cursor: "pointer",
                       transition: "color 0.2s",
                     }}
@@ -3199,16 +3343,18 @@ function LandingPage({ onLogin, onGetStarted }) {
           <div
             style={{
               borderTop: "1px solid rgba(255,255,255,0.06)",
-              paddingTop: 20,
+              paddingTop: isMobile ? 16 : 20,
               display: "flex",
+              flexDirection: isMobile ? "column" : "row",
               justifyContent: "space-between",
-              alignItems: "center",
+              alignItems: isMobile ? "flex-start" : "center",
+              gap: isMobile ? 12 : 0,
             }}
           >
             <span style={{ color: "#475569", fontSize: 12 }}>
               © 2025 ZenPrep. All rights reserved.
             </span>
-            <div style={{ display: "flex", gap: 20 }}>
+            <div style={{ display: "flex", gap: isMobile ? 16 : 20 }}>
               <span
                 onClick={() => setModalWithDebug("privacy")}
                 style={{
