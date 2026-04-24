@@ -681,7 +681,7 @@ function CodingInterviewPage({ token, user, onNav, onLogout, onResult }) {
               theme="vs-dark"
               value={activeProblem ? (codeMap[activeProblem.id] || "") : ""}
               onChange={value => { if (activeProblem) setCodeMap(prev => ({ ...prev, [activeProblem.id]: value || "" })); }}
-              options={{ fontSize: isMobile ? 12 : 14, fontFamily: "'Fira Code', 'Consolas', monospace", minimap: { enabled: false }, automaticLayout: true, scrollBeyondLastLine: false, lineNumbers: isMobile ? "off" : "on", tabSize: 4, wordWrap: "on", padding: { top: isMobile ? 8 : 12 }, fontSize: isMobile ? 12 : 14 }}
+              options={{ fontSize: isMobile ? 12 : 14, fontFamily: "'Fira Code', 'Consolas', monospace", minimap: { enabled: false }, automaticLayout: true, scrollBeyondLastLine: false, lineNumbers: isMobile ? "off" : "on", tabSize: 4, wordWrap: "on", padding: { top: isMobile ? 8 : 12 } }}
             />
           </div>
 
