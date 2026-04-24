@@ -1,4 +1,13 @@
 
+---
+title: ZenPrep
+emoji: 🎯
+colorFrom: indigo
+colorTo: yellow
+sdk: docker
+app_port: 7860
+pinned: false
+---
 
 # ZenPrep (Focous flows here)
 
