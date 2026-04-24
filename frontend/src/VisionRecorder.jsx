@@ -4,16 +4,38 @@ import { API } from "./shared";
 export default function VisionRecorder({ sessionId, questionId, onVisionResult, token }) {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
+  const streamRef = useRef(null);
+  const mountedRef = useRef(false);
   const [active, setActive] = useState(false);
   const [error, setError] = useState("");
   const [status, setStatus] = useState("Calm");
 
+  const stopCamera = () => {
+    const stream = streamRef.current || videoRef.current?.srcObject;
+    if (stream) {
+      stream.getTracks().forEach((track) => track.stop());
+    }
+    streamRef.current = null;
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+    if (mountedRef.current) {
+      setActive(false);
+    }
+  };
+
   const startCamera = async () => {
     try {
+      stopCamera();
       console.log("[VISION] Starting camera...");
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { width: 320, height: 240, frameRate: 15 } 
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { width: 320, height: 240, frameRate: 15 }
       });
+      if (!mountedRef.current || !videoRef.current) {
+        stream.getTracks().forEach((track) => track.stop());
+        return;
+      }
+      streamRef.current = stream;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         setError("");
@@ -26,16 +48,13 @@ export default function VisionRecorder({ sessionId, questionId, onVisionResult, 
     }
   };
 
-  const stopCamera = () => {
-    if (videoRef.current && videoRef.current.srcObject) {
-      videoRef.current.srcObject.getTracks().forEach(t => t.stop());
-      setActive(false);
-    }
-  };
-
   useEffect(() => {
+    mountedRef.current = true;
     startCamera();
-    return () => stopCamera();
+    return () => {
+      mountedRef.current = false;
+      stopCamera();
+    };
   }, []);
 
   // Periodic frame capture

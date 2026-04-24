@@ -229,11 +229,24 @@ export default function GDPage({ token, user, onNav, onLogout }) {
   const recordStartRef     = useRef(null); // Date.now() when recording started
   const gdPhaseRef         = useRef("opening"); // mirror of gdPhase for use in closures
   const totalTimeRef       = useRef(0);         // total session seconds
+  const userCameraStreamRef = useRef(null);
   const openingQueueRef    = useRef([]);         // bots waiting to give opening stance
   const openingDoneRef     = useRef(false);      // true once opening round is complete
   const closingTriggeredRef = useRef(false);     // prevents double closing
   const userSummaryDoneRef  = useRef(false);     // user gave their summary turn
   const turnDurationRef     = useRef(40);        // forced-turn max seconds
+
+  function stopUserCamera() {
+    const stream = userCameraStreamRef.current;
+    if (stream) {
+      stream.getTracks().forEach((track) => track.stop());
+      userCameraStreamRef.current = null;
+    }
+    if (userVideoRef.current) {
+      userVideoRef.current.srcObject = null;
+    }
+    setUserStream(null);
+  }
 
   const sidebarProps = { user, onNav, onLogout };
 
@@ -247,15 +260,19 @@ export default function GDPage({ token, user, onNav, onLogout }) {
 
   // ── Camera for room ─────────────────────────────────────────────────────────
   useEffect(() => {
-    if (view !== "room") return;
+    if (view !== "room") {
+      stopUserCamera();
+      return;
+    }
     navigator.mediaDevices.getUserMedia({ video: true, audio: false })
       .then(s => {
+        userCameraStreamRef.current = s;
         setUserStream(s);
         if (userVideoRef.current) userVideoRef.current.srcObject = s;
       })
       .catch(() => {});
     return () => {
-      if (userStream) userStream.getTracks().forEach(t => t.stop());
+      stopUserCamera();
     };
   }, [view]);
 
@@ -703,7 +720,7 @@ export default function GDPage({ token, user, onNav, onLogout }) {
     clearTimeout(userTurnTimerRef.current);
     stopSilenceDetection();
     if (isRecording) { recorderRef.current?.stop(); setIsRecording(false); }
-    if (userStream)  { userStream.getTracks().forEach(t => t.stop()); setUserStream(null); }
+    stopUserCamera();
     clearTimeout(timerRef.current);
     setResultsLoading(true);
     setView("results");
